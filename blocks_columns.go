@@ -1,0 +1,65 @@
+package myrtle
+
+import (
+	"strings"
+
+	"github.com/gzuidhof/myrtle/theme"
+)
+
+type ColumnsBlock struct {
+	Left       []Block
+	Right      []Block
+	LeftWidth  int
+	RightWidth int
+}
+
+func (block ColumnsBlock) Kind() theme.BlockKind {
+	return theme.BlockKindColumns
+}
+
+func (block ColumnsBlock) TemplateData() any {
+	return block
+}
+
+func (block ColumnsBlock) RenderMarkdown(context RenderContext) (string, error) {
+	left, err := renderColumnMarkdown(block.Left, context)
+	if err != nil {
+		return "", err
+	}
+
+	right, err := renderColumnMarkdown(block.Right, context)
+	if err != nil {
+		return "", err
+	}
+
+	parts := make([]string, 0, 2)
+	if strings.TrimSpace(left) != "" {
+		parts = append(parts, "### Column 1\n\n"+left)
+	}
+	if strings.TrimSpace(right) != "" {
+		parts = append(parts, "### Column 2\n\n"+right)
+	}
+
+	return strings.Join(parts, "\n\n"), nil
+}
+
+func renderColumnMarkdown(blocks []Block, context RenderContext) (string, error) {
+	parts := make([]string, 0, len(blocks))
+	for _, block := range blocks {
+		if block == nil {
+			continue
+		}
+
+		markdown, err := block.RenderMarkdown(context)
+		if err != nil {
+			return "", err
+		}
+		if strings.TrimSpace(markdown) == "" {
+			continue
+		}
+
+		parts = append(parts, markdown)
+	}
+
+	return strings.Join(parts, "\n\n"), nil
+}

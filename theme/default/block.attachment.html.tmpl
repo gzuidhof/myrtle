@@ -1,0 +1,9 @@
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0 0 16px;">
+  <tr>
+    <td style="padding:10px;border:1px solid {{ .Values.Styles.BorderColor }};border-radius:8px;">
+      <p style="margin:0;color:{{ .Values.Styles.TextColor }};font-weight:600;">📎 {{ .Block.Filename }}</p>
+      {{ if .Block.Meta }}<p style="margin:4px 0 0;color:{{ .Values.Styles.MutedTextColor }};font-size:13px;">{{ .Block.Meta }}</p>{{ end }}
+      {{ if and .Block.URL .Block.CTA }}<p style="margin:8px 0 0;"><a href="{{ .Block.URL }}" style="color:{{ .Values.Styles.PrimaryColor }};text-decoration:none;font-weight:600;">{{ .Block.CTA }}</a></p>{{ end }}
+    </td>
+  </tr>
+</table>

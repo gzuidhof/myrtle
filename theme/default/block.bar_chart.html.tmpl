@@ -1,0 +1,24 @@
+{{ if .Block.Header }}<p style="margin:0 0 10px;font-weight:700;color:{{ .Values.Styles.TextColor }};">{{ .Block.Header }}</p>{{ end }}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0 0 16px;">
+  {{ range .Block.Items }}
+  <tr>
+    <td style="padding:0 0 4px;font-size:13px;color:{{ $.Values.Styles.MutedTextColor }};">{{ .Label }}</td>
+    <td align="right" style="padding:0 0 4px;font-size:13px;color:{{ $.Values.Styles.TextColor }};">{{ .Value }}</td>
+  </tr>
+  <tr>
+    <td colspan="2" style="padding:0 0 10px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;{{ if $.Block.TransparentBackground }}background:transparent;{{ else }}background:{{ $.Values.Styles.BorderColor }};{{ end }}">
+        <tr>
+          <td>
+            <table role="presentation" width="{{ .Percent }}%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
+              <tr>
+                <td style="height:{{ $.Block.Thickness }}px;line-height:{{ $.Block.Thickness }}px;font-size:0;background:{{ $.Values.Styles.PrimaryColor }};">&nbsp;</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  {{ end }}
+</table>

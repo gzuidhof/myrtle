@@ -1,0 +1,8 @@
+<div style="margin:0 0 14px;padding-top:8px;border-top:1px solid {{ .Values.Styles.BorderColor }};text-align:center;">
+  {{ if .Block.Links }}
+  <p style="margin:0 0 6px;font-size:12px;color:{{ .Values.Styles.MutedTextColor }};">
+    {{ range $index, $link := .Block.Links }}{{ if and $link.Label $link.URL }}{{ if gt $index 0 }} · {{ end }}<a href="{{ $link.URL }}" style="color:{{ $.Values.Styles.MutedTextColor }};text-decoration:none;">{{ $link.Label }}</a>{{ end }}{{ end }}
+  </p>
+  {{ end }}
+  {{ if .Block.Note }}<p style="margin:0;font-size:12px;color:{{ .Values.Styles.MutedTextColor }};">{{ .Block.Note }}</p>{{ end }}
+</div>

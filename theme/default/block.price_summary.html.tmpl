@@ -1,0 +1,9 @@
+<div style="margin:0 0 16px;padding:12px 14px;border:1px solid {{ .Values.Styles.BorderColor }};border-radius:8px;background:#ffffff;">
+  {{ if .Block.Header }}<p style="margin:0 0 10px;font-weight:700;color:{{ .Values.Styles.TextColor }};">{{ .Block.Header }}</p>{{ end }}
+  {{ range .Block.Items }}
+  <p style="margin:0 0 6px;display:flex;justify-content:space-between;gap:12px;color:{{ $.Values.Styles.TextColor }};"><span>{{ .Label }}</span><span {{ if isDiscountLike .Label .Value }}style="color:{{ $.Values.Styles.PrimaryColor }};font-weight:600;"{{ end }}>{{ .Value }}</span></p>
+  {{ end }}
+  {{ if or .Block.TotalLabel .Block.TotalValue }}
+  <p style="margin:10px 0 0;padding-top:10px;border-top:1px solid {{ .Values.Styles.BorderColor }};display:flex;justify-content:space-between;gap:12px;font-weight:700;color:{{ .Values.Styles.TextColor }};"><span>{{ .Block.TotalLabel }}</span><span>{{ .Block.TotalValue }}</span></p>
+  {{ end }}
+</div>
