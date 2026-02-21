@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{ if .Header }}{{ .Header.Title }}{{ else }}Email{{ end }}</title>
+</head>
+<body style="margin:0;background:#f3f4f6;padding:24px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:{{ .Values.Styles.TextColor }};">
+  {{ if .Preheader }}
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;">{{ .Preheader }}</div>
+  {{ end }}
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:640px;margin:0 auto;background:#ffffff;border-radius:12px;padding:24px;">
+    <tr>
+      <td>
+        {{ if and .Header .Header.LogoURL }}
+          <p style="margin:0 0 16px;text-align:{{ if eq .Header.Alignment "left" }}left{{ else }}center{{ end }};">
+            {{ if .Header.ProductLink }}<a href="{{ .Header.ProductLink }}" style="text-decoration:none;">{{ end }}
+              <img src="{{ .Header.LogoURL }}" alt="{{ .Header.LogoAlt }}" style="height:72px;width:auto;display:inline-block;vertical-align:middle;" />
+            {{ if .Header.ProductLink }}</a>{{ end }}
+          </p>
+        {{ end }}
+        {{ if and .Header .Header.ShowProductName }}
+          <p style="margin:0 0 20px;font-size:14px;color:{{ .Values.Styles.MutedTextColor }};text-align:{{ if eq .Header.Alignment "left" }}left{{ else }}center{{ end }};">
+            {{ if .Header.ProductLink }}<a href="{{ .Header.ProductLink }}" style="color:{{ .Values.Styles.MutedTextColor }};text-decoration:none;">{{ end }}{{ .Header.ProductName }}{{ if .Header.ProductLink }}</a>{{ end }}
+          </p>
+        {{ end }}
+        {{ range .Blocks }}
+          {{ safe . }}
+        {{ end }}
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

@@ -1,0 +1,9 @@
+<div style="margin:22px 0 0;padding-top:14px;border-top:1px solid {{ .Values.Styles.BorderColor }};color:{{ .Values.Styles.MutedTextColor }};font-size:12px;line-height:1.5;">
+  {{ if .Block.CompanyName }}<p style="margin:0 0 6px;">{{ .Block.CompanyName }}</p>{{ end }}
+  {{ if .Block.Address }}<p style="margin:0 0 8px;">{{ .Block.Address }}</p>{{ end }}
+  <p style="margin:0;">
+    {{ if .Block.ManageURL }}<a href="{{ .Block.ManageURL }}" style="color:{{ .Values.Styles.MutedTextColor }};">Manage preferences</a>{{ end }}
+    {{ if and .Block.ManageURL .Block.UnsubscribeURL }} · {{ end }}
+    {{ if .Block.UnsubscribeURL }}<a href="{{ .Block.UnsubscribeURL }}" style="color:{{ .Values.Styles.MutedTextColor }};">Unsubscribe</a>{{ end }}
+  </p>
+</div>

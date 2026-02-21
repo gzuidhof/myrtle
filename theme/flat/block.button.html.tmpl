@@ -1,0 +1,5 @@
+<p style="margin:16px 0;{{ if eq .Block.Alignment "center" }}text-align:center;{{ else if eq .Block.Alignment "right" }}text-align:right;{{ else }}text-align:left;{{ end }}">
+  <a href="{{ .Block.URL }}" style="display:inline-block;padding:8px 14px;text-decoration:none;{{ if .Block.FullWidth }}display:block;width:100%;max-width:100%;box-sizing:border-box;text-align:center;{{ end }}{{ if eq .Block.Variant "primary" }}background:{{ .Values.Styles.PrimaryColor }};color:#ffffff;border:1px solid {{ .Values.Styles.PrimaryColor }};{{ else if eq .Block.Variant "ghost" }}background:transparent;color:{{ .Values.Styles.PrimaryColor }};padding:0;{{ else }}border:1px solid {{ .Values.Styles.PrimaryColor }};color:{{ .Values.Styles.PrimaryColor }};{{ end }}">
+    {{ .Block.Label }}
+  </a>
+</p>

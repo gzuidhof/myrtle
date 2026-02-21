@@ -1,0 +1,19 @@
+{{ if .Block.Header }}<p style="margin:0 0 10px;font-weight:700;color:{{ .Values.Styles.TextColor }};">{{ .Block.Header }}</p>{{ end }}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0 0 16px;">
+  {{ if .Block.Columns }}
+  <tr>
+    {{ range $columnIndex, $column := .Block.Columns }}
+    {{ $alignment := index $.Block.ColumnAlignments $columnIndex }}
+    <th align="{{ if eq $alignment "center" }}center{{ else if eq $alignment "right" }}right{{ else }}left{{ end }}" style="padding:{{ if $.Block.Compact }}6px 8px{{ else }}10px 12px{{ end }};background:{{ $.Values.Styles.PrimaryColor }};color:#ffffff;font-size:13px;{{ if eq $alignment "center" }}text-align:center;{{ else if eq $alignment "right" }}text-align:right;{{ else }}text-align:left;{{ end }}">{{ $column }}</th>
+    {{ end }}
+  </tr>
+  {{ end }}
+  {{ range $rowIndex, $row := .Block.Rows }}
+  <tr>
+    {{ range $columnIndex, $cell := $row }}
+    {{ $alignment := index $.Block.ColumnAlignments $columnIndex }}
+    <td style="padding:{{ if $.Block.Compact }}6px 8px{{ else }}10px 12px{{ end }};border-bottom:1px solid {{ $.Values.Styles.BorderColor }};font-size:14px;color:{{ $.Values.Styles.TextColor }};{{ if and $.Block.ZebraRows (isOdd $rowIndex) }}background:#f9fafb;{{ end }}{{ if and $.Block.EmphasizeTotalRow (isLastRow $rowIndex (len $.Block.Rows)) }}font-weight:700;background:#f8fafc;{{ end }}{{ if eq $alignment "center" }}text-align:center;{{ else if eq $alignment "right" }}text-align:right;{{ else if eq $alignment "left" }}text-align:left;{{ else if and $.Block.RightAlignNumericColumns (isNumericLike $cell) }}text-align:right;{{ end }}">{{ $cell }}</td>
+    {{ end }}
+  </tr>
+  {{ end }}
+</table>

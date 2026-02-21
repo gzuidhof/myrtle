@@ -1,0 +1,11 @@
+<div style="margin:0 0 16px;">
+  {{ if .Block.Header }}<p style="margin:0 0 10px;font-weight:700;color:{{ .Values.Styles.TextColor }};">{{ .Block.Header }}</p>{{ end }}
+  {{ range .Block.Items }}
+  <div style="margin:0 0 10px;">
+    <p style="margin:0 0 4px;color:{{ $.Values.Styles.TextColor }};font-size:13px;display:flex;justify-content:space-between;gap:12px;"><span>{{ .Label }}</span><span>{{ .Value }}</span></p>
+    <div style="height:8px;background:#f3f4f6;border-radius:999px;overflow:hidden;border:1px solid {{ $.Values.Styles.BorderColor }};">
+      <div style="height:100%;width:{{ .Percent }}%;background:{{ $.Values.Styles.PrimaryColor }};"></div>
+    </div>
+  </div>
+  {{ end }}
+</div>

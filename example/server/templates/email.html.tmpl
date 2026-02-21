@@ -1,0 +1,10 @@
+{{ define "content" }}
+<p><a href="/?theme={{ .Theme }}">← Back to directory</a></p>
+<h1>{{ .Name }}</h1>
+<p><strong>{{ .Subject }}</strong></p>
+<iframe src="{{ .Preview }}" title="{{ .Name }} preview" height="700"></iframe>
+<h2>Markdown fallback</h2>
+<pre>{{ .Markdown }}</pre>
+{{ end }}
+
+{{ template "layout.html.tmpl" . }}

@@ -1,0 +1,11 @@
+<table role="presentation" cellpadding="0" cellspacing="0" style="margin:20px 0;{{ if eq .Block.Alignment "center" }}margin-left:auto;margin-right:auto;{{ else if eq .Block.Alignment "right" }}margin-left:auto;{{ end }}">
+  <tr>
+    {{ range $idx, $button := .Block.Buttons }}
+    <td style="{{ if and (not $.Block.Joined) $idx }}padding-left:8px;{{ end }}">
+      <a href="{{ $button.URL }}" style="display:inline-block;padding:10px 18px;text-decoration:none;font-weight:600;{{ if $.Block.Joined }}border-radius:0;{{ if eq $idx 0 }}border-top-left-radius:8px;border-bottom-left-radius:8px;{{ end }}{{ if isLastRow $idx (len $.Block.Buttons) }}border-top-right-radius:8px;border-bottom-right-radius:8px;{{ end }}{{ if $idx }}margin-left:-1px;{{ end }}{{ else }}border-radius:8px;{{ end }}{{ if eq $button.Variant "secondary" }}border:1px solid {{ $.Values.Styles.PrimaryColor }};background:#ffffff;color:{{ $.Values.Styles.PrimaryColor }};{{ else if eq $button.Variant "ghost" }}{{ if $.Block.Joined }}border:1px solid {{ $.Values.Styles.PrimaryColor }};{{ end }}background:transparent;color:{{ $.Values.Styles.PrimaryColor }};{{ else }}{{ if $.Block.Joined }}border:1px solid {{ $.Values.Styles.PrimaryColor }};{{ end }}background:{{ $.Values.Styles.PrimaryColor }};color:#ffffff;{{ end }}">
+        {{ $button.Label }}
+      </a>
+    </td>
+    {{ end }}
+  </tr>
+</table>

@@ -1,0 +1,149 @@
+{{ define "layout.html.tmpl" }}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{ .Title }}</title>
+  <style>
+    :root {
+      color-scheme: light;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;
+      color: #111827;
+      background: #f9fafb;
+      line-height: 1.5;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 1.5rem 1rem 3rem;
+    }
+    .page {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 1.25rem;
+      align-items: start;
+    }
+    .sidebar {
+      position: sticky;
+      top: 1rem;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: .65rem;
+      padding: .9rem;
+      max-height: calc(100vh - 2rem);
+      overflow: auto;
+    }
+    .main {
+      min-width: 0;
+    }
+    .nav-list {
+      list-style: none;
+      margin: .5rem 0 0;
+      padding: 0;
+    }
+    .nav-list li {
+      margin: 0;
+      padding: 0;
+    }
+    .nav-list a {
+      display: block;
+      padding: .2rem 0;
+      color: #374151;
+      text-decoration: none;
+      word-break: break-word;
+    }
+    .nav-list a:hover {
+      color: #2563eb;
+      text-decoration: underline;
+    }
+    .brand {
+      margin-bottom: .5rem;
+      text-align: center;
+    }
+    .brand img {
+      width: 128px;
+      height: 128px;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto;
+    }
+    .section-anchor {
+      scroll-margin-top: 1rem;
+    }
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: #ffffffee;
+      backdrop-filter: blur(4px);
+      border-bottom: 1px solid #e5e7eb;
+      margin: -1.5rem -1rem 1rem;
+      padding: 1rem;
+    }
+    h1, h2, h3 {
+      margin: 0 0 .5rem;
+      line-height: 1.25;
+    }
+    h1 { font-size: 1.6rem; }
+    h2 { font-size: 1.25rem; margin-top: 1.5rem; }
+    h3 { font-size: 1rem; }
+    p { margin: .25rem 0 .75rem; }
+    a { color: #2563eb; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    select {
+      font: inherit;
+      padding: .35rem .5rem;
+      border-radius: .4rem;
+      border: 1px solid #d1d5db;
+      background: white;
+    }
+    .list {
+      display: grid;
+      gap: 1rem;
+    }
+    .item {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: .65rem;
+      padding: .9rem;
+    }
+    iframe {
+      width: 100%;
+      border: 1px solid #d1d5db;
+      border-radius: .5rem;
+      background: #fff;
+      margin: .5rem 0;
+    }
+    pre {
+      white-space: pre-wrap;
+      background: #f3f4f6;
+      border: 1px solid #e5e7eb;
+      border-radius: .5rem;
+      padding: .85rem;
+      margin: .5rem 0 0;
+      overflow-x: auto;
+    }
+    .muted { color: #6b7280; }
+    @media (max-width: 900px) {
+      .page {
+        grid-template-columns: 1fr;
+      }
+      .sidebar {
+        position: static;
+        max-height: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    {{ template "content" . }}
+  </div>
+</body>
+</html>
+{{ end }}

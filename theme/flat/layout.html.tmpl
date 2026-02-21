@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{ if .Header }}{{ .Header.Title }}{{ else }}Email{{ end }}</title>
+</head>
+<body style="margin:0;background:#ffffff;padding:32px;font-family:Arial,sans-serif;color:{{ .Values.Styles.TextColor }};">
+  {{ if .Preheader }}
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;">{{ .Preheader }}</div>
+  {{ end }}
+  <div style="max-width:640px;margin:0 auto;">
+    {{ if and .Header .Header.LogoURL }}
+      <p style="margin:0 0 8px;text-align:{{ if eq .Header.Alignment "left" }}left{{ else }}center{{ end }};">
+        {{ if .Header.ProductLink }}<a href="{{ .Header.ProductLink }}">{{ end }}<img src="{{ .Header.LogoURL }}" alt="{{ .Header.LogoAlt }}" style="height:72px;width:auto;" />{{ if .Header.ProductLink }}</a>{{ end }}
+      </p>
+    {{ end }}
+    {{ if and .Header .Header.ShowProductName }}
+      <p style="margin:0 0 20px;font-size:13px;color:{{ .Values.Styles.MutedTextColor }};text-align:{{ if eq .Header.Alignment "left" }}left{{ else }}center{{ end }};">{{ if .Header.ProductLink }}<a href="{{ .Header.ProductLink }}" style="color:{{ .Values.Styles.MutedTextColor }};text-decoration:none;">{{ end }}{{ .Header.ProductName }}{{ if .Header.ProductLink }}</a>{{ end }}</p>
+    {{ end }}
+    {{ range .Blocks }}
+      {{ safe . }}
+    {{ end }}
+  </div>
+</body>
+</html>
