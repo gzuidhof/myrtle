@@ -7,18 +7,36 @@ import (
 )
 
 type ColumnsBlock struct {
-	Left       []Block
-	Right      []Block
-	LeftWidth  int
-	RightWidth int
+	Left          []Block
+	Right         []Block
+	LeftWidth     int
+	RightWidth    int
+	Gap           int
+	VerticalAlign ColumnsVerticalAlign
 }
+
+type ColumnsVerticalAlign string
+
+const (
+	ColumnsVerticalAlignTop    ColumnsVerticalAlign = "top"
+	ColumnsVerticalAlignMiddle ColumnsVerticalAlign = "middle"
+	ColumnsVerticalAlignBottom ColumnsVerticalAlign = "bottom"
+)
 
 func (block ColumnsBlock) Kind() theme.BlockKind {
 	return theme.BlockKindColumns
 }
 
 func (block ColumnsBlock) TemplateData() any {
-	return block
+	normalized := block
+	if normalized.Gap < 0 {
+		normalized.Gap = 0
+	}
+	if normalized.VerticalAlign != ColumnsVerticalAlignMiddle && normalized.VerticalAlign != ColumnsVerticalAlignBottom {
+		normalized.VerticalAlign = ColumnsVerticalAlignTop
+	}
+
+	return normalized
 }
 
 func (block ColumnsBlock) RenderMarkdown(context RenderContext) (string, error) {

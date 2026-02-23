@@ -1,9 +1,9 @@
 {{ if .Block.Ordered }}
-<ol style="margin:0 0 16px 20px;padding:0;color:{{ .Values.Styles.TextColor }};line-height:1.6;">
+<ol style="margin:0 0 16px 20px;padding:0;color:{{ .Values.Styles.ColorText }};line-height:1.6;">
   {{ range .Block.Items }}<li>{{ . }}</li>{{ end }}
 </ol>
 {{ else }}
-<ul style="margin:0 0 16px 20px;padding:0;color:{{ .Values.Styles.TextColor }};line-height:1.6;">
+<ul style="margin:0 0 16px 20px;padding:0;color:{{ .Values.Styles.ColorText }};line-height:1.6;">
   {{ range .Block.Items }}<li>{{ . }}</li>{{ end }}
 </ul>
 {{ end }}

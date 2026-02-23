@@ -105,11 +105,11 @@ func sampleValues() theme.Values {
 		LogoURL:     "https://example.com/logo.png",
 		LogoAlt:     "Myrtle",
 		Styles: theme.Styles{
-			PrimaryColor:        "#2563eb",
-			TextColor:           "#111827",
-			MutedTextColor:      "#6b7280",
-			BorderColor:         "#e5e7eb",
-			CodeBackgroundColor: "#f8fafc",
+			ColorPrimary:        "#2563eb",
+			ColorText:           "#111827",
+			ColorTextMuted:      "#6b7280",
+			ColorBorder:         "#e5e7eb",
+			ColorCodeBackground: "#f8fafc",
 		},
 	}
 }
@@ -137,6 +137,8 @@ func sampleBlocks() []myrtle.Block {
 		myrtle.EmptyStateBlock{Title: "No activity", Body: "Everything is up to date.", ActionLabel: "Open dashboard", ActionURL: "https://example.com/dashboard"},
 		myrtle.QuoteBlock{Text: "Great product", Author: "User"},
 		myrtle.CalloutBlock{Type: myrtle.CalloutTypeWarning, Variant: myrtle.CalloutVariantSolid, Title: "Attention", Body: "Action required"},
+		myrtle.MessageBlock{SenderName: "Alex Johnson", SenderHandle: "@alex", AvatarURL: "https://i.pravatar.cc/80?img=12", LogoAlt: "Alex Johnson avatar", LogoHref: "https://example.com/messages/42", Subject: "New private message", Preview: "Can you review the release notes before 3 PM?", SentAt: "2m ago", Platform: "Myrtle Chat", URL: "https://example.com/messages/42", ActionLabel: "Open thread", ActionURL: "https://example.com/messages/42"},
+		myrtle.MessageDigestBlock{Title: "Inbox", Subtitle: "Recent direct messages", Footer: "[Open inbox](https://example.com/messages)", Messages: []myrtle.MessageBlock{{SenderName: "Maya", SenderHandle: "@maya", AvatarURL: "https://i.pravatar.cc/80?img=5", LogoAlt: "Maya avatar", LogoHref: "https://example.com/messages/43", Subject: "**Launch update**", Preview: "Can you check [the draft](https://example.com/draft)?", SentAt: "5m ago", Platform: "Myrtle Chat", URL: "https://example.com/messages/43"}, {SenderName: "Nina", SenderHandle: "@nina", Preview: "Quick ping: can we move this to tomorrow morning?", SentAt: "11m ago", Platform: "Myrtle Chat", URL: "https://example.com/messages/46"}, {SenderName: "Ben", SenderHandle: "@ben", Subject: "Design feedback", Preview: "Looks good overall.", SentAt: "20m ago", Platform: "Myrtle Chat", URL: "https://example.com/messages/44"}}},
 		myrtle.LegalBlock{CompanyName: "Myrtle Inc.", Address: "123 Market St", ManageURL: "https://example.com/manage", UnsubscribeURL: "https://example.com/unsub"},
 		myrtle.ColumnsBlock{
 			Left:       []myrtle.Block{myrtle.TextBlock{Text: "Left column"}},
@@ -144,13 +146,13 @@ func sampleBlocks() []myrtle.Block {
 			LeftWidth:  50,
 			RightWidth: 50,
 		},
-		myrtle.ButtonBlock{Label: "Open", URL: "https://example.com/open", Variant: myrtle.ButtonVariantSecondary, Alignment: myrtle.ButtonAlignmentCenter, FullWidth: true},
-		myrtle.ButtonGroupBlock{Buttons: []myrtle.ButtonGroupButton{{Label: "Approve", URL: "https://example.com/approve", Variant: myrtle.ButtonVariantPrimary}, {Label: "Review", URL: "https://example.com/review", Variant: myrtle.ButtonVariantSecondary}, {Label: "Later", URL: "https://example.com/later", Variant: myrtle.ButtonVariantGhost}}, Alignment: myrtle.ButtonAlignmentCenter},
+		myrtle.ButtonBlock{Label: "Open", URL: "https://example.com/open", Tone: myrtle.ButtonToneSecondary, Alignment: myrtle.ButtonAlignmentCenter, FullWidth: true},
+		myrtle.ButtonGroupBlock{Buttons: []myrtle.ButtonGroupButton{{Label: "Approve", URL: "https://example.com/approve", Tone: myrtle.ButtonTonePrimary}, {Label: "Review", URL: "https://example.com/review", Tone: myrtle.ButtonToneSecondary}, {Label: "Later", URL: "https://example.com/later", Style: myrtle.ButtonStyleGhost}}, Alignment: myrtle.ButtonAlignmentCenter},
 		myrtle.DividerBlock{},
 		myrtle.ImageBlock{Src: "https://example.com/image.png", Alt: "Preview"},
 		myrtle.TableBlock{Header: "Table", Columns: []string{"A", "B"}, Rows: [][]string{{"1", "2"}, {"3", "4"}}, ZebraRows: true, Compact: true, RightAlignNumericColumns: true},
-		myrtle.ActionBlock{Instructions: "Complete setup", ButtonLabel: "Finish", ButtonURL: "https://example.com/setup"},
-		myrtle.CodeBlock{Label: "Verification code", Code: "123456"},
+		myrtle.VerificationCodeBlock{Label: "Verification code", Value: "123456"},
+		myrtle.TilesBlock{Columns: 3, Border: true, Entries: []myrtle.TileEntry{{Content: "🚀", Title: "Launch", Subtitle: "Active", Variant: myrtle.TileVariantHighlight}, {Content: "42", Title: "Queued", Subtitle: "Pending", Variant: myrtle.TileVariantWarning}, {Content: "✅", Title: "Done", Variant: myrtle.TileVariantSuccess}}},
 		myrtle.FreeMarkdownBlock{Markdown: "### Custom markdown\n\n- one\n- two"},
 	}
 }

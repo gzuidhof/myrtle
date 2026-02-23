@@ -6,6 +6,8 @@ import (
 )
 
 func TestNormalizedIntPoints(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name   string
 		input  []int
@@ -29,7 +31,10 @@ func TestNormalizedIntPoints(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+
 			actual := normalizedIntPoints(test.input)
 			if len(actual) != len(test.output) {
 				t.Fatalf("expected len %d, got %d", len(test.output), len(actual))
@@ -44,6 +49,8 @@ func TestNormalizedIntPoints(t *testing.T) {
 }
 
 func TestSparklineGlyphs(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name           string
 		points         []int
@@ -83,7 +90,10 @@ func TestSparklineGlyphs(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+
 			actual := sparklineGlyphs(test.points)
 			if len([]rune(actual)) != test.expectedLength {
 				t.Fatalf("expected glyph length %d, got %d (%q)", test.expectedLength, len([]rune(actual)), actual)
@@ -101,6 +111,8 @@ func TestSparklineGlyphs(t *testing.T) {
 }
 
 func TestSparklineBlockTemplateDataAndMarkdown(t *testing.T) {
+	t.Parallel()
+
 	block := SparklineBlock{
 		Header:        " Trend ",
 		Label:         "Users",
@@ -146,6 +158,8 @@ func TestSparklineBlockTemplateDataAndMarkdown(t *testing.T) {
 }
 
 func TestStackedBarBlockTemplateDataAndMarkdown(t *testing.T) {
+	t.Parallel()
+
 	block := StackedBarBlock{
 		Header:     " Funnel ",
 		TotalLabel: "Total",
@@ -186,6 +200,8 @@ func TestStackedBarBlockTemplateDataAndMarkdown(t *testing.T) {
 }
 
 func TestProgressBlockTemplateDataAndMarkdown(t *testing.T) {
+	t.Parallel()
+
 	block := ProgressBlock{
 		Header: " Delivery ",
 		Items: []ProgressItem{
@@ -215,6 +231,8 @@ func TestProgressBlockTemplateDataAndMarkdown(t *testing.T) {
 }
 
 func TestDistributionBlockTemplateDataAndMarkdown(t *testing.T) {
+	t.Parallel()
+
 	block := DistributionBlock{
 		Header: "Latency",
 		Buckets: []DistributionBucket{

@@ -1,0 +1,9 @@
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0 0 16px;{{ if .Block.Border }}border:1px solid {{ .Values.Styles.ColorBorder }};{{ end }}border-radius:10px;">
+  <tr>
+    <td style="padding:{{ .Block.Padding }}px;">
+      {{ if .Block.Title }}<p style="margin:0 0 8px;font-size:16px;font-weight:700;color:{{ .Values.Styles.ColorText }};">{{ .Block.Title }}</p>{{ end }}
+      {{ if .Block.Subtitle }}<p style="margin:0 0 12px;color:{{ .Values.Styles.ColorTextMuted }};line-height:1.5;">{{ .Block.Subtitle }}</p>{{ end }}
+      {{ safe .BodyHTML }}
+    </td>
+  </tr>
+</table>

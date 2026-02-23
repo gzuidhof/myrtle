@@ -3,6 +3,7 @@ package myrtle_test
 import (
 	"fmt"
 	"strings"
+	"sync"
 	"testing"
 
 	"github.com/gzuidhof/myrtle"
@@ -12,6 +13,7 @@ import (
 )
 
 func TestBuildAndRender(t *testing.T) {
+	t.Parallel()
 	builder := myrtle.NewBuilder(defaulttheme.New())
 
 	email := builder.
@@ -56,6 +58,7 @@ func TestBuildAndRender(t *testing.T) {
 }
 
 func TestCustomBlockRegistry(t *testing.T) {
+	t.Parallel()
 	type Promo struct {
 		Title string
 	}
@@ -96,6 +99,7 @@ func TestCustomBlockRegistry(t *testing.T) {
 }
 
 func TestFlatThemeBuildAndRender(t *testing.T) {
+	t.Parallel()
 	builder := myrtle.NewBuilder(flat.New())
 
 	email := builder.WithHeader(myrtle.HeaderTitle("Flat style")).
@@ -126,6 +130,7 @@ func TestFlatThemeBuildAndRender(t *testing.T) {
 }
 
 func TestNewBuilderPanicsWithoutTheme(t *testing.T) {
+	t.Parallel()
 	defer func() {
 		if recover() == nil {
 			t.Fatalf("expected panic when theme is nil")
@@ -136,6 +141,7 @@ func TestNewBuilderPanicsWithoutTheme(t *testing.T) {
 }
 
 func TestThemeBlockFallbackToDefault(t *testing.T) {
+	t.Parallel()
 	minimal := &minimalTheme{
 		fallback: defaulttheme.New(),
 	}
@@ -161,6 +167,7 @@ func TestThemeBlockFallbackToDefault(t *testing.T) {
 }
 
 func TestAddColumnsFunctionalAPI(t *testing.T) {
+	t.Parallel()
 	builder := myrtle.NewBuilder(defaulttheme.New())
 
 	email := builder.WithHeader(myrtle.HeaderTitle("Columns")).
@@ -195,6 +202,7 @@ func TestAddColumnsFunctionalAPI(t *testing.T) {
 }
 
 func TestAddTextVariadic(t *testing.T) {
+	t.Parallel()
 	builder := myrtle.NewBuilder(defaulttheme.New())
 
 	email := builder.
@@ -222,6 +230,7 @@ func TestAddTextVariadic(t *testing.T) {
 }
 
 func TestStatsRowDeltaSemanticNormalization(t *testing.T) {
+	t.Parallel()
 	builder := myrtle.NewBuilder(defaulttheme.New())
 
 	email := builder.
@@ -239,6 +248,7 @@ func TestStatsRowDeltaSemanticNormalization(t *testing.T) {
 }
 
 func TestHeaderModeDisabledAndOverride(t *testing.T) {
+	t.Parallel()
 	builder := myrtle.NewBuilder(
 		defaulttheme.New(),
 		myrtle.WithHeaderMode(myrtle.HeaderModeDisabled),
@@ -260,6 +270,7 @@ func TestHeaderModeDisabledAndOverride(t *testing.T) {
 }
 
 func TestHeaderLogoCenteredOption(t *testing.T) {
+	t.Parallel()
 	builder := myrtle.NewBuilder(defaulttheme.New())
 
 	email := builder.
@@ -282,6 +293,7 @@ func TestHeaderLogoCenteredOption(t *testing.T) {
 }
 
 func TestHeaderAlignmentDefaultCentered(t *testing.T) {
+	t.Parallel()
 	builder := myrtle.NewBuilder(defaulttheme.New())
 
 	email := builder.
@@ -305,6 +317,7 @@ func TestHeaderAlignmentDefaultCentered(t *testing.T) {
 }
 
 func TestHeaderAlignOptionLeft(t *testing.T) {
+	t.Parallel()
 	builder := myrtle.NewBuilder(defaulttheme.New())
 
 	email := builder.
@@ -329,6 +342,7 @@ func TestHeaderAlignOptionLeft(t *testing.T) {
 }
 
 func TestNewBuilderWithHeaderOptions(t *testing.T) {
+	t.Parallel()
 	builder := myrtle.NewBuilder(
 		defaulttheme.New(),
 		myrtle.WithHeaderOptions(
@@ -358,6 +372,7 @@ func TestNewBuilderWithHeaderOptions(t *testing.T) {
 }
 
 func TestHeaderWithLogoHidesTitleAndProductByDefault(t *testing.T) {
+	t.Parallel()
 	builder := myrtle.NewBuilder(defaulttheme.New())
 
 	email := builder.
@@ -390,6 +405,7 @@ func TestHeaderWithLogoHidesTitleAndProductByDefault(t *testing.T) {
 }
 
 func TestHeaderWithLogoCanShowTitleAndProductWhenOptedIn(t *testing.T) {
+	t.Parallel()
 	builder := myrtle.NewBuilder(defaulttheme.New())
 
 	email := builder.
@@ -424,6 +440,7 @@ func TestHeaderWithLogoCanShowTitleAndProductWhenOptedIn(t *testing.T) {
 }
 
 func TestMarkdownHeaderNotRenderedByDefault(t *testing.T) {
+	t.Parallel()
 	builder := myrtle.NewBuilder(defaulttheme.New())
 
 	email := builder.
@@ -455,6 +472,7 @@ func TestMarkdownHeaderNotRenderedByDefault(t *testing.T) {
 }
 
 func TestMarkdownHeaderRenderedWhenEnabled(t *testing.T) {
+	t.Parallel()
 	builder := myrtle.NewBuilder(defaulttheme.New())
 
 	email := builder.
@@ -484,6 +502,7 @@ func TestMarkdownHeaderRenderedWhenEnabled(t *testing.T) {
 }
 
 func TestNewBlocksRender(t *testing.T) {
+	t.Parallel()
 	builder := myrtle.NewBuilder(defaulttheme.New())
 
 	email := builder.
@@ -505,12 +524,154 @@ func TestNewBlocksRender(t *testing.T) {
 	}
 }
 
-func TestButtonCalloutAndTableVariantsRender(t *testing.T) {
+func TestAdvancedLayoutAndPrimitiveVariantsRender(t *testing.T) {
+	t.Parallel()
 	builder := myrtle.NewBuilder(defaulttheme.New())
 
 	email := builder.
-		AddButton("Secondary", "https://example.com", myrtle.ButtonStyle(myrtle.ButtonVariantSecondary), myrtle.ButtonAlign(myrtle.ButtonAlignmentRight), myrtle.ButtonFullWidth(true)).
-		AddButtonGroup([]myrtle.ButtonGroupButton{{Label: "Approve", URL: "https://example.com/approve", Variant: myrtle.ButtonVariantPrimary}, {Label: "Review", URL: "https://example.com/review", Variant: myrtle.ButtonVariantSecondary}}, myrtle.ButtonGroupAlign(myrtle.ButtonAlignmentCenter), myrtle.ButtonGroupJoined(true)).
+		AddSection(
+			[]myrtle.Block{
+				myrtle.TextBlock{Text: "Section body"},
+				myrtle.ButtonBlock{Label: "Open section", URL: "https://example.com/section", Style: myrtle.ButtonStyleOutline},
+			},
+			myrtle.SectionTitle("Section title"),
+			myrtle.SectionSubtitle("Section subtitle"),
+			myrtle.SectionPadding(20),
+		).
+		AddGrid(
+			[]myrtle.GridItem{
+				{Blocks: []myrtle.Block{myrtle.TextBlock{Text: "Grid 1"}}},
+				{Blocks: []myrtle.Block{myrtle.TextBlock{Text: "Grid 2"}}},
+				{Blocks: []myrtle.Block{myrtle.TextBlock{Text: "Grid 3"}}},
+			},
+			myrtle.GridColumns(2),
+			myrtle.GridGap(14),
+			myrtle.GridBorder(true),
+		).
+		AddCardList(
+			[]myrtle.CardItem{{Title: "Card one", Body: "Body one", URL: "https://example.com/card1", CTALabel: "View"}, {Title: "Card two", Body: "Body two"}},
+			myrtle.CardListColumns(2),
+			myrtle.CardListGap(10),
+		).
+		AddColumns(
+			func(column *myrtle.ColumnBuilder) {
+				column.AddText("Left")
+			},
+			func(column *myrtle.ColumnBuilder) {
+				column.AddText("Right")
+			},
+			myrtle.ColumnsGap(20),
+			myrtle.ColumnsAlign(myrtle.ColumnsVerticalAlignMiddle),
+		).
+		AddDividerStyled(myrtle.DividerStyle(myrtle.DividerVariantDashed), myrtle.DividerThickness(2), myrtle.DividerInset(16)).
+		AddSpacer(myrtle.SpacerSize(24)).
+		Build()
+
+	html, err := email.HTML()
+	if err != nil {
+		t.Fatalf("html returned error: %v", err)
+	}
+
+	if !strings.Contains(html, "Section title") || !strings.Contains(html, "Section subtitle") {
+		t.Fatalf("expected section block heading and subtitle to render")
+	}
+	if !strings.Contains(html, "border-collapse:separate;border-spacing:14px") {
+		t.Fatalf("expected grid gap configuration to render")
+	}
+	if !strings.Contains(html, "Grid 3") {
+		t.Fatalf("expected wrapped grid item content to render")
+	}
+	if !strings.Contains(html, "Card one") || !strings.Contains(html, "https://example.com/card1") {
+		t.Fatalf("expected card list item content and link to render")
+	}
+	if !strings.Contains(html, "valign=\"middle\"") || !strings.Contains(html, "padding:0 20px 0 0;") {
+		t.Fatalf("expected columns alignment and gap styles to render")
+	}
+	if !strings.Contains(html, "border-top:2px dashed") || !strings.Contains(html, "margin:24px 16px;") {
+		t.Fatalf("expected divider variant, thickness, and inset to render")
+	}
+	if !strings.Contains(html, "height:24px;") {
+		t.Fatalf("expected spacer variant to resolve to configured size")
+	}
+}
+
+func TestBlockGroupHelperAcrossMultiBlockAPIs(t *testing.T) {
+	t.Parallel()
+	left := myrtle.NewGroup().
+		AddHeading("Left group", myrtle.HeadingLevel(3)).
+		AddText("Left text")
+	right := myrtle.NewGroup().
+		AddHeading("Right group", myrtle.HeadingLevel(3)).
+		AddText("Right text")
+
+	section := myrtle.NewGroup().
+		AddText("Section grouped content").
+		AddButton("Open grouped section", "https://example.com/section", myrtle.ButtonStyle(myrtle.ButtonStyleOutline))
+
+	gridOne := myrtle.NewGroup().AddText("Grid group 1")
+	gridTwo := myrtle.NewGroup().AddText("Grid group 2")
+
+	email := myrtle.NewBuilder(defaulttheme.New()).
+		AddColumnsGroups(left, right, myrtle.ColumnsWidths(55, 45)).
+		AddSectionGroup(section, myrtle.SectionTitle("Grouped section")).
+		AddGridGroups([]*myrtle.Group{gridOne, gridTwo}, myrtle.GridColumns(2)).
+		Build()
+
+	html, err := email.HTML()
+	if err != nil {
+		t.Fatalf("html returned error: %v", err)
+	}
+
+	for _, needle := range []string{"Left group", "Right group", "Section grouped content", "Grid group 1", "Grid group 2"} {
+		if !strings.Contains(html, needle) {
+			t.Fatalf("expected html to contain %q", needle)
+		}
+	}
+}
+
+func TestGroupCanRenderAsBlock(t *testing.T) {
+	t.Parallel()
+	group := myrtle.NewGroup().
+		AddHeading("Grouped heading", myrtle.HeadingLevel(3)).
+		AddText("Grouped text").
+		AddButton("Grouped CTA", "https://example.com/group", myrtle.ButtonStyle(myrtle.ButtonStyleOutline))
+
+	email := myrtle.NewBuilder(defaulttheme.New()).
+		Add(group).
+		Build()
+
+	html, err := email.HTML()
+	if err != nil {
+		t.Fatalf("html returned error: %v", err)
+	}
+
+	if !strings.Contains(html, "Grouped heading") || !strings.Contains(html, "Grouped text") || !strings.Contains(html, "https://example.com/group") {
+		t.Fatalf("expected grouped block content to render in html")
+	}
+
+	markdown, err := email.Text()
+	if err != nil {
+		t.Fatalf("text returned error: %v", err)
+	}
+
+	if !strings.Contains(markdown, "### Grouped heading") || !strings.Contains(markdown, "Grouped text") || !strings.Contains(markdown, "[Grouped CTA](https://example.com/group)") {
+		t.Fatalf("expected grouped block content to render in markdown")
+	}
+}
+
+func TestButtonCalloutAndTableVariantsRender(t *testing.T) {
+	t.Parallel()
+	builder := myrtle.NewBuilder(
+		defaulttheme.New(),
+		myrtle.WithStyles(theme.Styles{ColorPrimary: "#2563eb", ColorSecondary: "#a855f7"}),
+	)
+
+	email := builder.
+		AddButton("Secondary", "https://example.com", myrtle.ButtonTone(myrtle.ButtonToneSecondary), myrtle.ButtonAlign(myrtle.ButtonAlignmentRight), myrtle.ButtonFullWidth(true)).
+		AddButton("Compact nowrap", "https://example.com/compact", myrtle.ButtonStyle(myrtle.ButtonStyleOutline), myrtle.ButtonSize(myrtle.ButtonSizeSmall), myrtle.ButtonNoWrap(true)).
+		AddButton("Outline", "https://example.com/outline", myrtle.ButtonStyle(myrtle.ButtonStyleOutline)).
+		AddButtonGroup([]myrtle.ButtonGroupButton{{Label: "Approve", URL: "https://example.com/approve", Tone: myrtle.ButtonTonePrimary}, {Label: "Review", URL: "https://example.com/review", Tone: myrtle.ButtonToneSecondary}}, myrtle.ButtonGroupAlign(myrtle.ButtonAlignmentCenter), myrtle.ButtonGroupJoined(true), myrtle.ButtonGroupFullWidthOnMobile(true)).
+		AddButtonGroup([]myrtle.ButtonGroupButton{{Label: "Outline", URL: "https://example.com/outline-group", Style: myrtle.ButtonStyleOutline}, {Label: "Ghost", URL: "https://example.com/ghost-group", Style: myrtle.ButtonStyleGhost}}, myrtle.ButtonGroupAlign(myrtle.ButtonAlignmentLeft), myrtle.ButtonGroupGap(14), myrtle.ButtonGroupStackOnMobile(true)).
 		AddCallout(myrtle.CalloutTypeCritical, "Critical", "Body", myrtle.CalloutStyle(myrtle.CalloutVariantSolid), myrtle.CalloutLink("Investigate", "https://example.com/investigate")).
 		AddTable("Metrics", []string{"Name", "Value"}, [][]string{{"Users", "1200"}, {"Rate", "4.2%"}}, myrtle.TableZebraRows(true), myrtle.TableCompact(true), myrtle.TableRightAlignNumericColumns(true)).
 		Build()
@@ -523,6 +684,15 @@ func TestButtonCalloutAndTableVariantsRender(t *testing.T) {
 	if !strings.Contains(html, "width:100%;max-width:100%;box-sizing:border-box;text-align:center;") {
 		t.Fatalf("expected full-width secondary button styles")
 	}
+	if !strings.Contains(html, "background:#a855f7;color:#ffffff;") {
+		t.Fatalf("expected secondary button variant to render as filled secondary color")
+	}
+	if !strings.Contains(html, "https://example.com/outline") || !strings.Contains(html, "border:1px solid #2563eb;color:#2563eb;background:#ffffff;") {
+		t.Fatalf("expected outline button variant to render with outlined primary color style")
+	}
+	if !strings.Contains(html, "https://example.com/compact") || !strings.Contains(html, "padding:8px 14px;font-size:13px;") || !strings.Contains(html, "white-space:nowrap;") {
+		t.Fatalf("expected compact button with no-wrap styling to render")
+	}
 	if !strings.Contains(html, "<p style=\"margin:20px 0;text-align:right;\">") {
 		t.Fatalf("expected aligned button wrapper style")
 	}
@@ -531,6 +701,21 @@ func TestButtonCalloutAndTableVariantsRender(t *testing.T) {
 	}
 	if !strings.Contains(html, "margin-left:-1px;") {
 		t.Fatalf("expected joined button group to collapse adjacent borders")
+	}
+	if !strings.Contains(html, "https://example.com/review") || !strings.Contains(html, "background:#a855f7;color:#ffffff;") {
+		t.Fatalf("expected secondary button group item to render as filled secondary color")
+	}
+	if !strings.Contains(html, "https://example.com/outline-group") || !strings.Contains(html, "border:1px solid #2563eb;color:#2563eb;background:#ffffff;") {
+		t.Fatalf("expected outline button group item to render with outlined primary color style")
+	}
+	if !strings.Contains(html, "padding-left:14px;") {
+		t.Fatalf("expected configured button group gap to render")
+	}
+	if !strings.Contains(html, ".myrtle-btn-group-mobile-full td a") {
+		t.Fatalf("expected full-width-on-mobile button group styles to render")
+	}
+	if !strings.Contains(html, ".myrtle-btn-group-stack td") || !strings.Contains(html, "padding-top:14px") {
+		t.Fatalf("expected stack-on-mobile button group styles to render")
 	}
 	if !strings.Contains(html, "border-top-left-radius:8px;border-bottom-left-radius:8px;") || !strings.Contains(html, "border-top-right-radius:8px;border-bottom-right-radius:8px;") {
 		t.Fatalf("expected joined button group to keep only outer corner rounding")
@@ -550,6 +735,7 @@ func TestButtonCalloutAndTableVariantsRender(t *testing.T) {
 }
 
 func TestBarChartThicknessAndTransparentBackgroundRender(t *testing.T) {
+	t.Parallel()
 	builder := myrtle.NewBuilder(defaulttheme.New())
 
 	email := builder.
@@ -570,9 +756,10 @@ func TestBarChartThicknessAndTransparentBackgroundRender(t *testing.T) {
 }
 
 func TestPriceSummaryDiscountLineEmphasis(t *testing.T) {
+	t.Parallel()
 	builder := myrtle.NewBuilder(
 		defaulttheme.New(),
-		myrtle.WithStyles(theme.Styles{PrimaryColor: "#ff00aa"}),
+		myrtle.WithStyles(theme.Styles{ColorPrimary: "#ff00aa"}),
 	)
 
 	email := builder.
@@ -592,7 +779,150 @@ func TestPriceSummaryDiscountLineEmphasis(t *testing.T) {
 	}
 }
 
+func TestTilesRenderOptionsAndVariants(t *testing.T) {
+	t.Parallel()
+	builder := myrtle.NewBuilder(defaulttheme.New())
+
+	email := builder.
+		AddTiles(
+			[]myrtle.TileEntry{
+				{Content: "🚀", Title: "Launch", Subtitle: "Ready", Variant: myrtle.TileVariantHighlight},
+				{Content: "7", Title: "Queued"},
+				{Content: "OK", Variant: myrtle.TileVariantSuccess},
+				{Content: "!", Title: "Attention", Variant: myrtle.TileVariantCritical},
+			},
+			myrtle.TilesColumns(4),
+			myrtle.TilesBorder(true),
+		).
+		Build()
+
+	html, err := email.HTML()
+	if err != nil {
+		t.Fatalf("html returned error: %v", err)
+	}
+
+	if !strings.Contains(html, "width=\"25%\"") {
+		t.Fatalf("expected 4-column tiles width in html")
+	}
+	if !strings.Contains(html, "border:1px solid") {
+		t.Fatalf("expected optional tile border in html")
+	}
+	if !strings.Contains(html, "background:#f8fafc;") {
+		t.Fatalf("expected default subtle tile card background in html")
+	}
+	if strings.Contains(html, "background:#2563eb") || strings.Contains(html, "background:#dcfce7") || strings.Contains(html, "background:#fef9c3") || strings.Contains(html, "background:#fee2e2") {
+		t.Fatalf("expected tile content area to have no background fill")
+	}
+	if !strings.Contains(html, "background:#eff6ff;") || !strings.Contains(html, "border:1px solid #fca5a5;") {
+		t.Fatalf("expected variant-specific tile card background and border in html")
+	}
+	if !strings.Contains(html, "font-size:40px;") {
+		t.Fatalf("expected larger tile content size in html")
+	}
+	if !strings.Contains(html, "height:100%;box-sizing:border-box;") {
+		t.Fatalf("expected tile cards to fill row height for consistent sizing")
+	}
+	if strings.Contains(html, "color:#2563eb;") || strings.Contains(html, "color:#166534;") || strings.Contains(html, "color:#854d0e;") || strings.Contains(html, "color:#991b1b;") {
+		t.Fatalf("expected variants not to change tile content text color")
+	}
+	if !strings.Contains(html, "Launch") || !strings.Contains(html, "Ready") {
+		t.Fatalf("expected title and subtitle to render in html")
+	}
+
+	linkedTitleEmail := myrtle.NewBuilder(defaulttheme.New()).
+		AddTiles(
+			[]myrtle.TileEntry{{Content: "🔗", Title: "Open details", URL: "https://example.com/details"}, {Content: "📝", Title: "No link title"}},
+		).
+		Build()
+
+	linkedTitleHTML, err := linkedTitleEmail.HTML()
+	if err != nil {
+		t.Fatalf("linked title html returned error: %v", err)
+	}
+	if !strings.Contains(linkedTitleHTML, "<a href=\"https://example.com/details\"") {
+		t.Fatalf("expected tile title to render as link when url is provided")
+	}
+	if strings.Contains(linkedTitleHTML, "<a href=\"\"") {
+		t.Fatalf("expected empty tile title url not to render as link")
+	}
+
+	leftAlignedEmail := myrtle.NewBuilder(defaulttheme.New()).
+		AddTiles(
+			[]myrtle.TileEntry{{Content: "📦", Title: "Shipped"}},
+			myrtle.TilesAlign(myrtle.TileAlignmentLeft),
+		).
+		Build()
+
+	leftAlignedHTML, err := leftAlignedEmail.HTML()
+	if err != nil {
+		t.Fatalf("left aligned html returned error: %v", err)
+	}
+	if !strings.Contains(leftAlignedHTML, "text-align:left;") {
+		t.Fatalf("expected left aligned tiles text in html")
+	}
+	if !strings.Contains(leftAlignedHTML, "margin:0 0 6px;") {
+		t.Fatalf("expected left aligned tile content margin in html")
+	}
+
+	rightAlignedEmail := myrtle.NewBuilder(defaulttheme.New()).
+		AddTiles(
+			[]myrtle.TileEntry{{Content: "🧾", Title: "Invoices"}},
+			myrtle.TilesAlign(myrtle.TileAlignmentRight),
+		).
+		Build()
+
+	rightAlignedHTML, err := rightAlignedEmail.HTML()
+	if err != nil {
+		t.Fatalf("right aligned html returned error: %v", err)
+	}
+	if !strings.Contains(rightAlignedHTML, "text-align:right;") {
+		t.Fatalf("expected right aligned tiles text in html")
+	}
+	if !strings.Contains(rightAlignedHTML, "margin:0 0 6px auto;") {
+		t.Fatalf("expected right aligned tile content margin in html")
+	}
+
+	noContentEmail := myrtle.NewBuilder(defaulttheme.New()).
+		AddTiles(
+			[]myrtle.TileEntry{{Title: "No icon", Subtitle: "Text only"}},
+		).
+		Build()
+
+	noContentHTML, err := noContentEmail.HTML()
+	if err != nil {
+		t.Fatalf("no content html returned error: %v", err)
+	}
+	if strings.Contains(noContentHTML, "font-size:40px;") {
+		t.Fatalf("expected no tile content container when content is omitted")
+	}
+	if !strings.Contains(noContentHTML, "padding:8px;") {
+		t.Fatalf("expected no-content tile card to render with smaller padding")
+	}
+	if !strings.Contains(noContentHTML, "border:1px solid transparent;") {
+		t.Fatalf("expected unbordered default tiles to reserve border space for consistent sizing")
+	}
+	if !strings.Contains(noContentHTML, "No icon") {
+		t.Fatalf("expected no-content tile title to render in html")
+	}
+
+	transparentEmail := myrtle.NewBuilder(defaulttheme.New()).
+		AddTiles(
+			[]myrtle.TileEntry{{Content: "1", Title: "One"}},
+			myrtle.TilesTransparentBackground(true),
+		).
+		Build()
+
+	transparentHTML, err := transparentEmail.HTML()
+	if err != nil {
+		t.Fatalf("transparent html returned error: %v", err)
+	}
+	if !strings.Contains(transparentHTML, "background:transparent;") {
+		t.Fatalf("expected transparent tile card background when enabled")
+	}
+}
+
 func TestNewBuilderWithHeaderOverrideLater(t *testing.T) {
+	t.Parallel()
 	builder := myrtle.NewBuilder(
 		defaulttheme.New(),
 		myrtle.WithHeader(myrtle.BuildHeader(
@@ -611,12 +941,78 @@ func TestNewBuilderWithHeaderOverrideLater(t *testing.T) {
 	}
 }
 
+func TestBuilderCloneConcurrentUsage(t *testing.T) {
+	t.Parallel()
+	baseBuilder := myrtle.NewBuilder(defaulttheme.New()).
+		WithHeader(myrtle.HeaderTitle("Template")).
+		AddText("base")
+
+	baseEmail := baseBuilder.Build()
+	baseHTML, err := baseEmail.HTML()
+	if err != nil {
+		t.Fatalf("base html returned error: %v", err)
+	}
+	if strings.Contains(baseHTML, "thread-line-") {
+		t.Fatalf("expected base builder output not to contain per-thread content")
+	}
+
+	const workerCount = 24
+	results := make(chan string, workerCount)
+
+	var waitGroup sync.WaitGroup
+	waitGroup.Add(workerCount)
+
+	for index := 0; index < workerCount; index++ {
+		index := index
+		go func() {
+			defer waitGroup.Done()
+
+			email := baseBuilder.
+				Clone().
+				Preheader(fmt.Sprintf("preheader-%d", index)).
+				AddText(fmt.Sprintf("thread-line-%d", index)).
+				Build()
+
+			html, err := email.HTML()
+			if err != nil {
+				results <- "__error__:" + err.Error()
+				return
+			}
+
+			results <- html
+		}()
+	}
+
+	waitGroup.Wait()
+	close(results)
+
+	for html := range results {
+		if strings.HasPrefix(html, "__error__:") {
+			t.Fatalf("clone html returned error: %s", html)
+		}
+		if !strings.Contains(html, "base") {
+			t.Fatalf("expected cloned builder output to retain base content")
+		}
+		if !strings.Contains(html, "thread-line-") {
+			t.Fatalf("expected cloned builder output to include thread-specific content")
+		}
+	}
+}
+
 type minimalTheme struct {
 	fallback theme.Theme
 }
 
 func (themeImpl *minimalTheme) Name() string {
 	return "minimal"
+}
+
+func (themeImpl *minimalTheme) DefaultStyles() theme.Styles {
+	if themeImpl.fallback == nil {
+		return theme.Styles{}
+	}
+
+	return themeImpl.fallback.DefaultStyles()
 }
 
 func (themeImpl *minimalTheme) RenderHTML(view theme.EmailView) (string, error) {

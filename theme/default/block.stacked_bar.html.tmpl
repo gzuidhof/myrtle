@@ -1,17 +1,17 @@
 <div style="margin:0 0 16px;">
-  {{ if .Block.Header }}<p style="margin:0 0 10px;font-weight:700;color:{{ .Values.Styles.TextColor }};">{{ .Block.Header }}</p>{{ end }}
-  {{ if or .Block.TotalLabel .Block.TotalValue }}<p style="margin:0 0 10px;color:{{ .Values.Styles.TextColor }};"><strong>{{ .Block.TotalLabel }}</strong>{{ if .Block.TotalValue }}: {{ .Block.TotalValue }}{{ end }}</p>{{ end }}
+  {{ if .Block.Header }}<p style="margin:0 0 10px;font-weight:700;color:{{ .Values.Styles.ColorText }};">{{ .Block.Header }}</p>{{ end }}
+  {{ if or .Block.TotalLabel .Block.TotalValue }}<p style="margin:0 0 10px;color:{{ .Values.Styles.ColorText }};"><strong>{{ .Block.TotalLabel }}</strong>{{ if .Block.TotalValue }}: {{ .Block.TotalValue }}{{ end }}</p>{{ end }}
   {{ range .Block.Rows }}
   <div style="margin:0 0 10px;">
-    {{ if .Label }}<p style="margin:0 0 6px;color:{{ $.Values.Styles.TextColor }};font-size:13px;">{{ .Label }}</p>{{ end }}
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;table-layout:fixed;border-radius:6px;overflow:hidden;border:1px solid {{ $.Values.Styles.BorderColor }};">
+    {{ if .Label }}<p style="margin:0 0 6px;color:{{ $.Values.Styles.ColorText }};font-size:13px;">{{ .Label }}</p>{{ end }}
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;table-layout:fixed;border-radius:6px;overflow:hidden;border:1px solid {{ $.Values.Styles.ColorBorder }};">
       <tr>
         {{ range .Segments }}
-        <td style="width:{{ .Percent }}%;background:{{ $.Values.Styles.PrimaryColor }};opacity:{{ if ge .Percent 67 }}1{{ else if ge .Percent 34 }}0.75{{ else }}0.5{{ end }};height:12px;"></td>
+        <td style="width:{{ .Percent }}%;background:{{ $.Values.Styles.ColorPrimary }};opacity:{{ if ge .Percent 67 }}1{{ else if ge .Percent 34 }}0.75{{ else }}0.5{{ end }};height:12px;"></td>
         {{ end }}
       </tr>
     </table>
-    <p style="margin:6px 0 0;color:{{ $.Values.Styles.MutedTextColor }};font-size:12px;">
+    <p style="margin:6px 0 0;color:{{ $.Values.Styles.ColorTextMuted }};font-size:12px;">
       {{ range $idx, $segment := .Segments }}{{ if $idx }} · {{ end }}{{ if $segment.Label }}{{ $segment.Label }}{{ end }}{{ if $segment.Value }} {{ $segment.Value }}{{ else }} {{ $segment.Percent }}%{{ end }}{{ end }}
     </p>
   </div>

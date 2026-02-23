@@ -17,7 +17,7 @@ func ProductLaunchEmailWithTheme(selectedTheme theme.Theme) (*myrtle.Email, erro
 
 	return myrtle.NewBuilder(
 		selectedTheme,
-		myrtle.WithStyles(theme.Styles{PrimaryColor: "#7c3aed"}),
+		myrtle.WithStyles(theme.Styles{ColorPrimary: "#7c3aed"}),
 		myrtle.WithHeaderOptions(
 			myrtle.HeaderTitle("Product launch"),
 			myrtle.HeaderProduct("Myrtle", "https://github.com/gzuidhof/myrtle"),
@@ -32,11 +32,11 @@ func ProductLaunchEmailWithTheme(selectedTheme theme.Theme) (*myrtle.Email, erro
 			Body:     "We introduced reusable content blocks, stronger defaults, and cleaner theme fallback behavior.",
 			CTALabel: "Read release notes",
 			CTAURL:   "https://github.com/gzuidhof/myrtle",
-			ImageURL: "/assets/hero.svg",
+			ImageURL: "/assets/hero.png",
 			ImageAlt: "Myrtle launch hero image",
 		}).
 		AddCallout(myrtle.CalloutTypeInfo, "What changed", "Hero and summary blocks now make promotional emails easier to compose.", myrtle.CalloutStyle(myrtle.CalloutVariantSoft)).
-		AddButton("Try the new examples", "https://github.com/gzuidhof/myrtle/tree/main/example", myrtle.ButtonStyle(myrtle.ButtonVariantPrimary)).
+		AddButton("Try the new examples", "https://github.com/gzuidhof/myrtle/tree/main/example", myrtle.ButtonTone(myrtle.ButtonTonePrimary)).
 		AddFooterLinks([]myrtle.FooterLink{
 			{Label: "Docs", URL: "https://github.com/gzuidhof/myrtle"},
 			{Label: "Changelog", URL: "https://github.com/gzuidhof/myrtle"},

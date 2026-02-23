@@ -5,18 +5,39 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{{ if .Header }}{{ .Header.Title }}{{ else }}Email{{ end }}</title>
 </head>
-<body style="margin:0;background:#ffffff;padding:32px;font-family:Arial,sans-serif;color:{{ .Values.Styles.TextColor }};">
+<!--[if !mso]><!-->
+<style type="text/css">
+  @media only screen and (max-width: 600px) {
+    body {
+      padding: 8px !important;
+    }
+    div[style*='max-width:640px'] {
+      max-width: 100% !important;
+    }
+    img {
+      max-width: 100% !important;
+      height: auto !important;
+    }
+    p, td {
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+    }
+  }
+</style>
+<!--<![endif]-->
+</head>
+<body style="margin:0;background:{{ .Values.Styles.ColorPageBackground }};padding:32px;font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
   {{ if .Preheader }}
   <div style="display:none;max-height:0;overflow:hidden;opacity:0;">{{ .Preheader }}</div>
   {{ end }}
-  <div style="max-width:640px;margin:0 auto;">
+  <div style="width:100%;max-width:640px;margin:0 auto;overflow-wrap:anywhere;word-break:break-word;word-wrap:break-word;background:{{ .Values.Styles.ColorMainBackground }};border:{{ .Values.Styles.BorderMain }};border-radius:{{ .Values.Styles.RadiusMain }};padding:20px;font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
     {{ if and .Header .Header.LogoURL }}
       <p style="margin:0 0 8px;text-align:{{ if eq .Header.Alignment "left" }}left{{ else }}center{{ end }};">
         {{ if .Header.ProductLink }}<a href="{{ .Header.ProductLink }}">{{ end }}<img src="{{ .Header.LogoURL }}" alt="{{ .Header.LogoAlt }}" style="height:72px;width:auto;" />{{ if .Header.ProductLink }}</a>{{ end }}
       </p>
     {{ end }}
     {{ if and .Header .Header.ShowProductName }}
-      <p style="margin:0 0 20px;font-size:13px;color:{{ .Values.Styles.MutedTextColor }};text-align:{{ if eq .Header.Alignment "left" }}left{{ else }}center{{ end }};">{{ if .Header.ProductLink }}<a href="{{ .Header.ProductLink }}" style="color:{{ .Values.Styles.MutedTextColor }};text-decoration:none;">{{ end }}{{ .Header.ProductName }}{{ if .Header.ProductLink }}</a>{{ end }}</p>
+      <p style="margin:0 0 20px;font-size:13px;color:{{ .Values.Styles.ColorTextMuted }};text-align:{{ if eq .Header.Alignment "left" }}left{{ else }}center{{ end }};">{{ if .Header.ProductLink }}<a href="{{ .Header.ProductLink }}" style="color:{{ .Values.Styles.ColorTextMuted }};text-decoration:none;">{{ end }}{{ .Header.ProductName }}{{ if .Header.ProductLink }}</a>{{ end }}</p>
     {{ end }}
     {{ range .Blocks }}
       {{ safe . }}

@@ -103,6 +103,9 @@ func ParseHTMLTemplates(name string, filesystem fs.FS, files ...string) *templat
 		"safe": func(value string) template.HTML {
 			return template.HTML(value)
 		},
+		"safeCSS": func(value string) template.CSS {
+			return template.CSS(value)
+		},
 		"isNumericLike": func(value string) bool {
 			return isNumericLike(value)
 		},
@@ -150,6 +153,24 @@ func RenderBlockHTMLWithHandlers(
 	handlers map[theme.BlockKind]BlockRenderHandler,
 	fallback theme.Theme,
 ) (string, bool, error) {
+	switch data := view.Data.(type) {
+	case *myrtle.Group:
+		html, err := renderGroupDataHTML(templates, data, view.Values, handlers, fallback, map[*myrtle.Group]struct{}{})
+		if err != nil {
+			return "", false, err
+		}
+
+		return html, true, nil
+	case myrtle.Group:
+		copyData := data
+		html, err := renderGroupDataHTML(templates, &copyData, view.Values, handlers, fallback, map[*myrtle.Group]struct{}{})
+		if err != nil {
+			return "", false, err
+		}
+
+		return html, true, nil
+	}
+
 	handler, ok := handlers[view.Kind]
 	if !ok {
 		return renderFallback(fallback, view)
@@ -166,39 +187,86 @@ func RenderBlockHTMLWithHandlers(
 	return renderFallback(fallback, view)
 }
 
+func renderGroupDataHTML(
+	templates *template.Template,
+	group *myrtle.Group,
+	values theme.Values,
+	handlers map[theme.BlockKind]BlockRenderHandler,
+	fallback theme.Theme,
+	seen map[*myrtle.Group]struct{},
+) (string, error) {
+	if group == nil {
+		return "", nil
+	}
+
+	if _, exists := seen[group]; exists {
+		return "", fmt.Errorf("myrtle: group contains cyclic reference")
+	}
+	seen[group] = struct{}{}
+	defer delete(seen, group)
+
+	parts := make([]string, 0, len(group.Blocks()))
+	for _, block := range group.Blocks() {
+		if block == nil {
+			continue
+		}
+
+		html, ok, err := RenderBlockHTMLWithHandlers(templates, theme.BlockView{
+			Kind:   block.Kind(),
+			Data:   block.TemplateData(),
+			Values: values,
+		}, handlers, fallback)
+		if err != nil {
+			return "", err
+		}
+		if !ok {
+			return "", fmt.Errorf("myrtle: group child cannot render kind %s", block.Kind())
+		}
+
+		parts = append(parts, html)
+	}
+
+	return strings.Join(parts, ""), nil
+}
+
 func DefaultBlockRenderHandlers() map[theme.BlockKind]BlockRenderHandler {
 	return map[theme.BlockKind]BlockRenderHandler{
-		theme.BlockKindText:         renderTextBlock,
-		theme.BlockKindHeading:      renderHeadingBlock,
-		theme.BlockKindSpacer:       renderSpacerBlock,
-		theme.BlockKindList:         renderListBlock,
-		theme.BlockKindKeyValue:     renderKeyValueBlock,
-		theme.BlockKindBarChart:     renderBarChartBlock,
-		theme.BlockKindSparkline:    renderSparklineBlock,
-		theme.BlockKindStackedBar:   renderStackedBarBlock,
-		theme.BlockKindProgress:     renderProgressBlock,
-		theme.BlockKindDistribution: renderDistributionBlock,
-		theme.BlockKindTimeline:     renderTimelineBlock,
-		theme.BlockKindStatsRow:     renderStatsRowBlock,
-		theme.BlockKindBadge:        renderBadgeBlock,
-		theme.BlockKindSummaryCard:  renderSummaryCardBlock,
-		theme.BlockKindAttachment:   renderAttachmentBlock,
-		theme.BlockKindHero:         renderHeroBlock,
-		theme.BlockKindFooterLinks:  renderFooterLinksBlock,
-		theme.BlockKindPriceSummary: renderPriceSummaryBlock,
-		theme.BlockKindEmptyState:   renderEmptyStateBlock,
-		theme.BlockKindQuote:        renderQuoteBlock,
-		theme.BlockKindCallout:      renderCalloutBlock,
-		theme.BlockKindLegal:        renderLegalBlock,
-		theme.BlockKindColumns:      renderColumnsBlock,
-		theme.BlockKindButton:       renderButtonBlock,
-		theme.BlockKindButtonGroup:  renderButtonGroupBlock,
-		theme.BlockKindDivider:      renderDividerBlock,
-		theme.BlockKindImage:        renderImageBlock,
-		theme.BlockKindTable:        renderTableBlock,
-		theme.BlockKindAction:       renderActionBlock,
-		theme.BlockKindCode:         renderCodeBlock,
-		theme.BlockKindFreeMarkdown: renderFreeMarkdownBlock,
+		theme.BlockKindText:             renderTextBlock,
+		theme.BlockKindHeading:          renderHeadingBlock,
+		theme.BlockKindSpacer:           renderSpacerBlock,
+		theme.BlockKindList:             renderListBlock,
+		theme.BlockKindKeyValue:         renderKeyValueBlock,
+		theme.BlockKindBarChart:         renderBarChartBlock,
+		theme.BlockKindSparkline:        renderSparklineBlock,
+		theme.BlockKindStackedBar:       renderStackedBarBlock,
+		theme.BlockKindProgress:         renderProgressBlock,
+		theme.BlockKindDistribution:     renderDistributionBlock,
+		theme.BlockKindTimeline:         renderTimelineBlock,
+		theme.BlockKindStatsRow:         renderStatsRowBlock,
+		theme.BlockKindBadge:            renderBadgeBlock,
+		theme.BlockKindSummaryCard:      renderSummaryCardBlock,
+		theme.BlockKindAttachment:       renderAttachmentBlock,
+		theme.BlockKindHero:             renderHeroBlock,
+		theme.BlockKindFooterLinks:      renderFooterLinksBlock,
+		theme.BlockKindPriceSummary:     renderPriceSummaryBlock,
+		theme.BlockKindEmptyState:       renderEmptyStateBlock,
+		theme.BlockKindQuote:            renderQuoteBlock,
+		theme.BlockKindCallout:          renderCalloutBlock,
+		theme.BlockKindMessage:          renderMessageBlock,
+		theme.BlockKindMessageDigest:    renderMessageDigestBlock,
+		theme.BlockKindLegal:            renderLegalBlock,
+		theme.BlockKindColumns:          renderColumnsBlock,
+		theme.BlockKindSection:          renderSectionBlock,
+		theme.BlockKindGrid:             renderGridBlock,
+		theme.BlockKindCardList:         renderCardListBlock,
+		theme.BlockKindButton:           renderButtonBlock,
+		theme.BlockKindButtonGroup:      renderButtonGroupBlock,
+		theme.BlockKindDivider:          renderDividerBlock,
+		theme.BlockKindImage:            renderImageBlock,
+		theme.BlockKindTable:            renderTableBlock,
+		theme.BlockKindVerificationCode: renderVerificationCodeBlock,
+		theme.BlockKindTiles:            renderTilesBlock,
+		theme.BlockKindFreeMarkdown:     renderFreeMarkdownBlock,
 	}
 }
 
@@ -250,9 +318,11 @@ func renderSpacerBlock(templates *template.Template, view theme.BlockView) (stri
 		return "", false, nil
 	}
 
+	normalized := spacerBlock.TemplateData().(myrtle.SpacerBlock)
+
 	result, err := ExecuteTemplate(templates, "block.spacer.html.tmpl", struct {
 		Block myrtle.SpacerBlock
-	}{Block: spacerBlock})
+	}{Block: normalized})
 	if err != nil {
 		return "", false, err
 	}
@@ -566,6 +636,115 @@ func renderCalloutBlock(templates *template.Template, view theme.BlockView) (str
 	return result, true, nil
 }
 
+func renderMessageBlock(templates *template.Template, view theme.BlockView) (string, bool, error) {
+	messageBlock, ok := view.Data.(myrtle.MessageBlock)
+	if !ok {
+		return "", false, nil
+	}
+	normalized := messageBlock.TemplateData().(myrtle.MessageBlock)
+
+	subjectHTML, err := renderMarkdownInline(normalized.Subject)
+	if err != nil {
+		return "", false, err
+	}
+	previewHTML, err := renderMarkdownInline(normalized.Preview)
+	if err != nil {
+		return "", false, err
+	}
+
+	result, err := ExecuteTemplate(templates, "block.message.html.tmpl", struct {
+		Block       myrtle.MessageBlock
+		SubjectHTML template.HTML
+		PreviewHTML template.HTML
+		MetaLine    string
+		JumpURL     string
+		JumpLabel   string
+		Values      theme.Values
+	}{
+		Block:       normalized,
+		SubjectHTML: subjectHTML,
+		PreviewHTML: previewHTML,
+		MetaLine:    messageMetaLine(normalized),
+		JumpURL:     normalized.URL,
+		JumpLabel:   "Jump to message",
+		Values:      view.Values,
+	})
+	if err != nil {
+		return "", false, err
+	}
+
+	return result, true, nil
+}
+
+func renderMessageDigestBlock(templates *template.Template, view theme.BlockView) (string, bool, error) {
+	digestBlock, ok := view.Data.(myrtle.MessageDigestBlock)
+	if !ok {
+		return "", false, nil
+	}
+
+	normalized := digestBlock.TemplateData().(myrtle.MessageDigestBlock)
+	type messageDigestItemView struct {
+		Block       myrtle.MessageBlock
+		SubjectHTML template.HTML
+		PreviewHTML template.HTML
+		MetaLine    string
+	}
+
+	items := make([]messageDigestItemView, 0, len(normalized.Messages))
+	hasAvatar := false
+	for _, message := range normalized.Messages {
+		if message.AvatarURL != "" {
+			hasAvatar = true
+		}
+
+		subjectHTML, err := renderMarkdownInline(message.Subject)
+		if err != nil {
+			return "", false, err
+		}
+		previewHTML, err := renderMarkdownInline(message.Preview)
+		if err != nil {
+			return "", false, err
+		}
+
+		items = append(items, messageDigestItemView{
+			Block:       message,
+			SubjectHTML: subjectHTML,
+			PreviewHTML: previewHTML,
+			MetaLine:    messageMetaLine(message),
+		})
+	}
+
+	subtitleHTML, err := renderMarkdownHTML(normalized.Subtitle)
+	if err != nil {
+		return "", false, err
+	}
+	footerHTML, err := renderMarkdownHTML(normalized.Footer)
+	if err != nil {
+		return "", false, err
+	}
+
+	result, err := ExecuteTemplate(templates, "block.message_digest.html.tmpl", struct {
+		Block        myrtle.MessageDigestBlock
+		Items        []messageDigestItemView
+		HasAvatar    bool
+		SubtitleHTML template.HTML
+		FooterHTML   template.HTML
+		Values       theme.Values
+	}{
+		Block:        normalized,
+		Items:        items,
+		HasAvatar:    hasAvatar,
+		SubtitleHTML: subtitleHTML,
+		FooterHTML:   footerHTML,
+		Values:       view.Values,
+	})
+	if err != nil {
+		return "", false, err
+	}
+
+	return result, true, nil
+}
+
 func renderLegalBlock(templates *template.Template, view theme.BlockView) (string, bool, error) {
 	legalBlock, ok := view.Data.(myrtle.LegalBlock)
 	if !ok {
@@ -605,6 +784,111 @@ func renderColumnsBlock(templates *template.Template, view theme.BlockView) (str
 		RightHTML string
 		Values    theme.Values
 	}{Block: columnsBlock, LeftHTML: leftHTML, RightHTML: rightHTML, Values: view.Values})
+	if err != nil {
+		return "", false, err
+	}
+
+	return result, true, nil
+}
+
+func renderSectionBlock(templates *template.Template, view theme.BlockView) (string, bool, error) {
+	sectionBlock, ok := view.Data.(myrtle.SectionBlock)
+	if !ok {
+		return "", false, nil
+	}
+
+	bodyHTML, err := renderNestedBlocksHTML(templates, sectionBlock.Blocks, view.Values)
+	if err != nil {
+		return "", false, err
+	}
+
+	result, err := ExecuteTemplate(templates, "block.section.html.tmpl", struct {
+		Block    myrtle.SectionBlock
+		BodyHTML string
+		Values   theme.Values
+	}{Block: sectionBlock, BodyHTML: bodyHTML, Values: view.Values})
+	if err != nil {
+		return "", false, err
+	}
+
+	return result, true, nil
+}
+
+func renderGridBlock(templates *template.Template, view theme.BlockView) (string, bool, error) {
+	gridBlock, ok := view.Data.(myrtle.GridBlock)
+	if !ok {
+		return "", false, nil
+	}
+
+	normalized := gridBlock.TemplateData().(myrtle.GridBlock)
+	if len(normalized.Items) == 0 {
+		return "", true, nil
+	}
+
+	cellHTML := make([]string, 0, len(normalized.Items))
+	for _, item := range normalized.Items {
+		html, err := renderNestedBlocksHTML(templates, item.Blocks, view.Values)
+		if err != nil {
+			return "", false, err
+		}
+		cellHTML = append(cellHTML, html)
+	}
+
+	rows := make([][]string, 0, (len(cellHTML)+normalized.Columns-1)/normalized.Columns)
+	for index := 0; index < len(cellHTML); index += normalized.Columns {
+		end := index + normalized.Columns
+		if end > len(cellHTML) {
+			end = len(cellHTML)
+		}
+
+		row := append([]string(nil), cellHTML[index:end]...)
+		for len(row) < normalized.Columns {
+			row = append(row, "")
+		}
+		rows = append(rows, row)
+	}
+
+	result, err := ExecuteTemplate(templates, "block.grid.html.tmpl", struct {
+		Block       myrtle.GridBlock
+		Rows        [][]string
+		ColumnWidth int
+		Values      theme.Values
+	}{Block: normalized, Rows: rows, ColumnWidth: 100 / normalized.Columns, Values: view.Values})
+	if err != nil {
+		return "", false, err
+	}
+
+	return result, true, nil
+}
+
+func renderCardListBlock(templates *template.Template, view theme.BlockView) (string, bool, error) {
+	cardListBlock, ok := view.Data.(myrtle.CardListBlock)
+	if !ok {
+		return "", false, nil
+	}
+
+	normalized := cardListBlock.TemplateData().(myrtle.CardListBlock)
+	if len(normalized.Cards) == 0 {
+		return "", true, nil
+	}
+
+	rows := make([][]myrtle.CardItem, 0, (len(normalized.Cards)+normalized.Columns-1)/normalized.Columns)
+	for index := 0; index < len(normalized.Cards); index += normalized.Columns {
+		end := index + normalized.Columns
+		if end > len(normalized.Cards) {
+			end = len(normalized.Cards)
+		}
+
+		row := append([]myrtle.CardItem(nil), normalized.Cards[index:end]...)
+		rows = append(rows, row)
+	}
+
+	result, err := ExecuteTemplate(templates, "block.card_list.html.tmpl", struct {
+		Block       myrtle.CardListBlock
+		Rows        [][]myrtle.CardItem
+		ColumnWidth int
+		Values      theme.Values
+	}{Block: normalized, Rows: rows, ColumnWidth: 100 / normalized.Columns, Values: view.Values})
 	if err != nil {
 		return "", false, err
 	}
@@ -674,9 +958,17 @@ func renderButtonGroupBlock(templates *template.Template, view theme.BlockView) 
 }
 
 func renderDividerBlock(templates *template.Template, view theme.BlockView) (string, bool, error) {
+	dividerBlock, ok := view.Data.(myrtle.DividerBlock)
+	if !ok {
+		return "", false, nil
+	}
+
+	normalized := dividerBlock.TemplateData().(myrtle.DividerBlock)
+
 	result, err := ExecuteTemplate(templates, "block.divider.html.tmpl", struct {
+		Block  myrtle.DividerBlock
 		Values theme.Values
-	}{Values: view.Values})
+	}{Block: normalized, Values: view.Values})
 	if err != nil {
 		return "", false, err
 	}
@@ -718,16 +1010,16 @@ func renderTableBlock(templates *template.Template, view theme.BlockView) (strin
 	return result, true, nil
 }
 
-func renderActionBlock(templates *template.Template, view theme.BlockView) (string, bool, error) {
-	actionBlock, ok := view.Data.(myrtle.ActionBlock)
+func renderVerificationCodeBlock(templates *template.Template, view theme.BlockView) (string, bool, error) {
+	codeBlock, ok := view.Data.(myrtle.VerificationCodeBlock)
 	if !ok {
 		return "", false, nil
 	}
 
-	result, err := ExecuteTemplate(templates, "block.action.html.tmpl", struct {
-		Block  myrtle.ActionBlock
+	result, err := ExecuteTemplate(templates, "block.verification_code.html.tmpl", struct {
+		Block  myrtle.VerificationCodeBlock
 		Values theme.Values
-	}{Block: actionBlock, Values: view.Values})
+	}{Block: codeBlock, Values: view.Values})
 	if err != nil {
 		return "", false, err
 	}
@@ -735,16 +1027,41 @@ func renderActionBlock(templates *template.Template, view theme.BlockView) (stri
 	return result, true, nil
 }
 
-func renderCodeBlock(templates *template.Template, view theme.BlockView) (string, bool, error) {
-	codeBlock, ok := view.Data.(myrtle.CodeBlock)
+func renderTilesBlock(templates *template.Template, view theme.BlockView) (string, bool, error) {
+	block, ok := view.Data.(myrtle.TilesBlock)
 	if !ok {
 		return "", false, nil
 	}
 
-	result, err := ExecuteTemplate(templates, "block.code.html.tmpl", struct {
-		Block  myrtle.CodeBlock
-		Values theme.Values
-	}{Block: codeBlock, Values: view.Values})
+	normalized := block.TemplateData().(myrtle.TilesBlock)
+	if len(normalized.Entries) == 0 {
+		return "", true, nil
+	}
+
+	rows := make([][]myrtle.TileEntry, 0, (len(normalized.Entries)+normalized.Columns-1)/normalized.Columns)
+	for index := 0; index < len(normalized.Entries); index += normalized.Columns {
+		end := index + normalized.Columns
+		if end > len(normalized.Entries) {
+			end = len(normalized.Entries)
+		}
+
+		row := append([]myrtle.TileEntry(nil), normalized.Entries[index:end]...)
+		rows = append(rows, row)
+	}
+
+	columnWidth := 100 / normalized.Columns
+
+	result, err := ExecuteTemplate(templates, "block.tiles.html.tmpl", struct {
+		Block       myrtle.TilesBlock
+		Rows        [][]myrtle.TileEntry
+		ColumnWidth int
+		Values      theme.Values
+	}{
+		Block:       normalized,
+		Rows:        rows,
+		ColumnWidth: columnWidth,
+		Values:      view.Values,
+	})
 	if err != nil {
 		return "", false, err
 	}
@@ -764,6 +1081,59 @@ func renderFreeMarkdownBlock(_ *template.Template, view theme.BlockView) (string
 	}
 
 	return markdownOutput.String(), true, nil
+}
+
+func renderMarkdownHTML(value string) (template.HTML, error) {
+	value = strings.TrimSpace(value)
+	if value == "" {
+		return "", nil
+	}
+
+	var output bytes.Buffer
+	if err := goldmark.Convert([]byte(value), &output); err != nil {
+		return "", err
+	}
+
+	return template.HTML(strings.TrimSpace(output.String())), nil
+}
+
+func renderMarkdownInline(value string) (template.HTML, error) {
+	htmlValue, err := renderMarkdownHTML(value)
+	if err != nil {
+		return "", err
+	}
+
+	normalized := strings.TrimSpace(string(htmlValue))
+	if strings.HasPrefix(normalized, "<p>") && strings.HasSuffix(normalized, "</p>") && strings.Count(normalized, "<p>") == 1 && strings.Count(normalized, "</p>") == 1 {
+		normalized = strings.TrimPrefix(normalized, "<p>")
+		normalized = strings.TrimSuffix(normalized, "</p>")
+		normalized = strings.TrimSpace(normalized)
+	}
+
+	return template.HTML(normalized), nil
+}
+
+func messageMetaLine(block myrtle.MessageBlock) string {
+	meta := ""
+	if block.SenderName != "" {
+		meta = block.SenderName
+	} else if block.SenderHandle != "" {
+		meta = block.SenderHandle
+	}
+	if block.Platform != "" {
+		if meta != "" {
+			meta += " · "
+		}
+		meta += block.Platform
+	}
+	if block.SentAt != "" {
+		if meta != "" {
+			meta += " · "
+		}
+		meta += block.SentAt
+	}
+
+	return meta
 }
 
 func isNumericLike(value string) bool {

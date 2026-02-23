@@ -1,5 +1,5 @@
-<div style="margin:0 0 16px;padding:18px;border:1px dashed {{ .Values.Styles.BorderColor }};border-radius:10px;text-align:center;background:#ffffff;">
-  {{ if .Block.Title }}<p style="margin:0 0 6px;font-size:18px;font-weight:700;color:{{ .Values.Styles.TextColor }};">{{ .Block.Title }}</p>{{ end }}
-  {{ if .Block.Body }}<p style="margin:0 0 10px;color:{{ .Values.Styles.MutedTextColor }};line-height:1.5;">{{ .Block.Body }}</p>{{ end }}
-  {{ if and .Block.ActionLabel .Block.ActionURL }}<p style="margin:0;"><a href="{{ .Block.ActionURL }}" style="color:{{ .Values.Styles.PrimaryColor }};text-decoration:none;font-weight:600;">{{ .Block.ActionLabel }}</a></p>{{ end }}
+<div style="margin:0 0 16px;padding:18px;border:1px dashed {{ .Values.Styles.ColorBorder }};border-radius:10px;text-align:center;background:#ffffff;">
+  {{ if .Block.Title }}<p style="margin:0 0 6px;font-size:18px;font-weight:700;color:{{ .Values.Styles.ColorText }};">{{ .Block.Title }}</p>{{ end }}
+  {{ if .Block.Body }}<p style="margin:0 0 10px;color:{{ .Values.Styles.ColorTextMuted }};line-height:1.5;">{{ .Block.Body }}</p>{{ end }}
+  {{ if and .Block.ActionLabel .Block.ActionURL }}<p style="margin:0;"><a href="{{ .Block.ActionURL }}" style="color:{{ .Values.Styles.ColorPrimary }};text-decoration:none;font-weight:600;">{{ .Block.ActionLabel }}</a></p>{{ end }}
 </div>

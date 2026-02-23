@@ -1,0 +1,10 @@
+<div style="margin:0 0 14px;padding:12px;border:1px solid {{ .Values.Styles.ColorBorder }};background:#ffffff;">
+  {{ if .SubjectHTML }}<div style="margin:0 0 5px;color:{{ .Values.Styles.ColorText }};font-weight:700;line-height:1.35;font-size:14px;">{{ if .Block.URL }}<a href="{{ .Block.URL }}" style="color:{{ .Values.Styles.ColorText }};text-decoration:none;">{{ .SubjectHTML }}</a>{{ else }}{{ .SubjectHTML }}{{ end }}</div>{{ end }}
+  {{ if .PreviewHTML }}<div style="margin:0 0 7px;color:{{ .Values.Styles.ColorText }};line-height:1.45;">{{ .PreviewHTML }}</div>{{ end }}
+  {{ if or .MetaLine .JumpURL }}
+  <p style="margin:0;color:{{ .Values.Styles.ColorTextMuted }};font-size:12px;line-height:1.4;">
+    {{ if .MetaLine }}{{ .MetaLine }}{{ end }}{{ if .JumpURL }}{{ if .MetaLine }} · {{ end }}<a href="{{ .JumpURL }}" style="color:{{ .Values.Styles.ColorPrimary }};text-decoration:none;font-weight:600;">{{ .JumpLabel }}</a>{{ end }}
+  </p>
+  {{ end }}
+  {{ if and .Block.ActionLabel .Block.ActionURL }}<p style="margin:8px 0 0;"><a href="{{ .Block.ActionURL }}" style="color:{{ .Values.Styles.ColorPrimary }};text-decoration:none;">{{ .Block.ActionLabel }} →</a></p>{{ end }}
+</div>

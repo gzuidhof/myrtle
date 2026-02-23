@@ -29,7 +29,8 @@ func BillingReceiptEmailWithTheme(selectedTheme theme.Theme) (*myrtle.Email, err
 			{Key: "Amount", Value: "$249.00"},
 			{Key: "Method", Value: "Visa •••• 4242"},
 		}).
-		AddAction("Download your PDF receipt:", "View receipt", "https://example.com/billing/receipt/INV-2026-021").
+		AddText("Download your PDF receipt:").
+		AddButton("View receipt", "https://example.com/billing/receipt/INV-2026-021").
 		AddLegal("Myrtle Inc.", "123 Market St, San Francisco, CA", "https://example.com/preferences", "https://example.com/unsubscribe").
 		Build(), nil
 }

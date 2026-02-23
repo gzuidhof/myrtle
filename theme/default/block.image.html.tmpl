@@ -1,1 +1,11 @@
-<p style="margin:20px 0;"><img src="{{ .Block.Src }}" alt="{{ .Block.Alt }}" style="max-width:100%;height:auto;border-radius:8px;" /></p>
+{{/*
+Image block with width and alignment support.
+Supported .Block fields: Src, Alt, Width, Align
+*/}}
+{{ $align := .Block.Align }}
+{{ $width := .Block.Width }}
+<p style="margin:20px 0;{{if eq $align "center"}}text-align:center;{{else if eq $align "right"}}text-align:right;{{else if eq $align "full"}}margin-left:0;margin-right:0;width:100%;{{end}}">
+	<img src="{{ .Block.Src }}" alt="{{ .Block.Alt }}"
+		style="max-width:100%;height:auto;border-radius:8px;{{if $width}}{{if gt $width 0}}width:{{$width}}px;max-width:{{$width}}px;{{end}}{{else if eq $align "full"}}width:100%;max-width:100%;display:block;{{end}}"
+	/>
+</p>

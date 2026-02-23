@@ -30,7 +30,7 @@ func (server *Server) handleIndex(writer http.ResponseWriter, request *http.Requ
 
 	setHTMLHeader(writer)
 	if err := server.templates.index.ExecuteTemplate(writer, "index.html.tmpl", indexViewData{
-		Title:        "Myrtle example directory",
+		Title:        "Example Emails",
 		ThemeOptions: themeOptions(themeName),
 		Theme:        themeName,
 		EmailItems:   emailItems,

@@ -46,7 +46,12 @@ func (block SpacerBlock) Kind() theme.BlockKind {
 }
 
 func (block SpacerBlock) TemplateData() any {
-	return block
+	normalized := block
+	if normalized.Size <= 0 {
+		normalized.Size = 16
+	}
+
+	return normalized
 }
 
 func (block SpacerBlock) RenderMarkdown(_ RenderContext) (string, error) {

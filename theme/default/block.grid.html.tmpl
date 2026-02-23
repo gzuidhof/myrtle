@@ -1,0 +1,15 @@
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:separate;border-spacing:{{ .Block.Gap }}px;margin:0 0 16px;">
+  {{ range .Rows }}
+  <tr>
+    {{ range . }}
+    <td width="{{ $.ColumnWidth }}%" valign="top" style="padding:0;">
+      {{ if ne . "" }}
+      <div style="{{ if $.Block.Border }}border:1px solid {{ $.Values.Styles.ColorBorder }};{{ end }}border-radius:10px;padding:12px;">
+        {{ safe . }}
+      </div>
+      {{ end }}
+    </td>
+    {{ end }}
+  </tr>
+  {{ end }}
+</table>

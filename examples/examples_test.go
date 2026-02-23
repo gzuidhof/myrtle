@@ -31,6 +31,8 @@ func (value emailError) Error() string {
 const errInvalidEmail = emailError("invalid email content")
 
 func TestRenderAndSendExamples(t *testing.T) {
+	t.Parallel()
+
 	constructors := []struct {
 		name  string
 		build func() (*myrtle.Email, error)

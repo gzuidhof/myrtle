@@ -13,7 +13,7 @@
       {{ end }}
     </select>
 
-    <h3 style="margin-top:1rem;">Emails</h3>
+    <h3 style="margin-top:1rem;">Example Emails</h3>
     <ul class="nav-list">
       {{ range .EmailItems }}
       <li><a href="#email-{{ .Key }}">{{ .Name }}</a></li>
@@ -33,7 +33,7 @@
 
   <main class="main">
     <section id="emails" class="section-anchor">
-      <h2>Emails</h2>
+      <h2>Example Emails</h2>
       <div class="list">
         {{ range .EmailItems }}
         <article id="email-{{ .Key }}" class="item section-anchor">

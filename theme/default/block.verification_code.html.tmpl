@@ -1,0 +1,4 @@
+<div style="margin:18px 0;padding:14px 16px;border:1px solid {{ .Values.Styles.ColorPrimary }};background:{{ .Values.Styles.ColorCodeBackground }};border-radius:8px;">
+  {{ if .Block.Label }}<p style="margin:0 0 8px;font-size:12px;color:{{ .Values.Styles.ColorTextMuted }};text-transform:uppercase;letter-spacing:.06em;">{{ .Block.Label }}</p>{{ end }}
+  <p style="margin:0;font-size:28px;line-height:1.2;font-weight:700;letter-spacing:0.16em;color:{{ .Values.Styles.ColorText }};font-family:{{ safeCSS .Values.Styles.FontFamilyMono }};">{{ .Block.Value }}</p>
+</div>

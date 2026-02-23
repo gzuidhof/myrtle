@@ -17,7 +17,7 @@ func HighImpactEmailWithTheme(selectedTheme theme.Theme) (*myrtle.Email, error) 
 
 	return myrtle.NewBuilder(
 		selectedTheme,
-		myrtle.WithStyles(theme.Styles{PrimaryColor: "#2563eb"}),
+		myrtle.WithStyles(theme.Styles{ColorPrimary: "#2563eb"}),
 		myrtle.WithHeaderOptions(
 			myrtle.HeaderTitle("Weekly operations brief"),
 			myrtle.HeaderProduct("Myrtle Ops", "https://example.com/ops"),
@@ -39,7 +39,8 @@ func HighImpactEmailWithTheme(selectedTheme theme.Theme) (*myrtle.Email, error) 
 			{Time: "09:42", Title: "Resolved", Detail: "Latency returned to normal."},
 		}).
 		AddAttachment("weekly-ops-report.pdf", "PDF · 312 KB", "https://example.com/reports/weekly-ops.pdf", "Download report").
-		AddAction("Review the complete report and approve next sprint priorities:", "Open dashboard", "https://example.com/ops/dashboard").
+		AddText("Review the complete report and approve next sprint priorities:").
+		AddButton("Open dashboard", "https://example.com/ops/dashboard").
 		AddLegal("Myrtle Inc.", "123 Market St, San Francisco, CA", "https://example.com/preferences", "https://example.com/unsubscribe").
 		Build(), nil
 }

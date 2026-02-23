@@ -31,6 +31,8 @@ func (value emailError) Error() string {
 const errInvalidEmail = emailError("invalid email content")
 
 func TestRenderAndSendExamples(t *testing.T) {
+	t.Parallel()
+
 	constructors := []struct {
 		name  string
 		build func() (*myrtle.Email, error)
@@ -38,6 +40,7 @@ func TestRenderAndSendExamples(t *testing.T) {
 		{name: "welcome", build: func() (*myrtle.Email, error) { return WelcomeEmail() }},
 		{name: "security", build: func() (*myrtle.Email, error) { return SecurityCodeEmail() }},
 		{name: "password-reset", build: func() (*myrtle.Email, error) { return PasswordResetEmail() }},
+		{name: "account-deletion-confirmation", build: func() (*myrtle.Email, error) { return AccountDeletionConfirmationEmail() }},
 		{name: "report", build: func() (*myrtle.Email, error) { return WeeklyReportEmail() }},
 		{name: "common-blocks", build: func() (*myrtle.Email, error) { return CommonBlocksEmail() }},
 		{name: "onboarding-checklist", build: func() (*myrtle.Email, error) { return OnboardingChecklistEmail() }},
@@ -50,6 +53,8 @@ func TestRenderAndSendExamples(t *testing.T) {
 		{name: "product-launch", build: func() (*myrtle.Email, error) { return ProductLaunchEmail() }},
 		{name: "invoice-summary", build: func() (*myrtle.Email, error) { return InvoiceSummaryEmail() }},
 		{name: "activity-empty-state", build: func() (*myrtle.Email, error) { return ActivityEmptyStateEmail() }},
+		{name: "container-styles", build: func() (*myrtle.Email, error) { return ContainerStylesEmail() }},
+		{name: "dark-mode-styles", build: func() (*myrtle.Email, error) { return DarkModeStylesEmail() }},
 		{name: "monster", build: func() (*myrtle.Email, error) { return MonsterEmail() }},
 	}
 

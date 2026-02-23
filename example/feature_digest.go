@@ -28,6 +28,7 @@ func FeatureDigestEmailWithTheme(selectedTheme theme.Theme) (*myrtle.Email, erro
 			{Key: "Rendering", Value: "Improved block consistency across themes"},
 			{Key: "Previews", Value: "Cleaner example gallery and navigation"},
 		}).
-		AddAction("Explore the examples and previews:", "Open example server", "http://localhost:8380").
+		AddText("Explore the examples and previews:").
+		AddButton("Open example server", "http://localhost:8380").
 		Build(), nil
 }

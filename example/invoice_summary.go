@@ -17,7 +17,7 @@ func InvoiceSummaryEmailWithTheme(selectedTheme theme.Theme) (*myrtle.Email, err
 
 	return myrtle.NewBuilder(
 		selectedTheme,
-		myrtle.WithStyles(theme.Styles{PrimaryColor: "#0ea5e9"}),
+		myrtle.WithStyles(theme.Styles{ColorPrimary: "#0ea5e9"}),
 	).
 		Preheader("Line items and totals for invoice #INV-0242").
 		Product("Myrtle Billing", "https://example.com/billing").
@@ -41,7 +41,7 @@ func InvoiceSummaryEmailWithTheme(selectedTheme theme.Theme) (*myrtle.Email, err
 			myrtle.TableCompact(true),
 			myrtle.TableRightAlignNumericColumns(true),
 		).
-		AddButton("Download invoice", "https://example.com/billing/invoices/inv-0242", myrtle.ButtonStyle(myrtle.ButtonVariantSecondary), myrtle.ButtonFullWidth(true)).
+		AddButton("Download invoice", "https://example.com/billing/invoices/inv-0242", myrtle.ButtonTone(myrtle.ButtonToneSecondary), myrtle.ButtonFullWidth(true)).
 		AddFooterLinks(
 			[]myrtle.FooterLink{{Label: "Billing portal", URL: "https://example.com/billing"}, {Label: "Contact support", URL: "https://example.com/support"}},
 			"Questions? Reach out to billing support anytime.",

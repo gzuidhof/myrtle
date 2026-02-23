@@ -1,0 +1,15 @@
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:separate;border-spacing:8px;margin:0 0 16px;">
+  {{ range .Rows }}
+  <tr>
+    {{ range . }}
+    <td width="{{ $.ColumnWidth }}%" valign="top" style="padding:0;">
+      <div style="height:100%;box-sizing:border-box;padding:{{ if .Content }}10px 12px 12px{{ else }}8px{{ end }};border-radius:12px;{{ if eq .Variant "highlight" }}border:1px solid {{ $.Values.Styles.ColorPrimary }};{{ if $.Block.TransparentBackground }}background:transparent;{{ else }}background:#eff6ff;{{ end }}{{ else if eq .Variant "success" }}border:1px solid #86efac;{{ if $.Block.TransparentBackground }}background:transparent;{{ else }}background:#f0fdf4;{{ end }}{{ else if eq .Variant "warning" }}border:1px solid #fcd34d;{{ if $.Block.TransparentBackground }}background:transparent;{{ else }}background:#fffbeb;{{ end }}{{ else if eq .Variant "critical" }}border:1px solid #fca5a5;{{ if $.Block.TransparentBackground }}background:transparent;{{ else }}background:#fef2f2;{{ end }}{{ else }}{{ if $.Block.Border }}border:1px solid {{ $.Values.Styles.ColorBorder }};{{ else }}border:1px solid transparent;{{ end }}{{ if $.Block.TransparentBackground }}background:transparent;{{ else }}background:#f8fafc;{{ end }}{{ end }}text-align:{{ if eq $.Block.Alignment "left" }}left{{ else if eq $.Block.Alignment "right" }}right{{ else }}center{{ end }};">
+        {{ if .Content }}<div style="width:84px;height:84px;line-height:84px;margin:{{ if eq $.Block.Alignment "left" }}0 0 6px{{ else if eq $.Block.Alignment "right" }}0 0 6px auto{{ else }}0 auto 6px{{ end }};border-radius:10px;font-size:40px;font-weight:700;color:{{ $.Values.Styles.ColorText }};">{{ .Content }}</div>{{ end }}
+        {{ if .Title }}<p style="margin:0 0 4px;color:{{ $.Values.Styles.ColorText }};font-weight:700;line-height:1.4;">{{ if .URL }}<a href="{{ .URL }}" style="color:{{ $.Values.Styles.ColorText }};text-decoration:underline;">{{ .Title }}</a>{{ else }}{{ .Title }}{{ end }}</p>{{ end }}
+        {{ if .Subtitle }}<p style="margin:0;color:{{ $.Values.Styles.ColorTextMuted }};font-size:13px;line-height:1.4;">{{ .Subtitle }}</p>{{ end }}
+      </div>
+    </td>
+    {{ end }}
+  </tr>
+  {{ end }}
+</table>

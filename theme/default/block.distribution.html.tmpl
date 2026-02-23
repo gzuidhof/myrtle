@@ -1,12 +1,12 @@
 <div style="margin:0 0 16px;">
-  {{ if .Block.Header }}<p style="margin:0 0 10px;font-weight:700;color:{{ .Values.Styles.TextColor }};">{{ .Block.Header }}</p>{{ end }}
+  {{ if .Block.Header }}<p style="margin:0 0 10px;font-weight:700;color:{{ .Values.Styles.ColorText }};">{{ .Block.Header }}</p>{{ end }}
   {{ range .Block.Buckets }}
   <div style="display:grid;grid-template-columns:120px 1fr auto;gap:8px;align-items:center;margin:0 0 6px;">
-    <span style="font-size:13px;color:{{ $.Values.Styles.TextColor }};">{{ .Label }}</span>
-    <div style="height:8px;background:#f3f4f6;border-radius:999px;overflow:hidden;border:1px solid {{ $.Values.Styles.BorderColor }};">
-      <div style="height:100%;width:{{ .WidthPercent }}%;max-width:100%;background:{{ $.Values.Styles.PrimaryColor }};"></div>
+    <span style="font-size:13px;color:{{ $.Values.Styles.ColorText }};">{{ .Label }}</span>
+    <div style="height:8px;background:#f3f4f6;border-radius:999px;overflow:hidden;border:1px solid {{ $.Values.Styles.ColorBorder }};">
+      <div style="height:100%;width:{{ .WidthPercent }}%;max-width:100%;background:{{ $.Values.Styles.ColorPrimary }};"></div>
     </div>
-    <span style="font-size:12px;color:{{ $.Values.Styles.MutedTextColor }};">{{ .Count }}</span>
+    <span style="font-size:12px;color:{{ $.Values.Styles.ColorTextMuted }};">{{ .Count }}</span>
   </div>
   {{ end }}
 </div>

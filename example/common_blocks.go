@@ -17,7 +17,7 @@ func CommonBlocksEmailWithTheme(selectedTheme theme.Theme) (*myrtle.Email, error
 
 	return myrtle.NewBuilder(
 		selectedTheme,
-		myrtle.WithStyles(theme.Styles{PrimaryColor: "#2563eb"}),
+		myrtle.WithStyles(theme.Styles{ColorPrimary: "#2563eb"}),
 	).
 		AddHeading("Common block showcase").
 		Preheader("Preview all common content blocks in one email").
@@ -25,7 +25,7 @@ func CommonBlocksEmailWithTheme(selectedTheme theme.Theme) (*myrtle.Email, error
 		Logo("/assets/logo.png", "Myrtle").
 		AddHeading("Common blocks", myrtle.HeadingLevel(1)).
 		AddText("A compact order-status update using common block patterns.").
-		AddSpacer(12).
+		AddSpacer(myrtle.SpacerSize(12)).
 		AddList([]string{"Track your order", "Update delivery preferences", "Contact support"}, false).
 		AddColumns(
 			func(column *myrtle.ColumnBuilder) {

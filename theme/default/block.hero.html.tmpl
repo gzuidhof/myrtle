@@ -1,10 +1,10 @@
-<section style="margin:0 0 18px;padding:16px;border:1px solid {{ .Values.Styles.BorderColor }};border-radius:10px;background:#ffffff;">
-  {{ if .Block.Eyebrow }}<p style="margin:0 0 8px;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:{{ .Values.Styles.MutedTextColor }};">{{ .Block.Eyebrow }}</p>{{ end }}
-  {{ if .Block.Title }}<h2 style="margin:0 0 8px;font-size:24px;line-height:1.25;color:{{ .Values.Styles.TextColor }};">{{ .Block.Title }}</h2>{{ end }}
-  {{ if .Block.Body }}<p style="margin:0 0 12px;line-height:1.6;color:{{ .Values.Styles.TextColor }};">{{ .Block.Body }}</p>{{ end }}
+<section style="margin:0 0 18px;padding:16px;border:1px solid {{ .Values.Styles.ColorBorder }};border-radius:10px;background:#ffffff;">
+  {{ if .Block.Eyebrow }}<p style="margin:0 0 8px;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:{{ .Values.Styles.ColorTextMuted }};">{{ .Block.Eyebrow }}</p>{{ end }}
+  {{ if .Block.Title }}<h2 style="margin:0 0 8px;font-size:24px;line-height:1.25;color:{{ .Values.Styles.ColorText }};">{{ .Block.Title }}</h2>{{ end }}
+  {{ if .Block.Body }}<p style="margin:0 0 12px;line-height:1.6;color:{{ .Values.Styles.ColorText }};">{{ .Block.Body }}</p>{{ end }}
   {{ if and .Block.CTALabel .Block.CTAURL }}
   <p style="margin:0 0 12px;">
-    <a href="{{ .Block.CTAURL }}" style="display:inline-block;padding:10px 18px;border-radius:8px;background:{{ .Values.Styles.PrimaryColor }};color:#ffffff;text-decoration:none;font-weight:600;">{{ .Block.CTALabel }}</a>
+    <a href="{{ .Block.CTAURL }}" style="display:inline-block;padding:10px 18px;border-radius:8px;background:{{ .Values.Styles.ColorPrimary }};color:#ffffff;text-decoration:none;font-weight:600;">{{ .Block.CTALabel }}</a>
   </p>
   {{ end }}
   {{ if .Block.ImageURL }}

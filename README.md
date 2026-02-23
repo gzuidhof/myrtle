@@ -18,7 +18,7 @@ outside the library.
 - Theme packages under `theme/<themename>`.
 - Embedded templates (`embed`) stored as separate files next to theme code.
 - High-level values available to wrappers and blocks (product name/link, logo URL/alt).
-- Shared style values available to all blocks (`PrimaryColor`, text/border/code colors).
+- Shared style values available to all blocks (`ColorPrimary`, `ColorSecondary`, text/border/code colors).
 - Built-in advanced blocks: table, action, code, free markdown, bar chart.
 - High-impact blocks: timeline, stats row, badge, summary card, attachment.
 - Dual rendering APIs:
@@ -46,7 +46,7 @@ import (
 )
 
 func main() {
-  b := myrtle.NewBuilder(defaulttheme.New(), myrtle.WithStyles(theme.Styles{PrimaryColor: "#0ea5e9"}))
+  b := myrtle.NewBuilder(defaulttheme.New(), myrtle.WithStyles(theme.Styles{ColorPrimary: "#0ea5e9"}))
   _ = flat.New(flat.WithFallback(defaulttheme.New()))
 
   email := b.
@@ -56,8 +56,9 @@ func main() {
     Logo("https://example.com/logo.png", "").
     AddText("Hi there,").
     AddText("Thanks for trying Myrtle.").
-    AddAction("Start with the quick-start docs:", "Open docs", "https://github.com/gzuidhof/myrtle").
-    AddCode("493817").
+    AddText("Start with the quick-start docs:").
+    AddButton("Open docs", "https://github.com/gzuidhof/myrtle").
+    AddVerificationCode("493817").
     Build()
 
   html, err := email.HTML()
@@ -114,6 +115,7 @@ b.Add(promoBlock)
 - [example/welcome.go](example/welcome.go)
 - [example/security.go](example/security.go)
 - [example/password_reset.go](example/password_reset.go)
+- [example/account_deletion_confirmation.go](example/account_deletion_confirmation.go)
 - [example/report.go](example/report.go)
 - [example/common_blocks.go](example/common_blocks.go)
 - [example/onboarding.go](example/onboarding.go)

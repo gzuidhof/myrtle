@@ -36,11 +36,12 @@ func ColumnsComplexEmailWithTheme(selectedTheme theme.Theme) (*myrtle.Email, err
 			func(column *myrtle.ColumnBuilder) {
 				column.AddHeading("Next actions", myrtle.HeadingLevel(3)).
 					AddList([]string{"Review failed webhooks", "Confirm SLA report"}, false).
-					AddAction("Open the operations dashboard for full context.", "Open dashboard", "https://example.com/ops")
+					AddText("Open the operations dashboard for full context.").
+					AddButton("Open dashboard", "https://example.com/ops")
 			},
 			myrtle.ColumnsWidths(60, 40),
 		).
-		AddSpacer(10).
+		AddSpacer(myrtle.SpacerSize(10)).
 		AddColumns(
 			func(column *myrtle.ColumnBuilder) {
 				column.AddQuote("This structure made our transactional templates cleaner and easier to maintain.", "Platform Team")
