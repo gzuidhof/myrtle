@@ -31,7 +31,10 @@ func buildBlockEmail(name string, selectedTheme theme.Theme) (*myrtle.Email, err
 	case "heading":
 		builder.AddHeading("This is a heading", myrtle.HeadingLevel(2))
 	case "spacer":
-		builder.AddText("Content above spacer").AddSpacer(24).AddText("Content below spacer")
+		builder.AddHeading("Fixed size", myrtle.HeadingLevel(3))
+		builder.AddText("Content above spacer").AddSpacer(myrtle.SpacerSize(24)).AddText("Content below spacer")
+		builder.AddHeading("Custom sizes", myrtle.HeadingLevel(3))
+		builder.AddText("8px").AddSpacer(myrtle.SpacerSize(8)).AddText("12px").AddSpacer(myrtle.SpacerSize(12)).AddText("16px default").AddSpacer().AddText("24px").AddSpacer(myrtle.SpacerSize(24))
 	case "list":
 		builder.AddHeading("Unordered", myrtle.HeadingLevel(3))
 		builder.AddList([]string{"First item", "Second item", "Third item"}, false)
@@ -168,43 +171,69 @@ func buildBlockEmail(name string, selectedTheme theme.Theme) (*myrtle.Email, err
 	case "legal":
 		builder.AddLegal("Myrtle Inc.", "123 Market St, SF, CA", "https://example.com/preferences", "https://example.com/unsubscribe")
 	case "columns":
+		builder.AddHeading("Custom widths + gap + middle align", myrtle.HeadingLevel(3))
 		builder.AddColumns(
 			func(column *myrtle.ColumnBuilder) {
 				column.AddHeading("Left column", myrtle.HeadingLevel(3)).
-					AddText("Summary and quick context.")
+					AddText("Summary and quick context.").
+					AddText("Additional details to make this column taller.")
 			},
 			func(column *myrtle.ColumnBuilder) {
 				column.AddHeading("Right column", myrtle.HeadingLevel(3)).
 					AddList([]string{"Point one", "Point two"}, false)
 			},
 			myrtle.ColumnsWidths(60, 40),
+			myrtle.ColumnsGap(24),
+			myrtle.ColumnsAlign(myrtle.ColumnsVerticalAlignMiddle),
 		)
 	case "button":
 		builder.AddHeading("Primary", myrtle.HeadingLevel(3))
-		builder.AddButton("Open docs", "https://github.com/gzuidhof/myrtle", myrtle.ButtonStyle(myrtle.ButtonVariantPrimary))
+		builder.AddButton("Open docs", "https://github.com/gzuidhof/myrtle", myrtle.ButtonTone(myrtle.ButtonTonePrimary))
 		builder.AddHeading("Primary · centered", myrtle.HeadingLevel(3))
-		builder.AddButton("Open docs", "https://github.com/gzuidhof/myrtle", myrtle.ButtonStyle(myrtle.ButtonVariantPrimary), myrtle.ButtonAlign(myrtle.ButtonAlignmentCenter))
+		builder.AddButton("Open docs", "https://github.com/gzuidhof/myrtle", myrtle.ButtonTone(myrtle.ButtonTonePrimary), myrtle.ButtonAlign(myrtle.ButtonAlignmentCenter))
 		builder.AddHeading("Primary · right", myrtle.HeadingLevel(3))
-		builder.AddButton("Open docs", "https://github.com/gzuidhof/myrtle", myrtle.ButtonStyle(myrtle.ButtonVariantPrimary), myrtle.ButtonAlign(myrtle.ButtonAlignmentRight))
+		builder.AddButton("Open docs", "https://github.com/gzuidhof/myrtle", myrtle.ButtonTone(myrtle.ButtonTonePrimary), myrtle.ButtonAlign(myrtle.ButtonAlignmentRight))
 		builder.AddHeading("Secondary", myrtle.HeadingLevel(3))
-		builder.AddButton("Open docs", "https://github.com/gzuidhof/myrtle", myrtle.ButtonStyle(myrtle.ButtonVariantSecondary))
+		builder.AddButton("Open docs", "https://github.com/gzuidhof/myrtle", myrtle.ButtonTone(myrtle.ButtonToneSecondary))
+		builder.AddHeading("Danger", myrtle.HeadingLevel(3))
+		builder.AddButton("Delete workspace", "https://github.com/gzuidhof/myrtle", myrtle.ButtonTone(myrtle.ButtonToneDanger))
+		builder.AddHeading("Outline", myrtle.HeadingLevel(3))
+		builder.AddButton("Open docs", "https://github.com/gzuidhof/myrtle", myrtle.ButtonStyle(myrtle.ButtonStyleOutline))
 		builder.AddHeading("Ghost", myrtle.HeadingLevel(3))
-		builder.AddButton("Open docs", "https://github.com/gzuidhof/myrtle", myrtle.ButtonStyle(myrtle.ButtonVariantGhost))
+		builder.AddButton("Open docs", "https://github.com/gzuidhof/myrtle", myrtle.ButtonStyle(myrtle.ButtonStyleGhost))
+		builder.AddHeading("Danger · ghost", myrtle.HeadingLevel(3))
+		builder.AddButton("Delete workspace", "https://github.com/gzuidhof/myrtle", myrtle.ButtonTone(myrtle.ButtonToneDanger), myrtle.ButtonStyle(myrtle.ButtonStyleGhost))
 		builder.AddHeading("Primary · full width", myrtle.HeadingLevel(3))
-		builder.AddButton("Open docs", "https://github.com/gzuidhof/myrtle", myrtle.ButtonStyle(myrtle.ButtonVariantPrimary), myrtle.ButtonFullWidth(true))
+		builder.AddButton("Open docs", "https://github.com/gzuidhof/myrtle", myrtle.ButtonTone(myrtle.ButtonTonePrimary), myrtle.ButtonFullWidth(true))
 		builder.AddHeading("Secondary · full width", myrtle.HeadingLevel(3))
-		builder.AddButton("Open docs", "https://github.com/gzuidhof/myrtle", myrtle.ButtonStyle(myrtle.ButtonVariantSecondary), myrtle.ButtonFullWidth(true))
+		builder.AddButton("Open docs", "https://github.com/gzuidhof/myrtle", myrtle.ButtonTone(myrtle.ButtonToneSecondary), myrtle.ButtonFullWidth(true))
+		builder.AddHeading("Outline · small · no-wrap", myrtle.HeadingLevel(3))
+		builder.AddButton("A longer CTA label", "https://github.com/gzuidhof/myrtle", myrtle.ButtonStyle(myrtle.ButtonStyleOutline), myrtle.ButtonSize(myrtle.ButtonSizeSmall), myrtle.ButtonNoWrap(true))
 	case "button-group":
 		builder.AddHeading("Centered", myrtle.HeadingLevel(3))
-		builder.AddButtonGroup([]myrtle.ButtonGroupButton{{Label: "Approve", URL: "https://example.com/approve", Variant: myrtle.ButtonVariantPrimary}, {Label: "Review", URL: "https://example.com/review", Variant: myrtle.ButtonVariantSecondary}, {Label: "Later", URL: "https://example.com/later", Variant: myrtle.ButtonVariantGhost}}, myrtle.ButtonGroupAlign(myrtle.ButtonAlignmentCenter))
+		builder.AddButtonGroup([]myrtle.ButtonGroupButton{{Label: "Approve", URL: "https://example.com/approve", Tone: myrtle.ButtonTonePrimary}, {Label: "Review", URL: "https://example.com/review", Tone: myrtle.ButtonToneSecondary}, {Label: "Delete", URL: "https://example.com/delete", Tone: myrtle.ButtonToneDanger}}, myrtle.ButtonGroupAlign(myrtle.ButtonAlignmentCenter))
 		builder.AddHeading("Centered · joined", myrtle.HeadingLevel(3))
-		builder.AddButtonGroup([]myrtle.ButtonGroupButton{{Label: "Approve", URL: "https://example.com/approve", Variant: myrtle.ButtonVariantPrimary}, {Label: "Review", URL: "https://example.com/review", Variant: myrtle.ButtonVariantSecondary}, {Label: "Later", URL: "https://example.com/later", Variant: myrtle.ButtonVariantGhost}}, myrtle.ButtonGroupAlign(myrtle.ButtonAlignmentCenter), myrtle.ButtonGroupJoined(true))
+		builder.AddButtonGroup([]myrtle.ButtonGroupButton{{Label: "Approve", URL: "https://example.com/approve", Tone: myrtle.ButtonTonePrimary}, {Label: "Review", URL: "https://example.com/review", Tone: myrtle.ButtonToneSecondary}, {Label: "Delete", URL: "https://example.com/delete", Tone: myrtle.ButtonToneDanger}}, myrtle.ButtonGroupAlign(myrtle.ButtonAlignmentCenter), myrtle.ButtonGroupJoined(true))
 		builder.AddHeading("Right", myrtle.HeadingLevel(3))
-		builder.AddButtonGroup([]myrtle.ButtonGroupButton{{Label: "Retry", URL: "https://example.com/retry", Variant: myrtle.ButtonVariantPrimary}, {Label: "Details", URL: "https://example.com/details", Variant: myrtle.ButtonVariantSecondary}}, myrtle.ButtonGroupAlign(myrtle.ButtonAlignmentRight))
+		builder.AddButtonGroup([]myrtle.ButtonGroupButton{{Label: "Retry", URL: "https://example.com/retry", Tone: myrtle.ButtonTonePrimary}, {Label: "Details", URL: "https://example.com/details", Tone: myrtle.ButtonToneSecondary}, {Label: "Delete", URL: "https://example.com/delete", Tone: myrtle.ButtonToneDanger}}, myrtle.ButtonGroupAlign(myrtle.ButtonAlignmentRight))
+		builder.AddHeading("Full width on mobile", myrtle.HeadingLevel(3))
+		builder.AddButtonGroup([]myrtle.ButtonGroupButton{{Label: "Approve", URL: "https://example.com/approve", Tone: myrtle.ButtonTonePrimary}, {Label: "Review", URL: "https://example.com/review", Tone: myrtle.ButtonToneSecondary}}, myrtle.ButtonGroupFullWidthOnMobile(true))
+		builder.AddHeading("Stack on mobile · custom gap", myrtle.HeadingLevel(3))
+		builder.AddButtonGroup([]myrtle.ButtonGroupButton{{Label: "Approve", URL: "https://example.com/approve", Tone: myrtle.ButtonTonePrimary}, {Label: "Review", URL: "https://example.com/review", Style: myrtle.ButtonStyleOutline}, {Label: "Delete", URL: "https://example.com/delete", Tone: myrtle.ButtonToneDanger, Style: myrtle.ButtonStyleGhost}}, myrtle.ButtonGroupGap(14), myrtle.ButtonGroupStackOnMobile(true))
 	case "divider":
+		builder.AddHeading("Default", myrtle.HeadingLevel(3))
 		builder.AddDivider()
+		builder.AddHeading("Dashed", myrtle.HeadingLevel(3))
+		builder.AddDividerStyled(myrtle.DividerStyle(myrtle.DividerVariantDashed), myrtle.DividerThickness(2))
+		builder.AddHeading("Dotted + inset", myrtle.HeadingLevel(3))
+		builder.AddDividerStyled(myrtle.DividerStyle(myrtle.DividerVariantDotted), myrtle.DividerThickness(2), myrtle.DividerInset(32))
 	case "image":
-		builder.AddImage("https://via.placeholder.com/560x180.png?text=Myrtle", "Myrtle placeholder")
+		builder.AddHeading("Default", myrtle.HeadingLevel(3))
+		builder.AddImage("/assets/myrtle-placeholder.png", "Myrtle placeholder")
+		builder.AddHeading("Full width", myrtle.HeadingLevel(3))
+		builder.AddImage("/assets/myrtle-placeholder.png", "Myrtle placeholder", myrtle.ImageFullWidth())
+		builder.AddHeading("Centered, 320px wide", myrtle.HeadingLevel(3))
+		builder.AddImage("/assets/myrtle-placeholder.png", "Myrtle placeholder", myrtle.ImageWidth(320), myrtle.ImageAlign(myrtle.ImageAlignmentCenter))
 	case "table":
 		builder.AddHeading("Default", myrtle.HeadingLevel(3))
 		builder.AddTable("Quarterly numbers", []string{"Metric", "Q1", "Q2"}, [][]string{{"Active Users", "8922", "10452"}, {"Conversion", "4.1%", "4.6%"}, {"Churn", "2.8%", "2.3%"}})
@@ -212,10 +241,82 @@ func buildBlockEmail(name string, selectedTheme theme.Theme) (*myrtle.Email, err
 		builder.AddTable("Quarterly numbers", []string{"Metric", "Q1", "Q2"}, [][]string{{"Active Users", "8922", "10452"}, {"Conversion", "4.1%", "4.6%"}, {"Churn", "2.8%", "2.3%"}}, myrtle.TableCompact(true))
 		builder.AddHeading("Compact · zebra · right-aligned numeric", myrtle.HeadingLevel(3))
 		builder.AddTable("Quarterly numbers", []string{"Metric", "Q1", "Q2"}, [][]string{{"Active Users", "8922", "10452"}, {"Conversion", "4.1%", "4.6%"}, {"Churn", "2.8%", "2.3%"}}, myrtle.TableZebraRows(true), myrtle.TableCompact(true), myrtle.TableRightAlignNumericColumns(true))
-	case "action":
-		builder.AddAction("Complete your setup to get started.", "Finish setup", "https://example.com/setup")
-	case "code":
-		builder.Add(myrtle.CodeBlock{Label: "Verification code", Code: "493817"})
+	case "verification_code":
+		builder.Add(myrtle.VerificationCodeBlock{Label: "Verification code", Value: "493817"})
+	case "message":
+		builder.AddMessage(myrtle.MessageBlock{
+			SenderName:   "Alex Johnson",
+			SenderHandle: "@alex",
+			AvatarURL:    "/assets/avatar1.png",
+			LogoAlt:      "Alex Johnson avatar",
+			LogoHref:     "https://example.com/messages/42",
+			Subject:      "New private message",
+			Preview:      "Can you review the release notes before 3 PM?",
+			SentAt:       "2m ago",
+			Platform:     "Myrtle Chat",
+			URL:          "https://example.com/messages/42",
+			ActionLabel:  "Open thread",
+			ActionURL:    "https://example.com/messages/42",
+		})
+	case "message-digest":
+		builder.AddMessageDigest([]myrtle.MessageBlock{
+			{SenderName: "Maya", SenderHandle: "@maya", AvatarURL: "/assets/avatar2.png", LogoAlt: "Maya avatar", LogoHref: "https://example.com/messages/43", Subject: "**Launch update**", Preview: "Can you check [the draft](https://example.com/draft)?", SentAt: "5m ago", Platform: "Myrtle Chat", URL: "https://example.com/messages/43"},
+			{SenderName: "Nina", SenderHandle: "@nina", AvatarURL: "/assets/avatar3.png", LogoAlt: "Nina avatar", LogoHref: "https://example.com/messages/46", Preview: "Quick ping: can we move this to tomorrow morning?", SentAt: "11m ago", Platform: "Myrtle Chat", URL: "https://example.com/messages/46"},
+			{SenderName: "Ben", SenderHandle: "@ben", AvatarURL: "/assets/avatar1.png", LogoAlt: "Ben avatar", LogoHref: "https://example.com/messages/44", Subject: "Design feedback", Preview: "Looks good overall.", SentAt: "20m ago", Platform: "Myrtle Chat", URL: "https://example.com/messages/44"},
+			{SenderName: "Ari", SenderHandle: "@ari", Subject: "Follow-up", Preview: "Can we sync tomorrow?", SentAt: "1h ago", Platform: "Myrtle Chat", URL: "https://example.com/messages/45"},
+		},
+			myrtle.MessageDigestTitle("Inbox"),
+			myrtle.MessageDigestSubtitle("Recent direct messages from Myrtle Chat"),
+			myrtle.MessageDigestFooter("[Open inbox](https://example.com/messages)"),
+		)
+	case "tiles":
+		builder.AddHeading("Default (3 columns)", myrtle.HeadingLevel(3))
+		builder.AddTiles([]myrtle.TileEntry{{Content: "🚀", Title: "Launch", Subtitle: "Ready", URL: "https://example.com/launch", Variant: myrtle.TileVariantHighlight}, {Content: "12", Title: "Queued", Subtitle: "Jobs", Variant: myrtle.TileVariantWarning}, {Content: "✅", Title: "Healthy", Subtitle: "All systems", Variant: myrtle.TileVariantSuccess}})
+		builder.AddHeading("Left aligned", myrtle.HeadingLevel(3))
+		builder.AddTiles([]myrtle.TileEntry{{Content: "📦", Title: "Shipped", Subtitle: "2h ago"}, {Content: "9", Title: "Pending", Subtitle: "Orders"}, {Content: "⚠️", Title: "Delayed", Subtitle: "1 route", Variant: myrtle.TileVariantWarning}}, myrtle.TilesAlign(myrtle.TileAlignmentLeft))
+		builder.AddHeading("Right aligned", myrtle.HeadingLevel(3))
+		builder.AddTiles([]myrtle.TileEntry{{Content: "🧾", Title: "Invoices"}, {Content: "3", Title: "Overdue", Variant: myrtle.TileVariantCritical}, {Content: "✅", Title: "Paid", Subtitle: "This week"}}, myrtle.TilesAlign(myrtle.TileAlignmentRight))
+		builder.AddHeading("No content examples", myrtle.HeadingLevel(3))
+		builder.AddTiles([]myrtle.TileEntry{{Title: "No icon tile", Subtitle: "Title + subtitle only"}, {Title: "Title only"}, {Subtitle: "Subtitle only"}}, myrtle.TilesBorder(true))
+		builder.AddHeading("4 columns with border", myrtle.HeadingLevel(3))
+		builder.AddTiles([]myrtle.TileEntry{{Content: "1", Title: "One"}, {Content: "2", Title: "Two"}, {Content: "3", Title: "Three", Variant: myrtle.TileVariantCritical}, {Content: "4", Title: "Four"}}, myrtle.TilesColumns(4), myrtle.TilesBorder(true))
+		builder.AddHeading("Wraps when items exceed columns", myrtle.HeadingLevel(3))
+		builder.AddTiles([]myrtle.TileEntry{{Content: "📥", Title: "Inbox"}, {Content: "📤", Title: "Outbox"}, {Content: "⚙️", Title: "Settings"}, {Content: "🔔", Title: "Alerts"}, {Content: "🧪", Title: "Experiments"}, {Content: "🗂️", Title: "Archive"}}, myrtle.TilesColumns(4), myrtle.TilesBorder(true))
+	case "section":
+		builder.AddSection(
+			[]myrtle.Block{
+				myrtle.TextBlock{Text: "Section body content with grouped context."},
+				myrtle.ButtonBlock{Label: "Open section", URL: "https://example.com/section", Style: myrtle.ButtonStyleOutline},
+			},
+			myrtle.SectionTitle("Section block"),
+			myrtle.SectionSubtitle("Optional subtitle for context"),
+			myrtle.SectionPadding(18),
+			myrtle.SectionBorder(true),
+		)
+	case "grid":
+		builder.AddGrid(
+			[]myrtle.GridItem{
+				{Blocks: []myrtle.Block{myrtle.HeadingBlock{Text: "Item 1", Level: 4}, myrtle.TextBlock{Text: "Grid content one."}}},
+				{Blocks: []myrtle.Block{myrtle.HeadingBlock{Text: "Item 2", Level: 4}, myrtle.TextBlock{Text: "Grid content two."}}},
+				{Blocks: []myrtle.Block{myrtle.HeadingBlock{Text: "Item 3", Level: 4}, myrtle.TextBlock{Text: "Grid content three."}}},
+				{Blocks: []myrtle.Block{myrtle.HeadingBlock{Text: "Item 4", Level: 4}, myrtle.TextBlock{Text: "Grid content four."}}},
+				{Blocks: []myrtle.Block{myrtle.HeadingBlock{Text: "Item 5", Level: 4}, myrtle.TextBlock{Text: "Wraps to new row."}}},
+			},
+			myrtle.GridColumns(3),
+			myrtle.GridGap(12),
+			myrtle.GridBorder(true),
+		)
+	case "card-list":
+		builder.AddCardList(
+			[]myrtle.CardItem{
+				{Title: "Deploy complete", Subtitle: "Production", Body: "No customer impact detected.", URL: "https://example.com/deploy/1", CTALabel: "View"},
+				{Title: "Billing updated", Subtitle: "Finance", Body: "Invoice #8241 has been paid.", URL: "https://example.com/billing/8241", CTALabel: "Open"},
+				{Title: "Weekly report", Body: "Read the latest metrics and highlights.", URL: "https://example.com/reports/weekly"},
+			},
+			myrtle.CardListColumns(2),
+			myrtle.CardListGap(12),
+			myrtle.CardListBorder(true),
+		)
 	case "free-markdown":
 		builder.AddFreeMarkdown("### Custom Markdown\n\nYou can use **bold**, lists, and links.\n\n- First\n- Second")
 	default:
@@ -282,11 +383,11 @@ func buildBlockItems(themeName string, selectedTheme theme.Theme) ([]groupedPage
 }
 
 func goEmailName(key string) string {
-	return toSpacedTitle(key) + " Email"
+	return toSpacedTitle(key)
 }
 
 func goBlockName(key string) string {
-	return toPascalCase(key)
+	return toSpacedTitle(key)
 }
 
 func toSpacedTitle(value string) string {
@@ -306,25 +407,6 @@ func toSpacedTitle(value string) string {
 	}
 
 	return strings.Join(parts, " ")
-}
-
-func toPascalCase(value string) string {
-	if value == "" {
-		return value
-	}
-
-	parts := strings.FieldsFunc(value, func(r rune) bool {
-		return r == '-' || r == '_'
-	})
-	for index, part := range parts {
-		if part == "" {
-			continue
-		}
-
-		parts[index] = strings.ToUpper(part[:1]) + part[1:]
-	}
-
-	return strings.Join(parts, "")
 }
 
 func selectedThemeFromRequest(queryValue string) (string, theme.Theme) {

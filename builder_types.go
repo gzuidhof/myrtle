@@ -1,8 +1,13 @@
 package myrtle
 
-import "github.com/gzuidhof/myrtle/theme"
+import (
+	"sync"
+
+	"github.com/gzuidhof/myrtle/theme"
+)
 
 type Builder struct {
+	mu         sync.Mutex
 	header     *HeaderSection
 	preheader  string
 	headerMode HeaderMode
@@ -85,4 +90,23 @@ func NewBuilder(themeImpl theme.Theme, options ...BuilderOption) *Builder {
 	}
 
 	return builder
+}
+
+// Clone returns a new builder initialized with the current builder state.
+//
+// The returned builder can be mutated independently, making it suitable for
+// per-goroutine customization based on a shared prototype builder.
+func (builder *Builder) Clone() *Builder {
+	builder.mu.Lock()
+	defer builder.mu.Unlock()
+
+	return &Builder{
+		header:     cloneHeader(builder.header),
+		preheader:  builder.preheader,
+		headerMode: builder.headerMode,
+		values:     builder.values,
+		blocks:     append([]Block(nil), builder.blocks...),
+		theme:      builder.theme,
+		registry:   builder.registry,
+	}
 }

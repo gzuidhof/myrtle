@@ -8,6 +8,8 @@ import (
 )
 
 func TestThemeSuite(t *testing.T) {
+	t.Parallel()
+
 	themetest.RunSuite(t, func() theme.Theme {
 		return New()
 	})

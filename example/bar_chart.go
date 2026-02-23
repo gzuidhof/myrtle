@@ -17,7 +17,7 @@ func BarChartEmailWithTheme(selectedTheme theme.Theme) (*myrtle.Email, error) {
 
 	return myrtle.NewBuilder(
 		selectedTheme,
-		myrtle.WithStyles(theme.Styles{PrimaryColor: "#0ea5e9"}),
+		myrtle.WithStyles(theme.Styles{ColorPrimary: "#0ea5e9"}),
 	).
 		AddHeading("Delivery analytics snapshot").
 		Preheader("Simple email-safe bar chart for regional delivery share").

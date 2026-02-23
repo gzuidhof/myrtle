@@ -7,6 +7,7 @@ type RenderContext struct {
 	Values    theme.Values
 }
 
+// Block is the core content unit in an email, with HTML template data and markdown rendering behavior.
 type Block interface {
 	Kind() theme.BlockKind
 	TemplateData() any

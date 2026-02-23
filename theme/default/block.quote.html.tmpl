@@ -1,4 +1,4 @@
-<blockquote style="margin:0 0 16px;padding:10px 14px;border-left:4px solid {{ .Values.Styles.BorderColor }};background:#f9fafb;">
-  <p style="margin:0 0 8px;color:{{ .Values.Styles.TextColor }};line-height:1.6;font-style:italic;">{{ .Block.Text }}</p>
-  {{ if .Block.Author }}<p style="margin:0;color:{{ .Values.Styles.MutedTextColor }};font-size:13px;">— {{ .Block.Author }}</p>{{ end }}
+<blockquote style="margin:0 0 16px;padding:10px 14px;border-left:4px solid {{ .Values.Styles.ColorBorder }};background:#f9fafb;">
+  <p style="margin:0 0 8px;color:{{ .Values.Styles.ColorText }};line-height:1.6;font-style:italic;">{{ .Block.Text }}</p>
+  {{ if .Block.Author }}<p style="margin:0;color:{{ .Values.Styles.ColorTextMuted }};font-size:13px;">— {{ .Block.Author }}</p>{{ end }}
 </blockquote>

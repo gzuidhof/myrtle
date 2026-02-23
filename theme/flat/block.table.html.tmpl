@@ -1,10 +1,10 @@
-{{ if .Block.Header }}<p style="margin:0 0 8px;font-weight:700;color:{{ .Values.Styles.TextColor }};">{{ .Block.Header }}</p>{{ end }}
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0 0 14px;">
+{{ if .Block.Header }}<p style="margin:0 0 8px;font-weight:700;color:{{ .Values.Styles.ColorText }};">{{ .Block.Header }}</p>{{ end }}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;table-layout:fixed;margin:0 0 14px;">
   {{ if .Block.Columns }}
   <tr>
     {{ range $columnIndex, $column := .Block.Columns }}
     {{ $alignment := index $.Block.ColumnAlignments $columnIndex }}
-    <th align="{{ if eq $alignment "center" }}center{{ else if eq $alignment "right" }}right{{ else }}left{{ end }}" style="padding:{{ if $.Block.Compact }}5px 8px{{ else }}8px 10px{{ end }};border-bottom:2px solid {{ $.Values.Styles.PrimaryColor }};font-size:12px;color:{{ $.Values.Styles.TextColor }};{{ if eq $alignment "center" }}text-align:center;{{ else if eq $alignment "right" }}text-align:right;{{ else }}text-align:left;{{ end }}">{{ $column }}</th>
+    <th align="{{ if eq $alignment "center" }}center{{ else if eq $alignment "right" }}right{{ else }}left{{ end }}" style="padding:{{ if $.Block.Compact }}5px 8px{{ else }}8px 10px{{ end }};border-bottom:2px solid {{ $.Values.Styles.ColorPrimary }};font-size:12px;color:{{ $.Values.Styles.ColorText }};overflow-wrap:anywhere;word-break:break-word;word-wrap:break-word;{{ if eq $alignment "center" }}text-align:center;{{ else if eq $alignment "right" }}text-align:right;{{ else }}text-align:left;{{ end }}">{{ $column }}</th>
     {{ end }}
   </tr>
   {{ end }}
@@ -12,7 +12,7 @@
   <tr>
     {{ range $columnIndex, $cell := $row }}
     {{ $alignment := index $.Block.ColumnAlignments $columnIndex }}
-    <td style="padding:{{ if $.Block.Compact }}5px 8px{{ else }}8px 10px{{ end }};border-bottom:1px solid {{ $.Values.Styles.BorderColor }};font-size:13px;color:{{ $.Values.Styles.TextColor }};{{ if and $.Block.ZebraRows (isOdd $rowIndex) }}background:#f9fafb;{{ end }}{{ if and $.Block.EmphasizeTotalRow (isLastRow $rowIndex (len $.Block.Rows)) }}font-weight:700;background:#f8fafc;{{ end }}{{ if eq $alignment "center" }}text-align:center;{{ else if eq $alignment "right" }}text-align:right;{{ else if eq $alignment "left" }}text-align:left;{{ else if and $.Block.RightAlignNumericColumns (isNumericLike $cell) }}text-align:right;{{ end }}">{{ $cell }}</td>
+    <td style="padding:{{ if $.Block.Compact }}5px 8px{{ else }}8px 10px{{ end }};border-bottom:1px solid {{ $.Values.Styles.ColorBorder }};font-size:13px;color:{{ $.Values.Styles.ColorText }};overflow-wrap:anywhere;word-break:break-word;word-wrap:break-word;{{ if and $.Block.ZebraRows (isOdd $rowIndex) }}background:#f9fafb;{{ end }}{{ if and $.Block.EmphasizeTotalRow (isLastRow $rowIndex (len $.Block.Rows)) }}font-weight:700;background:#f8fafc;{{ end }}{{ if eq $alignment "center" }}text-align:center;{{ else if eq $alignment "right" }}text-align:right;{{ else if eq $alignment "left" }}text-align:left;{{ else if and $.Block.RightAlignNumericColumns (isNumericLike $cell) }}text-align:right;{{ end }}">{{ $cell }}</td>
     {{ end }}
   </tr>
   {{ end }}

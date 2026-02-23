@@ -25,6 +25,7 @@ func IncidentNoticeEmailWithTheme(selectedTheme theme.Theme) (*myrtle.Email, err
 		AddCallout(myrtle.CalloutTypeWarning, "Investigating", "Webhook deliveries are delayed for some regions. Messages are queued and safe.").
 		AddText("Our team is actively investigating and will share updates every 30 minutes.").
 		AddList([]string{"Initial detection: 09:07 UTC", "Mitigation started: 09:18 UTC", "Next update: 10:00 UTC"}, false).
-		AddAction("Track live updates on the status page:", "Open status page", "https://status.example.com/incidents/abc-123").
+		AddText("Track live updates on the status page:").
+		AddButton("Open status page", "https://status.example.com/incidents/abc-123").
 		Build(), nil
 }

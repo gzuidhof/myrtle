@@ -1,5 +1,5 @@
-<div style="margin:0 0 16px;padding:14px;border:1px solid {{ .Values.Styles.BorderColor }};border-radius:10px;">
-  {{ if .Block.Title }}<p style="margin:0 0 6px;color:{{ .Values.Styles.TextColor }};font-weight:700;">{{ .Block.Title }}</p>{{ end }}
-  {{ if .Block.Body }}<p style="margin:0;color:{{ .Values.Styles.TextColor }};line-height:1.5;">{{ .Block.Body }}</p>{{ end }}
-  {{ if .Block.Footer }}<p style="margin:8px 0 0;color:{{ .Values.Styles.MutedTextColor }};font-size:13px;">{{ .Block.Footer }}</p>{{ end }}
+<div style="margin:0 0 16px;padding:14px;border:1px solid {{ .Values.Styles.ColorBorder }};border-radius:10px;">
+  {{ if .Block.Title }}<p style="margin:0 0 6px;color:{{ .Values.Styles.ColorText }};font-weight:700;">{{ .Block.Title }}</p>{{ end }}
+  {{ if .Block.Body }}<p style="margin:0;color:{{ .Values.Styles.ColorText }};line-height:1.5;">{{ .Block.Body }}</p>{{ end }}
+  {{ if .Block.Footer }}<p style="margin:8px 0 0;color:{{ .Values.Styles.ColorTextMuted }};font-size:13px;">{{ .Block.Footer }}</p>{{ end }}
 </div>

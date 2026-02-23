@@ -11,11 +11,11 @@ var ErrThemeCannotRenderBlock = errors.New("myrtle: theme cannot render block")
 
 // Email is an immutable rendered message composed from header metadata, values, and blocks.
 type Email struct {
-	header *HeaderSection
+	header    *HeaderSection
 	preheader string
-	values theme.Values
-	blocks []Block
-	theme  theme.Theme
+	values    theme.Values
+	blocks    []Block
+	theme     theme.Theme
 }
 
 // Preheader returns the preheader text.

@@ -18,6 +18,7 @@ type Theme struct {
 	textTemplates *texttemplate.Template
 	handlers      map[theme.BlockKind]themerender.BlockRenderHandler
 	fallback      theme.Theme
+	styles        theme.Styles
 }
 
 type Option func(*Theme)
@@ -49,6 +50,23 @@ func New(options ...Option) *Theme {
 		textTemplates: textTemplates,
 		handlers:      themerender.DefaultBlockRenderHandlersForTemplateFiles(sharedTemplateFiles),
 		fallback:      defaulttheme.New(),
+		styles: theme.Styles{
+			ColorPrimary:        "#265cff",
+			ColorSecondary:      "#10b981",
+			ColorText:           "#111827",
+			ColorTextMuted:      "#6b7280",
+			ColorBorder:         "#d1d5db",
+			ColorCodeBackground: "#f8fafc",
+			ColorPageBackground: "#ffffff",
+			ColorMainBackground: "#ffffff",
+			BorderMain:          "1px solid #d1d5db",
+			RadiusMain:          "0px",
+			FontFamilyBase:      "system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif",
+			FontFamilyMono:      "ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace",
+			FontSizeBase:        "14px",
+			LineHeightBase:      "1.5",
+			FontWeightHeading:   "700",
+		},
 	}
 
 	for _, option := range options {
@@ -60,6 +78,10 @@ func New(options ...Option) *Theme {
 
 func (themeImpl *Theme) Name() string {
 	return "flat"
+}
+
+func (themeImpl *Theme) DefaultStyles() theme.Styles {
+	return themeImpl.styles
 }
 
 func (themeImpl *Theme) RenderHTML(view theme.EmailView) (string, error) {

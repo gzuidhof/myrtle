@@ -25,6 +25,7 @@ func OnboardingChecklistEmailWithTheme(selectedTheme theme.Theme) (*myrtle.Email
 		AddText("Your workspace is ready. Complete these steps to get value quickly:").
 		AddList([]string{"Invite your team", "Connect your domain", "Send your first transactional email"}, true).
 		AddCallout(myrtle.CalloutTypeInfo, "Need help?", "The docs include copy-paste examples for all common flows.").
-		AddAction("Open the quickstart and complete setup:", "Start onboarding", "https://github.com/gzuidhof/myrtle").
+		AddText("Open the quickstart and complete setup:").
+		AddButton("Start onboarding", "https://github.com/gzuidhof/myrtle").
 		Build(), nil
 }

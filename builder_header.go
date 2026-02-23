@@ -1,11 +1,17 @@
 package myrtle
 
 func (builder *Builder) Preheader(value string) *Builder {
+	builder.mu.Lock()
+	defer builder.mu.Unlock()
+
 	builder.preheader = value
 	return builder
 }
 
 func (builder *Builder) Header(value HeaderSection) *Builder {
+	builder.mu.Lock()
+	defer builder.mu.Unlock()
+
 	builder.headerMode = HeaderModeEnabled
 	builder.header = &HeaderSection{
 		Title:            value.Title,
@@ -23,6 +29,9 @@ func (builder *Builder) Header(value HeaderSection) *Builder {
 }
 
 func (builder *Builder) WithHeader(options ...HeaderOption) *Builder {
+	builder.mu.Lock()
+	defer builder.mu.Unlock()
+
 	header := builder.ensureHeaderExplicit()
 	for _, option := range options {
 		option(header)
@@ -32,6 +41,9 @@ func (builder *Builder) WithHeader(options ...HeaderOption) *Builder {
 }
 
 func (builder *Builder) NoHeader() *Builder {
+	builder.mu.Lock()
+	defer builder.mu.Unlock()
+
 	builder.header = nil
 	builder.headerMode = HeaderModeDisabled
 	return builder
@@ -42,6 +54,9 @@ func (builder *Builder) WithoutHeader() *Builder {
 }
 
 func (builder *Builder) Product(name, link string) *Builder {
+	builder.mu.Lock()
+	defer builder.mu.Unlock()
+
 	builder.values.ProductName = name
 	builder.values.ProductLink = link
 	if header := builder.ensureHeaderImplicit(); header != nil {
@@ -52,6 +67,9 @@ func (builder *Builder) Product(name, link string) *Builder {
 }
 
 func (builder *Builder) ProductName(value string) *Builder {
+	builder.mu.Lock()
+	defer builder.mu.Unlock()
+
 	builder.values.ProductName = value
 	if header := builder.ensureHeaderImplicit(); header != nil {
 		header.ProductName = value
@@ -60,6 +78,9 @@ func (builder *Builder) ProductName(value string) *Builder {
 }
 
 func (builder *Builder) ProductLink(value string) *Builder {
+	builder.mu.Lock()
+	defer builder.mu.Unlock()
+
 	builder.values.ProductLink = value
 	if header := builder.ensureHeaderImplicit(); header != nil {
 		header.ProductLink = value
@@ -68,6 +89,9 @@ func (builder *Builder) ProductLink(value string) *Builder {
 }
 
 func (builder *Builder) Logo(url, alt string) *Builder {
+	builder.mu.Lock()
+	defer builder.mu.Unlock()
+
 	builder.values.LogoURL = url
 	builder.values.LogoAlt = alt
 	if header := builder.ensureHeaderImplicit(); header != nil {

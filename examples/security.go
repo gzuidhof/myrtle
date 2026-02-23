@@ -16,17 +16,18 @@ func SecurityCodeEmail() (*myrtle.Email, error) {
 		Product("Myrtle Security", "https://example.com/security").
 		Logo("https://example.com/security-logo.png", "").
 		AddText("Use the code below to complete your sign-in. This code expires in 10 minutes.").
-		Add(myrtle.CodeBlock{Label: "Verification code", Code: "493817"}).
-		AddAction("If you did not request this code, secure your account immediately.", "Review account", "https://example.com/account/security").
+		Add(myrtle.VerificationCodeBlock{Label: "Verification code", Value: "493817"}).
+		AddText("If you did not request this code, secure your account immediately.").
+		AddButton("Review account", "https://example.com/account/security").
 		Build(), nil
 }
 
 func myrtleStyles() theme.Styles {
 	return theme.Styles{
-		PrimaryColor:        "#7c3aed",
-		TextColor:           "#111827",
-		MutedTextColor:      "#4b5563",
-		BorderColor:         "#ddd6fe",
-		CodeBackgroundColor: "#f5f3ff",
+		ColorPrimary:        "#7c3aed",
+		ColorText:           "#111827",
+		ColorTextMuted:      "#4b5563",
+		ColorBorder:         "#ddd6fe",
+		ColorCodeBackground: "#f5f3ff",
 	}
 }

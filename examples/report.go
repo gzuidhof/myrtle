@@ -15,14 +15,15 @@ func WeeklyReportEmail() (*myrtle.Email, error) {
 
 	return myrtle.NewBuilder(
 		defaulttheme.New(),
-		myrtle.WithStyles(theme.Styles{PrimaryColor: "#059669"}),
+		myrtle.WithStyles(theme.Styles{ColorPrimary: "#059669"}),
 	).
 		Preheader("Your key numbers for this week").
 		Product("Myrtle Analytics", "https://example.com/analytics").
 		Logo("https://example.com/analytics-logo.png", "Analytics logo").
 		AddText("Here is your weekly snapshot:").
 		AddTable("Highlights", []string{"Metric", "Value", "Delta"}, rows).
-		AddAction("See the full dashboard for breakdowns and cohorts.", "Open dashboard", "https://example.com/dashboard").
+		AddText("See the full dashboard for breakdowns and cohorts.").
+		AddButton("Open dashboard", "https://example.com/dashboard").
 		AddFreeMarkdown("_Tip:_ You can customize this email with additional blocks and custom themes.").
 		Build(), nil
 }

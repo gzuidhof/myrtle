@@ -1,7 +1,6 @@
 package myrtle
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/gzuidhof/myrtle/theme"
@@ -65,44 +64,21 @@ func (block TableBlock) RenderMarkdown(_ RenderContext) (string, error) {
 	return strings.Join(parts, "\n"), nil
 }
 
-type ActionBlock struct {
-	Instructions string
-	ButtonLabel  string
-	ButtonURL    string
-}
-
-func (block ActionBlock) Kind() theme.BlockKind {
-	return theme.BlockKindAction
-}
-
-func (block ActionBlock) TemplateData() any {
-	return block
-}
-
-func (block ActionBlock) RenderMarkdown(_ RenderContext) (string, error) {
-	parts := make([]string, 0, 2)
-	if strings.TrimSpace(block.Instructions) != "" {
-		parts = append(parts, strings.TrimSpace(block.Instructions))
-	}
-	parts = append(parts, fmt.Sprintf("[%s](%s)", block.ButtonLabel, block.ButtonURL))
-	return strings.Join(parts, "\n\n"), nil
-}
-
-type CodeBlock struct {
-	Code  string
+type VerificationCodeBlock struct {
+	Value string
 	Label string
 }
 
-func (block CodeBlock) Kind() theme.BlockKind {
-	return theme.BlockKindCode
+func (block VerificationCodeBlock) Kind() theme.BlockKind {
+	return theme.BlockKindVerificationCode
 }
 
-func (block CodeBlock) TemplateData() any {
+func (block VerificationCodeBlock) TemplateData() any {
 	return block
 }
 
-func (block CodeBlock) RenderMarkdown(_ RenderContext) (string, error) {
-	value := strings.TrimSpace(block.Code)
+func (block VerificationCodeBlock) RenderMarkdown(_ RenderContext) (string, error) {
+	value := strings.TrimSpace(block.Value)
 	if value == "" {
 		return "", nil
 	}

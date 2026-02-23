@@ -1,0 +1,16 @@
+<div style="margin:0 0 14px;padding:10px 12px;border:1px solid {{ .Values.Styles.ColorBorder }};background:#ffffff;">
+  {{ if .Block.Title }}<p style="margin:0 0 6px;color:{{ .Values.Styles.ColorText }};font-weight:700;">{{ .Block.Title }}</p>{{ end }}
+  {{ if .SubtitleHTML }}<div style="margin:0 0 8px;color:{{ .Values.Styles.ColorTextMuted }};font-size:12px;line-height:1.45;">{{ .SubtitleHTML }}</div>{{ end }}
+  {{ if .Items }}
+    {{ range $index, $item := .Items }}
+      <div style="{{ if gt $index 0 }}margin-top:16px;padding-top:16px;border-top:1px solid {{ $.Values.Styles.ColorBorder }};{{ end }}">
+        {{ if $item.SubjectHTML }}<div style="margin:0 0 3px;color:{{ $.Values.Styles.ColorText }};font-weight:700;line-height:1.4;">{{ if $item.Block.URL }}<a href="{{ $item.Block.URL }}" style="color:{{ $.Values.Styles.ColorText }};text-decoration:none;">{{ $item.SubjectHTML }}</a>{{ else }}{{ $item.SubjectHTML }}{{ end }}</div>{{ end }}
+        {{ if $item.PreviewHTML }}<div style="margin:0 0 5px;color:{{ $.Values.Styles.ColorText }};line-height:1.45;">{{ $item.PreviewHTML }}</div>{{ end }}
+        {{ if $item.MetaLine }}<p style="margin:0;color:{{ $.Values.Styles.ColorTextMuted }};font-size:12px;line-height:1.4;">{{ $item.MetaLine }}</p>{{ end }}
+      </div>
+    {{ end }}
+  {{ else if .Block.EmptyText }}
+    <p style="margin:0;color:{{ .Values.Styles.ColorTextMuted }};line-height:1.45;">{{ .Block.EmptyText }}</p>
+  {{ end }}
+  {{ if .FooterHTML }}<div style="margin:8px 0 0;padding-top:8px;border-top:1px solid {{ .Values.Styles.ColorBorder }};color:{{ .Values.Styles.ColorTextMuted }};font-size:12px;line-height:1.4;">{{ .FooterHTML }}</div>{{ end }}
+</div>
