@@ -52,18 +52,18 @@ func RunSuite(t *testing.T, factory ThemeFactory) {
 			t.Fatalf("HTML should not be empty")
 		}
 
-		markdown, err := email.Text()
+		text, err := email.Text()
 		if err != nil {
 			t.Fatalf("Text returned error: %v", err)
 		}
-		if strings.TrimSpace(markdown) == "" {
+		if strings.TrimSpace(text) == "" {
 			t.Fatalf("Text should not be empty")
 		}
 	})
 
-	t.Run("email-left-aligned-header", func(t *testing.T) {
+	t.Run("email-text-header", func(t *testing.T) {
 		email := buildFullEmail(themeImpl, []myrtle.HeaderOption{
-			myrtle.HeaderAlign(myrtle.HeaderAlignmentLeft),
+			myrtle.HeaderRenderInText(true),
 		})
 
 		html, err := email.HTML()
@@ -77,19 +77,19 @@ func RunSuite(t *testing.T, factory ThemeFactory) {
 }
 
 func buildFullEmail(themeImpl theme.Theme, extraHeaderOptions []myrtle.HeaderOption) *myrtle.Email {
-	headerOptions := []myrtle.HeaderOption{
-		myrtle.HeaderTitle("Theme suite"),
-		myrtle.HeaderProduct("Myrtle", "https://example.com"),
-		myrtle.HeaderLogo("https://example.com/logo.png", "Myrtle"),
-	}
+	headerBlock := myrtle.NewGroup().
+		AddHeading("Theme suite", myrtle.HeadingLevel(1)).
+		AddText("Myrtle")
+
+	headerOptions := []myrtle.HeaderOption{}
 	headerOptions = append(headerOptions, extraHeaderOptions...)
 
 	builder := myrtle.NewBuilder(
 		themeImpl,
 		myrtle.WithStyles(sampleValues().Styles),
-		myrtle.WithHeaderOptions(headerOptions...),
+		myrtle.WithHeader(headerBlock, headerOptions...),
 	)
-	builder.Preheader("Comprehensive rendering check")
+	builder.WithPreheader("Comprehensive rendering check")
 
 	for _, block := range sampleBlocks() {
 		builder.Add(block)
@@ -100,10 +100,6 @@ func buildFullEmail(themeImpl theme.Theme, extraHeaderOptions []myrtle.HeaderOpt
 
 func sampleValues() theme.Values {
 	return theme.Values{
-		ProductName: "Myrtle",
-		ProductLink: "https://example.com",
-		LogoURL:     "https://example.com/logo.png",
-		LogoAlt:     "Myrtle",
 		Styles: theme.Styles{
 			ColorPrimary:        "#2563eb",
 			ColorText:           "#111827",
@@ -121,7 +117,7 @@ func sampleBlocks() []myrtle.Block {
 		myrtle.SpacerBlock{Size: 12},
 		myrtle.ListBlock{Items: []string{"One", "Two"}, Ordered: false},
 		myrtle.KeyValueBlock{Header: "Details", Pairs: []myrtle.KeyValuePair{{Key: "A", Value: "1"}, {Key: "B", Value: "2"}}},
-		myrtle.BarChartBlock{Header: "Chart", Items: []myrtle.BarChartItem{{Label: "US", Value: "60%", Percent: 60}, {Label: "EU", Value: "40%", Percent: 40}}},
+		myrtle.HorizontalBarChartBlock{Header: "Chart", Items: []myrtle.HorizontalBarChartItem{{Label: "US", Value: "60%", Percent: 60}, {Label: "EU", Value: "40%", Percent: 40}}},
 		myrtle.SparklineBlock{Header: "Sparkline", Label: "Signups", Value: "1,204", Delta: "+8%", Points: []int{8, 12, 9, 14, 18, 16, 20}},
 		myrtle.StackedBarBlock{Header: "Stacked", TotalLabel: "Total", TotalValue: "120k", Rows: []myrtle.StackedBarRow{{Label: "Channels", Segments: []myrtle.StackedBarSegment{{Label: "Email", Percent: 60, Value: "60%"}, {Label: "SMS", Percent: 25, Value: "25%"}, {Label: "Push", Percent: 15, Value: "15%"}}}}},
 		myrtle.ProgressBlock{Header: "Progress", Items: []myrtle.ProgressItem{{Label: "Onboarding", Percent: 72}, {Label: "Verification", Percent: 45}}},

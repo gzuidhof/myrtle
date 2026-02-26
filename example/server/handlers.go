@@ -3,6 +3,7 @@ package server
 import (
 	"html/template"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/gzuidhof/myrtle"
@@ -35,8 +36,111 @@ func (server *Server) handleIndex(writer http.ResponseWriter, request *http.Requ
 		Theme:        themeName,
 		EmailItems:   emailItems,
 		BlockGroups:  blockGroups,
+		SMTPEnabled:  server.smtp != nil,
+		SMTPDefault:  server.defaultTo,
+		SendStatus:   parseSendStatus(request),
 	}); err != nil {
 		http.Error(writer, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func (server *Server) handleSendEmail(writer http.ResponseWriter, request *http.Request) {
+	if request.Method != http.MethodPost {
+		http.Error(writer, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	if server.smtp == nil {
+		http.Error(writer, "smtp is not configured", http.StatusNotFound)
+		return
+	}
+
+	if err := request.ParseForm(); err != nil {
+		http.Error(writer, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	name := strings.TrimSpace(request.FormValue("name"))
+	to := strings.TrimSpace(request.FormValue("to"))
+	themeName, selectedTheme := selectedThemeFromRequest(request.FormValue("theme"))
+
+	redirectWithStatus := func(success bool, message string) {
+		values := url.Values{}
+		values.Set("theme", themeName)
+		values.Set("send_name", name)
+		if success {
+			values.Set("send_ok", "1")
+		} else {
+			values.Set("send_error", message)
+		}
+
+		http.Redirect(writer, request, "/?"+values.Encode(), http.StatusSeeOther)
+	}
+
+	if name == "" {
+		redirectWithStatus(false, "missing email key")
+		return
+	}
+
+	if to == "" {
+		redirectWithStatus(false, "recipient is required")
+		return
+	}
+
+	email, err := buildExampleEmail(name, selectedTheme)
+	if err != nil {
+		redirectWithStatus(false, "unknown example email")
+		return
+	}
+
+	htmlBody, err := email.HTML()
+	if err != nil {
+		redirectWithStatus(false, "failed to render html")
+		return
+	}
+
+	textBody, err := email.Text()
+	if err != nil {
+		redirectWithStatus(false, "failed to render text fallback")
+		return
+	}
+
+	subject := "Myrtle example: " + goEmailName(name)
+	if err := server.smtp.Send(to, subject, htmlBody, textBody); err != nil {
+		redirectWithStatus(false, err.Error())
+		return
+	}
+
+	redirectWithStatus(true, "sent")
+}
+
+func parseSendStatus(request *http.Request) *sendStatus {
+	if request == nil {
+		return nil
+	}
+
+	name := strings.TrimSpace(request.URL.Query().Get("send_name"))
+	if name == "" {
+		return nil
+	}
+
+	if request.URL.Query().Get("send_ok") == "1" {
+		return &sendStatus{
+			Name:    name,
+			Success: true,
+			Message: "Email sent successfully.",
+		}
+	}
+
+	message := strings.TrimSpace(request.URL.Query().Get("send_error"))
+	if message == "" {
+		message = "Failed to send email."
+	}
+
+	return &sendStatus{
+		Name:    name,
+		Success: false,
+		Message: message,
 	}
 }
 
@@ -104,7 +208,7 @@ func (server *Server) handlePreview(
 		return
 	}
 
-	markdownOutput, err := email.Text()
+	textOutput, err := email.Text()
 	if err != nil {
 		http.Error(writer, err.Error(), http.StatusInternalServerError)
 		return
@@ -112,11 +216,11 @@ func (server *Server) handlePreview(
 
 	setHTMLHeader(writer)
 	if err := pageTemplate.ExecuteTemplate(writer, templateName, previewViewData{
-		Title:    titlePrefix + name,
-		Theme:    themeName,
-		Name:     name,
-		Preview:  previewPrefix + name + "/html?theme=" + themeName,
-		Markdown: markdownOutput,
+		Title:   titlePrefix + name,
+		Theme:   themeName,
+		Name:    name,
+		Preview: previewPrefix + name + "/html?theme=" + themeName,
+		Text:    textOutput,
 	}); err != nil {
 		http.Error(writer, err.Error(), http.StatusInternalServerError)
 	}

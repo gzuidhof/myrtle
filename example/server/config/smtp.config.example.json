@@ -1,0 +1,9 @@
+{
+  "host": "smtp.mailprovider.test",
+  "port": 587,
+  "username": "demo-user",
+  "password": "demo-password",
+  "from_name": "Myrtle Demo Sender",
+  "from_address": "no-reply@example.test",
+  "default_to": "you@example.test"
+}

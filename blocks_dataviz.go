@@ -7,12 +7,24 @@ import (
 	"github.com/gzuidhof/myrtle/theme"
 )
 
+type ChartToneValue string
+
+const (
+	ChartTonePrimary ChartToneValue = "primary"
+	ChartToneMuted   ChartToneValue = "muted"
+	ChartToneInfo    ChartToneValue = "info"
+	ChartToneSuccess ChartToneValue = "success"
+	ChartToneWarning ChartToneValue = "warning"
+	ChartToneDanger  ChartToneValue = "danger"
+)
+
 type SparklineBlock struct {
 	Header        string
 	Label         string
 	Value         string
 	Delta         string
 	DeltaSemantic StatDeltaSemantic
+	Tone          ChartToneValue
 	Points        []int
 }
 
@@ -24,14 +36,16 @@ func (block SparklineBlock) TemplateData() any {
 	normalized := block
 	normalized.Points = normalizedIntPoints(block.Points)
 	normalized.DeltaSemantic = normalizedStatDeltaSemantic(block.DeltaSemantic)
+	normalized.Tone = normalizedChartTone(block.Tone)
 	return normalized
 }
 
-func (block SparklineBlock) RenderMarkdown(_ RenderContext) (string, error) {
+func (block SparklineBlock) RenderText(_ RenderContext) (string, error) {
 	normalized := block.TemplateData().(SparklineBlock)
 	parts := make([]string, 0, 3)
 	if strings.TrimSpace(normalized.Header) != "" {
-		parts = append(parts, "### "+strings.TrimSpace(normalized.Header))
+		header := strings.TrimSpace(normalized.Header)
+		parts = append(parts, header, strings.Repeat("-", min(48, max(8, len(header)))))
 	}
 
 	line := strings.TrimSpace(normalized.Label)
@@ -59,6 +73,7 @@ type StackedBarSegment struct {
 	Label   string
 	Percent int
 	Value   string
+	Color   string
 }
 
 type StackedBarRow struct {
@@ -70,6 +85,7 @@ type StackedBarBlock struct {
 	Header     string
 	TotalLabel string
 	TotalValue string
+	Tone       ChartToneValue
 	Rows       []StackedBarRow
 }
 
@@ -79,6 +95,7 @@ func (block StackedBarBlock) Kind() theme.BlockKind {
 
 func (block StackedBarBlock) TemplateData() any {
 	normalized := block
+	normalized.Tone = normalizedChartTone(block.Tone)
 	normalized.Rows = make([]StackedBarRow, 0, len(block.Rows))
 	for _, row := range block.Rows {
 		segments := make([]StackedBarSegment, 0, len(row.Segments))
@@ -95,6 +112,7 @@ func (block StackedBarBlock) TemplateData() any {
 				Label:   strings.TrimSpace(segment.Label),
 				Percent: percent,
 				Value:   strings.TrimSpace(segment.Value),
+				Color:   strings.TrimSpace(segment.Color),
 			})
 		}
 
@@ -107,14 +125,24 @@ func (block StackedBarBlock) TemplateData() any {
 	return normalized
 }
 
-func (block StackedBarBlock) RenderMarkdown(_ RenderContext) (string, error) {
+func normalizedChartTone(value ChartToneValue) ChartToneValue {
+	switch value {
+	case ChartToneMuted, ChartToneInfo, ChartToneSuccess, ChartToneWarning, ChartToneDanger:
+		return value
+	default:
+		return ChartTonePrimary
+	}
+}
+
+func (block StackedBarBlock) RenderText(_ RenderContext) (string, error) {
 	normalized := block.TemplateData().(StackedBarBlock)
 	parts := make([]string, 0, len(normalized.Rows)+2)
 	if strings.TrimSpace(normalized.Header) != "" {
-		parts = append(parts, "### "+strings.TrimSpace(normalized.Header))
+		header := strings.TrimSpace(normalized.Header)
+		parts = append(parts, header, strings.Repeat("-", min(48, max(8, len(header)))))
 	}
 	if strings.TrimSpace(normalized.TotalLabel) != "" || strings.TrimSpace(normalized.TotalValue) != "" {
-		parts = append(parts, fmt.Sprintf("**%s:** %s", strings.TrimSpace(normalized.TotalLabel), strings.TrimSpace(normalized.TotalValue)))
+		parts = append(parts, fmt.Sprintf("%s: %s", strings.TrimSpace(normalized.TotalLabel), strings.TrimSpace(normalized.TotalValue)))
 	}
 
 	for _, row := range normalized.Rows {
@@ -143,7 +171,7 @@ func (block StackedBarBlock) RenderMarkdown(_ RenderContext) (string, error) {
 			parts = append(parts, "- "+strings.Join(segmentParts, " · "))
 			continue
 		}
-		parts = append(parts, fmt.Sprintf("- **%s:** %s", label, strings.Join(segmentParts, " · ")))
+		parts = append(parts, fmt.Sprintf("- %s: %s", label, strings.Join(segmentParts, " · ")))
 	}
 
 	return strings.Join(parts, "\n"), nil
@@ -153,6 +181,7 @@ type ProgressItem struct {
 	Label   string
 	Percent int
 	Value   string
+	Color   string
 }
 
 type ProgressBlock struct {
@@ -185,17 +214,19 @@ func (block ProgressBlock) TemplateData() any {
 			Label:   strings.TrimSpace(item.Label),
 			Percent: percent,
 			Value:   value,
+			Color:   strings.TrimSpace(item.Color),
 		})
 	}
 
 	return normalized
 }
 
-func (block ProgressBlock) RenderMarkdown(_ RenderContext) (string, error) {
+func (block ProgressBlock) RenderText(_ RenderContext) (string, error) {
 	normalized := block.TemplateData().(ProgressBlock)
 	parts := make([]string, 0, len(normalized.Items)+1)
 	if strings.TrimSpace(normalized.Header) != "" {
-		parts = append(parts, "### "+strings.TrimSpace(normalized.Header))
+		header := strings.TrimSpace(normalized.Header)
+		parts = append(parts, header, strings.Repeat("-", min(48, max(8, len(header)))))
 	}
 
 	for _, item := range normalized.Items {
@@ -210,7 +241,7 @@ func (block ProgressBlock) RenderMarkdown(_ RenderContext) (string, error) {
 			filled = 10
 		}
 		empty := 10 - filled
-		parts = append(parts, fmt.Sprintf("- **%s:** %s %s%s", item.Label, item.Value, strings.Repeat("█", filled), strings.Repeat("░", empty)))
+		parts = append(parts, fmt.Sprintf("- %s: %s %s%s", item.Label, item.Value, strings.Repeat("#", filled), strings.Repeat(".", empty)))
 	}
 
 	return strings.Join(parts, "\n"), nil
@@ -220,6 +251,7 @@ type DistributionBucket struct {
 	Label        string
 	Count        int
 	WidthPercent int
+	Color        string
 }
 
 type DistributionBlock struct {
@@ -246,6 +278,7 @@ func (block DistributionBlock) TemplateData() any {
 		normalized.Buckets = append(normalized.Buckets, DistributionBucket{
 			Label: strings.TrimSpace(bucket.Label),
 			Count: count,
+			Color: strings.TrimSpace(bucket.Color),
 		})
 	}
 
@@ -267,11 +300,12 @@ func (block DistributionBlock) TemplateData() any {
 	return normalized
 }
 
-func (block DistributionBlock) RenderMarkdown(_ RenderContext) (string, error) {
+func (block DistributionBlock) RenderText(_ RenderContext) (string, error) {
 	normalized := block.TemplateData().(DistributionBlock)
 	parts := make([]string, 0, len(normalized.Buckets)+1)
 	if strings.TrimSpace(normalized.Header) != "" {
-		parts = append(parts, "### "+strings.TrimSpace(normalized.Header))
+		header := strings.TrimSpace(normalized.Header)
+		parts = append(parts, header, strings.Repeat("-", min(48, max(8, len(header)))))
 	}
 
 	maxCount := 0
@@ -296,7 +330,7 @@ func (block DistributionBlock) RenderMarkdown(_ RenderContext) (string, error) {
 			filled = 10
 		}
 		empty := 10 - filled
-		parts = append(parts, fmt.Sprintf("- %s %s%s (%d)", bucket.Label, strings.Repeat("█", filled), strings.Repeat("░", empty), bucket.Count))
+		parts = append(parts, fmt.Sprintf("- %s %s%s (%d)", bucket.Label, strings.Repeat("#", filled), strings.Repeat(".", empty), bucket.Count))
 	}
 
 	return strings.Join(parts, "\n"), nil
@@ -318,7 +352,7 @@ func sparklineGlyphs(points []int) string {
 		return ""
 	}
 
-	glyphs := []rune{'▁', '▂', '▃', '▄', '▅', '▆', '▇', '█'}
+	glyphs := []rune{'.', ':', '-', '=', '+', '*', '#', '@'}
 	minValue := points[0]
 	maxValue := points[0]
 	for _, point := range points {

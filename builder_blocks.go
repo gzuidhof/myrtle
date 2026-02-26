@@ -1,7 +1,5 @@
 package myrtle
 
-import "github.com/gzuidhof/myrtle/theme"
-
 type ButtonOption func(*ButtonBlock)
 
 func ButtonTone(value ButtonToneValue) ButtonOption {
@@ -34,7 +32,7 @@ func ButtonNoWrap(value bool) ButtonOption {
 	}
 }
 
-func ButtonAlign(value ButtonAlignment) ButtonOption {
+func ButtonAlign(value ButtonAlignmentValue) ButtonOption {
 	return func(block *ButtonBlock) {
 		block.Alignment = value
 	}
@@ -52,7 +50,7 @@ type SpacerOption func(*SpacerBlock)
 
 type DividerOption func(*DividerBlock)
 
-func ButtonGroupAlign(value ButtonAlignment) ButtonGroupOption {
+func ButtonGroupAlign(value ButtonAlignmentValue) ButtonGroupOption {
 	return func(block *ButtonGroupBlock) {
 		block.Alignment = value
 	}
@@ -91,6 +89,12 @@ func SectionTitle(value string) SectionOption {
 func SectionSubtitle(value string) SectionOption {
 	return func(block *SectionBlock) {
 		block.Subtitle = value
+	}
+}
+
+func SectionCategory(value string) SectionOption {
+	return func(block *SectionBlock) {
+		block.Category = value
 	}
 }
 
@@ -166,6 +170,12 @@ func DividerInset(value int) DividerOption {
 	}
 }
 
+func DividerLabel(value string) DividerOption {
+	return func(block *DividerBlock) {
+		block.Label = value
+	}
+}
+
 type CalloutOption func(*CalloutBlock)
 
 type MessageDigestOption func(*MessageDigestBlock)
@@ -237,9 +247,17 @@ func StackedBarTotal(label, value string) StackedBarOption {
 	}
 }
 
+func StackedBarTone(value ChartToneValue) StackedBarOption {
+	return func(block *StackedBarBlock) {
+		block.Tone = value
+	}
+}
+
 type TableOption func(*TableBlock)
 
-type BarChartOption func(*BarChartBlock)
+type HorizontalBarChartOption func(*HorizontalBarChartBlock)
+
+type VerticalBarChartOption func(*VerticalBarChartBlock)
 
 type SparklineOption func(*SparklineBlock)
 
@@ -257,15 +275,161 @@ func SparklineDeltaSemantic(value StatDeltaSemantic) SparklineOption {
 	}
 }
 
-func BarChartThickness(value int) BarChartOption {
-	return func(block *BarChartBlock) {
+func SparklineTone(value ChartToneValue) SparklineOption {
+	return func(block *SparklineBlock) {
+		block.Tone = value
+	}
+}
+
+func HorizontalBarChartThickness(value int) HorizontalBarChartOption {
+	return func(block *HorizontalBarChartBlock) {
 		block.Thickness = value
 	}
 }
 
-func BarChartTransparentBackground(value bool) BarChartOption {
-	return func(block *BarChartBlock) {
+func HorizontalBarChartTransparentBackground(value bool) HorizontalBarChartOption {
+	return func(block *HorizontalBarChartBlock) {
 		block.TransparentBackground = value
+	}
+}
+
+func HorizontalBarChartTone(value ChartToneValue) HorizontalBarChartOption {
+	return func(block *HorizontalBarChartBlock) {
+		block.Tone = value
+	}
+}
+
+func VerticalBarChartHeight(value int) VerticalBarChartOption {
+	return func(block *VerticalBarChartBlock) {
+		block.Height = value
+	}
+}
+
+// VerticalBarChartNormalize enables per-column normalization where segment heights
+// fill the available positive/negative region in each column.
+//
+// For mixed-sign datasets (any negative value present), Myrtle automatically
+// falls back to magnitude scaling to preserve cross-column comparability.
+func VerticalBarChartNormalize(value bool) VerticalBarChartOption {
+	return func(block *VerticalBarChartBlock) {
+		block.Normalize = value
+	}
+}
+
+func VerticalBarChartColumnGap(value int) VerticalBarChartOption {
+	return func(block *VerticalBarChartBlock) {
+		block.HasColumnGap = true
+		block.ColumnGap = value
+	}
+}
+
+// VerticalBarChartCategoryGap is kept as a compatibility alias.
+// Prefer VerticalBarChartColumnGap for clarity.
+func VerticalBarChartCategoryGap(value int) VerticalBarChartOption {
+	return VerticalBarChartColumnGap(value)
+}
+
+func VerticalBarChartTransparentBackground(value bool) VerticalBarChartOption {
+	return func(block *VerticalBarChartBlock) {
+		block.TransparentBackground = value
+	}
+}
+
+func VerticalBarChartTone(value ChartToneValue) VerticalBarChartOption {
+	return func(block *VerticalBarChartBlock) {
+		block.Tone = value
+	}
+}
+
+func VerticalBarChartLegendPlacement(value VerticalBarChartLegendPlacementValue) VerticalBarChartOption {
+	return func(block *VerticalBarChartBlock) {
+		block.LegendPlacement = normalizedLegendPlacement(value)
+	}
+}
+
+func VerticalBarChartLegend(items []VerticalBarChartLegendItem) VerticalBarChartOption {
+	return func(block *VerticalBarChartBlock) {
+		if len(items) == 0 {
+			block.Legend = nil
+			return
+		}
+
+		block.Legend = append([]VerticalBarChartLegendItem(nil), items...)
+	}
+}
+
+func VerticalBarChartLegendConfigOption(value VerticalBarChartLegendConfig) VerticalBarChartOption {
+	return func(block *VerticalBarChartBlock) {
+		block.LegendPlacement = normalizedLegendPlacement(value.Placement)
+		if len(value.Items) == 0 {
+			block.Legend = nil
+			return
+		}
+
+		block.Legend = append([]VerticalBarChartLegendItem(nil), value.Items...)
+	}
+}
+
+func VerticalBarChartAxisShowBaseline(value bool) VerticalBarChartOption {
+	return func(block *VerticalBarChartBlock) {
+		block.Axis.ShowBaseline = value
+	}
+}
+
+func VerticalBarChartAxisShowYTicks(value bool) VerticalBarChartOption {
+	return func(block *VerticalBarChartBlock) {
+		block.Axis.ShowYTicks = value
+	}
+}
+
+func VerticalBarChartAxisTickCount(value int) VerticalBarChartOption {
+	return func(block *VerticalBarChartBlock) {
+		block.Axis.YTickCount = value
+	}
+}
+
+func VerticalBarChartAxisShowCategoryLabels(value bool) VerticalBarChartOption {
+	return func(block *VerticalBarChartBlock) {
+		block.Axis.HasShowCategoryLabels = true
+		block.Axis.ShowCategoryLabels = value
+	}
+}
+
+func VerticalBarChartAxisLabelFormat(value VerticalBarChartAxisLabelFormatValue) VerticalBarChartOption {
+	return func(block *VerticalBarChartBlock) {
+		block.Axis.LabelFormat = value
+	}
+}
+
+func VerticalBarChartAxisMin(value float64) VerticalBarChartOption {
+	return func(block *VerticalBarChartBlock) {
+		block.Axis.HasMin = true
+		block.Axis.Min = value
+	}
+}
+
+func VerticalBarChartAxisMax(value float64) VerticalBarChartOption {
+	return func(block *VerticalBarChartBlock) {
+		block.Axis.HasMax = true
+		block.Axis.Max = value
+	}
+}
+
+func VerticalBarChartAxisConfig(value VerticalBarChartAxis) VerticalBarChartOption {
+	return func(block *VerticalBarChartBlock) {
+		block.Axis = value
+	}
+}
+
+func VerticalBarChartValueLabelsOption(value VerticalBarChartValueLabels) VerticalBarChartOption {
+	return func(block *VerticalBarChartBlock) {
+		block.ValueLabels = value
+	}
+}
+
+func VerticalBarChartValueFormatterOption(value VerticalBarChartValueFormatter) VerticalBarChartOption {
+	return func(block *VerticalBarChartBlock) {
+		block.ValueFormatter = value
 	}
 }
 
@@ -305,6 +469,24 @@ func TableCompact(value bool) TableOption {
 	}
 }
 
+func TableDensity(value TableDensityValue) TableOption {
+	return func(block *TableBlock) {
+		block.Density = value
+	}
+}
+
+func TableHeaderTone(value TableHeaderToneValue) TableOption {
+	return func(block *TableBlock) {
+		block.HeaderTone = value
+	}
+}
+
+func TableBorderStyle(value TableBorderStyleValue) TableOption {
+	return func(block *TableBlock) {
+		block.BorderStyle = value
+	}
+}
+
 func TableRightAlignNumericColumns(value bool) TableOption {
 	return func(block *TableBlock) {
 		block.RightAlignNumericColumns = value
@@ -317,14 +499,14 @@ func TableEmphasizeTotalRow(value bool) TableOption {
 	}
 }
 
-func TableColumnAlignments(value map[int]TableColumnAlignment) TableOption {
+func TableColumnAlignments(value map[int]TableColumnAlignmentValue) TableOption {
 	return func(block *TableBlock) {
 		if len(value) == 0 {
 			block.ColumnAlignments = nil
 			return
 		}
 
-		alignments := make(map[int]TableColumnAlignment, len(value))
+		alignments := make(map[int]TableColumnAlignmentValue, len(value))
 		for index, alignment := range value {
 			alignments[index] = alignment
 		}
@@ -341,11 +523,12 @@ func (builder *Builder) Add(block Block) *Builder {
 	return builder
 }
 
-func (builder *Builder) AddText(first string, more ...string) *Builder {
-	builder.Add(TextBlock{Text: first})
-	for _, value := range more {
-		builder.Add(TextBlock{Text: value})
+func (builder *Builder) AddText(text string, options ...TextOption) *Builder {
+	block := TextBlock{Text: text}
+	for _, option := range options {
+		option(&block)
 	}
+	builder.Add(block)
 
 	return builder
 }
@@ -375,8 +558,21 @@ func (builder *Builder) AddKeyValue(header string, pairs []KeyValuePair) *Builde
 	return builder.Add(KeyValueBlock{Header: header, Pairs: pairs})
 }
 
-func (builder *Builder) AddBarChart(header string, items []BarChartItem, options ...BarChartOption) *Builder {
-	block := BarChartBlock{Header: header, Items: append([]BarChartItem(nil), items...)}
+func (builder *Builder) AddHorizontalBarChart(header string, items []HorizontalBarChartItem, options ...HorizontalBarChartOption) *Builder {
+	block := HorizontalBarChartBlock{Header: header, Items: append([]HorizontalBarChartItem(nil), items...)}
+	for _, option := range options {
+		option(&block)
+	}
+
+	return builder.Add(block)
+}
+
+func (builder *Builder) AddVerticalBarChart(header string, axisLabels []string, series []VerticalBarChartSeries, options ...VerticalBarChartOption) *Builder {
+	block := VerticalBarChartBlock{
+		Header:     header,
+		AxisLabels: append([]string(nil), axisLabels...),
+		Series:     append([]VerticalBarChartSeries(nil), series...),
+	}
 	for _, option := range options {
 		option(&block)
 	}
@@ -518,6 +714,13 @@ func ImageAlign(align ImageAlignment) ImageOption {
 	}
 }
 
+// ImageHref sets the link URL for the image.
+func ImageHref(href string) ImageOption {
+	return func(ib *ImageBlock) {
+		ib.Href = href
+	}
+}
+
 // ImageFullWidth sets the image to full width.
 func ImageFullWidth() ImageOption {
 	return func(ib *ImageBlock) {
@@ -636,29 +839,17 @@ func (builder *Builder) AddEmptyState(title, body, actionLabel, actionURL string
 	return builder.Add(EmptyStateBlock{Title: title, Body: body, ActionLabel: actionLabel, ActionURL: actionURL})
 }
 
-func (builder *Builder) AddCustom(kind string, data any) (*Builder, error) {
-	customBlock, err := builder.registry.create(theme.BlockKind(kind), data)
-	if err != nil {
-		return builder, err
-	}
-
-	return builder.Add(customBlock), nil
-}
-
 func (builder *Builder) Build() *Email {
 	builder.mu.Lock()
 	defer builder.mu.Unlock()
 
 	result := &Email{
 		header:    cloneHeader(builder.header),
+		footer:    cloneFooter(builder.footer),
 		preheader: builder.preheader,
 		values:    normalizeValues(builder.values, builder.theme.DefaultStyles()),
 		blocks:    append([]Block(nil), builder.blocks...),
 		theme:     builder.theme,
-	}
-
-	if result.header != nil && result.header.LogoAlt == "" {
-		result.header.LogoAlt = result.values.LogoAlt
 	}
 
 	return result

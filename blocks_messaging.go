@@ -1,6 +1,7 @@
 package myrtle
 
 import (
+	"regexp"
 	"strings"
 
 	"github.com/gzuidhof/myrtle/theme"
@@ -19,15 +20,15 @@ func (block QuoteBlock) TemplateData() any {
 	return block
 }
 
-func (block QuoteBlock) RenderMarkdown(_ RenderContext) (string, error) {
+func (block QuoteBlock) RenderText(_ RenderContext) (string, error) {
 	text := strings.TrimSpace(block.Text)
 	if text == "" {
 		return "", nil
 	}
 
-	parts := []string{"> " + strings.ReplaceAll(text, "\n", "\n> ")}
+	parts := []string{"\"" + text + "\""}
 	if strings.TrimSpace(block.Author) != "" {
-		parts = append(parts, "> — "+strings.TrimSpace(block.Author))
+		parts = append(parts, "- "+strings.TrimSpace(block.Author))
 	}
 
 	return strings.Join(parts, "\n"), nil
@@ -61,18 +62,19 @@ type CalloutBlock struct {
 }
 
 type MessageBlock struct {
-	SenderName   string
-	SenderHandle string
-	AvatarURL    string
-	LogoAlt      string
-	LogoHref     string
-	Subject      string
-	Preview      string
-	SentAt       string
-	Platform     string
-	URL          string
-	ActionLabel  string
-	ActionURL    string
+	SenderName      string
+	SenderHandle    string
+	AvatarURL       string
+	LogoAlt         string
+	LogoHref        string
+	Subject         string
+	Preview         string
+	PreviewMarkdown string
+	SentAt          string
+	Platform        string
+	URL             string
+	ActionLabel     string
+	ActionURL       string
 }
 
 type MessageDigestBlock struct {
@@ -119,7 +121,7 @@ func (block MessageDigestBlock) TemplateData() any {
 
 	for _, message := range block.Messages {
 		normalizedMessage := normalizeMessageBlock(message)
-		if normalizedMessage.Subject == "" && normalizedMessage.Preview == "" && normalizedMessage.SenderName == "" && normalizedMessage.SenderHandle == "" {
+		if normalizedMessage.Subject == "" && normalizedMessage.Preview == "" && normalizedMessage.PreviewMarkdown == "" && normalizedMessage.SenderName == "" && normalizedMessage.SenderHandle == "" {
 			continue
 		}
 		normalized.Messages = append(normalized.Messages, normalizedMessage)
@@ -134,22 +136,23 @@ func (block MessageDigestBlock) TemplateData() any {
 
 func normalizeMessageBlock(block MessageBlock) MessageBlock {
 	return MessageBlock{
-		SenderName:   strings.TrimSpace(block.SenderName),
-		SenderHandle: strings.TrimSpace(block.SenderHandle),
-		AvatarURL:    strings.TrimSpace(block.AvatarURL),
-		LogoAlt:      strings.TrimSpace(block.LogoAlt),
-		LogoHref:     strings.TrimSpace(block.LogoHref),
-		Subject:      strings.TrimSpace(block.Subject),
-		Preview:      strings.TrimSpace(block.Preview),
-		SentAt:       strings.TrimSpace(block.SentAt),
-		Platform:     strings.TrimSpace(block.Platform),
-		URL:          strings.TrimSpace(block.URL),
-		ActionLabel:  strings.TrimSpace(block.ActionLabel),
-		ActionURL:    strings.TrimSpace(block.ActionURL),
+		SenderName:      strings.TrimSpace(block.SenderName),
+		SenderHandle:    strings.TrimSpace(block.SenderHandle),
+		AvatarURL:       strings.TrimSpace(block.AvatarURL),
+		LogoAlt:         strings.TrimSpace(block.LogoAlt),
+		LogoHref:        strings.TrimSpace(block.LogoHref),
+		Subject:         strings.TrimSpace(block.Subject),
+		Preview:         strings.TrimSpace(block.Preview),
+		PreviewMarkdown: strings.TrimSpace(block.PreviewMarkdown),
+		SentAt:          strings.TrimSpace(block.SentAt),
+		Platform:        strings.TrimSpace(block.Platform),
+		URL:             strings.TrimSpace(block.URL),
+		ActionLabel:     strings.TrimSpace(block.ActionLabel),
+		ActionURL:       strings.TrimSpace(block.ActionURL),
 	}
 }
 
-func (block CalloutBlock) RenderMarkdown(_ RenderContext) (string, error) {
+func (block CalloutBlock) RenderText(_ RenderContext) (string, error) {
 	parts := make([]string, 0, 3)
 	if strings.TrimSpace(block.Title) != "" {
 		parts = append(parts, "**"+strings.TrimSpace(block.Title)+"**")
@@ -158,25 +161,26 @@ func (block CalloutBlock) RenderMarkdown(_ RenderContext) (string, error) {
 		parts = append(parts, strings.TrimSpace(block.Body))
 	}
 	if strings.TrimSpace(block.LinkLabel) != "" && strings.TrimSpace(block.LinkURL) != "" {
-		parts = append(parts, "["+strings.TrimSpace(block.LinkLabel)+"]("+strings.TrimSpace(block.LinkURL)+")")
+		parts = append(parts, strings.TrimSpace(block.LinkLabel)+" ("+strings.TrimSpace(block.LinkURL)+")")
 	}
 	if len(parts) == 0 {
 		return "", nil
 	}
 
 	label := strings.ToUpper(string(normalizedCalloutType(block.Type)))
-	return "> **" + label + "**\n> \n> " + strings.ReplaceAll(strings.Join(parts, "\n\n"), "\n", "\n> "), nil
+	return "[ " + label + " ]\n--------------------\n" + strings.Join(parts, "\n\n"), nil
 }
 
-func (block MessageBlock) RenderMarkdown(_ RenderContext) (string, error) {
+func (block MessageBlock) RenderText(_ RenderContext) (string, error) {
 	normalized := block.TemplateData().(MessageBlock)
 	parts := make([]string, 0, 3)
 
 	if normalized.Subject != "" {
-		parts = append(parts, "**"+normalized.Subject+"**")
+		parts = append(parts, normalized.Subject)
 	}
-	if normalized.Preview != "" {
-		parts = append(parts, normalized.Preview)
+	previewText := messagePreviewText(normalized)
+	if previewText != "" {
+		parts = append(parts, previewText)
 	}
 
 	meta := ""
@@ -198,7 +202,7 @@ func (block MessageBlock) RenderMarkdown(_ RenderContext) (string, error) {
 		meta += normalized.SentAt
 	}
 	if meta != "" {
-		parts = append(parts, "_"+meta+"_")
+		parts = append(parts, meta)
 	}
 
 	if len(parts) == 0 {
@@ -213,21 +217,21 @@ func (block MessageBlock) RenderMarkdown(_ RenderContext) (string, error) {
 	}
 
 	if normalized.ActionURL != "" {
-		return body + "\n\n[" + linkLabel + "](" + normalized.ActionURL + ")", nil
+		return body + "\n\n" + linkLabel + " (" + normalized.ActionURL + ")", nil
 	}
 	if normalized.URL != "" {
-		return body + "\n\n[" + linkLabel + "](" + normalized.URL + ")", nil
+		return body + "\n\n" + linkLabel + " (" + normalized.URL + ")", nil
 	}
 
 	return body, nil
 }
 
-func (block MessageDigestBlock) RenderMarkdown(_ RenderContext) (string, error) {
+func (block MessageDigestBlock) RenderText(_ RenderContext) (string, error) {
 	normalized := block.TemplateData().(MessageDigestBlock)
 	parts := make([]string, 0, len(normalized.Messages)+1)
 
 	if normalized.Title != "" {
-		parts = append(parts, "## "+normalized.Title)
+		parts = append(parts, normalized.Title, strings.Repeat("-", min(48, max(8, len(normalized.Title)))))
 	}
 	if normalized.Subtitle != "" {
 		parts = append(parts, normalized.Subtitle)
@@ -248,18 +252,19 @@ func (block MessageDigestBlock) RenderMarkdown(_ RenderContext) (string, error) 
 
 		line := "- "
 		if message.URL != "" {
-			line += "[" + subject + "](" + message.URL + ")"
+			line += subject + " (" + message.URL + ")"
 		} else {
 			line += subject
 		}
 
-		if message.Preview != "" {
-			line += " — " + message.Preview
+		previewText := messagePreviewText(message)
+		if previewText != "" {
+			line += " — " + previewText
 		}
 
 		meta := messageMetadataLine(message)
 		if meta != "" {
-			line += " _(" + meta + ")_"
+			line += " (" + meta + ")"
 		}
 
 		parts = append(parts, line)
@@ -293,6 +298,25 @@ func messageMetadataLine(block MessageBlock) string {
 	}
 
 	return meta
+}
+
+var previewMarkdownLinkPattern = regexp.MustCompile(`\[([^\]]+)\]\(([^)]+)\)`)
+
+func messagePreviewText(block MessageBlock) string {
+	if block.Preview != "" {
+		return block.Preview
+	}
+	if block.PreviewMarkdown == "" {
+		return ""
+	}
+
+	result := previewMarkdownLinkPattern.ReplaceAllString(block.PreviewMarkdown, `$1 ($2)`)
+	replacer := strings.NewReplacer("**", "", "__", "", "*", "", "_", "", "`", "")
+	result = replacer.Replace(result)
+	result = strings.ReplaceAll(result, "\n", " ")
+	result = strings.TrimSpace(strings.Join(strings.Fields(result), " "))
+
+	return result
 }
 
 func normalizedCalloutType(value CalloutType) CalloutType {

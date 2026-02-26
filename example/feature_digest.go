@@ -17,12 +17,13 @@ func FeatureDigestEmailWithTheme(selectedTheme theme.Theme) (*myrtle.Email, erro
 
 	return myrtle.NewBuilder(
 		selectedTheme,
+		myrtle.WithStyles(theme.Styles{MaxWidthMain: "560px"}),
 	).
 		AddHeading("New this month in Myrtle").
-		Preheader("Faster rendering, richer blocks, and better previews").
-		Product("Myrtle", "https://github.com/gzuidhof/myrtle").
-		Logo("/assets/logo.png", "Myrtle").
+		WithPreheader("Faster rendering, richer blocks, and better previews").
+		WithHeader(commonHeaderGroup("Myrtle")).
 		AddHeading("February product updates", myrtle.HeadingLevel(2)).
+		AddText("This example uses a narrower container (max-width: 560px).", myrtle.TextTone(myrtle.TextToneMuted), myrtle.TextSize(myrtle.TextSizeSmall)).
 		AddQuote("Our team shipped a smaller set of changes with clearer rollout notes.", "Platform Team").
 		AddKeyValue("Highlights", []myrtle.KeyValuePair{
 			{Key: "Rendering", Value: "Improved block consistency across themes"},

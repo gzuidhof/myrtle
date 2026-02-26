@@ -2,8 +2,8 @@
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0 0 16px;">
   {{ range .Block.Pairs }}
   <tr>
-    <td style="padding:6px 0;color:{{ $.Values.Styles.ColorTextMuted }};vertical-align:top;">{{ .Key }}</td>
-    <td style="padding:6px 0;color:{{ $.Values.Styles.ColorText }};font-weight:600;vertical-align:top;text-align:right;">{{ .Value }}</td>
+    <td style="padding:6px 0;color:{{ $.Values.Styles.ColorTextMuted }};vertical-align:top;text-align:{{ physicalAlign "start" $.Values }};">{{ .Key }}</td>
+    <td style="padding:6px 0;color:{{ $.Values.Styles.ColorText }};font-weight:600;vertical-align:top;text-align:{{ physicalAlign "end" $.Values }};">{{ .Value }}</td>
   </tr>
   {{ end }}
 </table>

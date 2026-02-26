@@ -1,94 +1,49 @@
 package myrtle
 
 type HeaderSection struct {
-	Title            string
-	ProductName      string
-	ProductLink      string
-	LogoURL          string
-	LogoAlt          string
-	RenderInMarkdown bool
-	ShowTextWithLogo bool
-	LogoCentered     bool
-	Alignment        HeaderAlignment
+	Block        Block
+	RenderInText bool
+	Placement    HeaderPlacementValue
 }
 
-type HeaderAlignment string
+type HeaderPlacementValue string
 
 const (
-	HeaderAlignmentCenter HeaderAlignment = "center"
-	HeaderAlignmentLeft   HeaderAlignment = "left"
+	HeaderPlacementInside  HeaderPlacementValue = "inside"
+	HeaderPlacementOutside HeaderPlacementValue = "outside"
 )
 
 type HeaderOption func(*HeaderSection)
 
-func HeaderTitle(value string) HeaderOption {
+func HeaderRenderInText(value bool) HeaderOption {
 	return func(header *HeaderSection) {
-		header.Title = value
+		header.RenderInText = value
 	}
 }
 
-func HeaderProduct(name, link string) HeaderOption {
+func HeaderPlacement(value HeaderPlacementValue) HeaderOption {
 	return func(header *HeaderSection) {
-		header.ProductName = name
-		header.ProductLink = link
+		header.Placement = normalizedHeaderPlacement(value)
 	}
 }
 
-func HeaderLogo(url, alt string) HeaderOption {
-	return func(header *HeaderSection) {
-		header.LogoURL = url
-		header.LogoAlt = alt
-	}
-}
-
-func HeaderShowTextWithLogo(value bool) HeaderOption {
-	return func(header *HeaderSection) {
-		header.ShowTextWithLogo = value
-	}
-}
-
-func HeaderRenderInMarkdown(value bool) HeaderOption {
-	return func(header *HeaderSection) {
-		header.RenderInMarkdown = value
-	}
-}
-
-func HeaderLogoCentered(value bool) HeaderOption {
-	return func(header *HeaderSection) {
-		header.LogoCentered = value
-		if value {
-			header.Alignment = HeaderAlignmentCenter
-			return
+func BuildHeader(block Block, options ...HeaderOption) HeaderSection {
+	result := HeaderSection{Block: block, Placement: HeaderPlacementInside}
+	for _, option := range options {
+		if option == nil {
+			continue
 		}
 
-		header.Alignment = HeaderAlignmentLeft
-	}
-}
-
-func HeaderAlign(alignment HeaderAlignment) HeaderOption {
-	return func(header *HeaderSection) {
-		header.Alignment = normalizedHeaderAlignment(alignment)
-		header.LogoCentered = header.Alignment == HeaderAlignmentCenter
-	}
-}
-
-func BuildHeader(options ...HeaderOption) HeaderSection {
-	result := HeaderSection{}
-	for _, option := range options {
 		option(&result)
 	}
-
-	result.Alignment = normalizedHeaderAlignment(result.Alignment)
-	result.LogoCentered = result.Alignment == HeaderAlignmentCenter
 
 	return result
 }
 
-func normalizedHeaderAlignment(value HeaderAlignment) HeaderAlignment {
-	switch value {
-	case HeaderAlignmentLeft:
-		return HeaderAlignmentLeft
-	default:
-		return HeaderAlignmentCenter
+func normalizedHeaderPlacement(value HeaderPlacementValue) HeaderPlacementValue {
+	if value == HeaderPlacementOutside {
+		return HeaderPlacementOutside
 	}
+
+	return HeaderPlacementInside
 }

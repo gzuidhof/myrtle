@@ -12,10 +12,10 @@ type namedEmailBuilder struct {
 }
 
 type pageItem struct {
-	Key      string
-	Name     string
-	HTMLURL  string
-	Markdown string
+	Key     string
+	Name    string
+	HTMLURL string
+	Text    string
 }
 
 type groupedPageItems struct {
@@ -39,15 +39,24 @@ type indexViewData struct {
 	Theme        string
 	EmailItems   []pageItem
 	BlockGroups  []groupedPageItems
+	SMTPEnabled  bool
+	SMTPDefault  string
+	SendStatus   *sendStatus
+}
+
+type sendStatus struct {
+	Name    string
+	Success bool
+	Message string
 }
 
 type previewViewData struct {
-	Title    string
-	Theme    string
-	Name     string
-	Subject  string
-	Preview  string
-	Markdown string
+	Title   string
+	Theme   string
+	Name    string
+	Subject string
+	Preview string
+	Text    string
 }
 
 var exampleEmails = []namedEmailBuilder{
@@ -55,6 +64,8 @@ var exampleEmails = []namedEmailBuilder{
 	{Name: "product-launch", Build: example.ProductLaunchEmailWithTheme},
 	{Name: "common-blocks", Build: example.CommonBlocksEmailWithTheme},
 	{Name: "monster", Build: example.MonsterEmailWithTheme},
+	{Name: "monster-dark-mode", Build: example.MonsterDarkModeEmailWithTheme},
+	{Name: "monster-rtl", Build: example.MonsterRTLEmailWithTheme},
 	{Name: "stress", Build: example.StressTestEmailWithTheme},
 
 	{Name: "security", Build: example.SecurityCodeEmailWithTheme},
@@ -65,13 +76,15 @@ var exampleEmails = []namedEmailBuilder{
 	{Name: "report", Build: example.WeeklyReportEmailWithTheme},
 	{Name: "feature-digest", Build: example.FeatureDigestEmailWithTheme},
 	{Name: "high-impact", Build: example.HighImpactEmailWithTheme},
-	{Name: "bar-chart", Build: example.BarChartEmailWithTheme},
+	{Name: "bar-chart", Build: example.HorizontalBarChartEmailWithTheme},
+	{Name: "vertical-bar-chart", Build: example.VerticalBarChartEmailWithTheme},
 
 	{Name: "invoice-summary", Build: example.InvoiceSummaryEmailWithTheme},
 	{Name: "billing-receipt", Build: example.BillingReceiptEmailWithTheme},
 	{Name: "activity-empty-state", Build: example.ActivityEmptyStateEmailWithTheme},
 	{Name: "container-styles", Build: example.ContainerStylesEmailWithTheme},
 	{Name: "dark-mode-styles", Build: example.DarkModeStylesEmailWithTheme},
+	{Name: "custom-feature-flag-rollout", Build: CustomFeatureFlagRolloutEmailWithTheme},
 
 	{Name: "onboarding-checklist", Build: example.OnboardingChecklistEmailWithTheme},
 	{Name: "columns-complex", Build: example.ColumnsComplexEmailWithTheme},
@@ -131,6 +144,7 @@ var blockGroups = []blockGroupDefinition{
 			"summary-card",
 			"tiles",
 			"bar-chart",
+			"vertical-bar-chart",
 			"progress",
 			"sparkline",
 			"stacked-bar",

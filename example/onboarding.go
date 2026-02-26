@@ -18,9 +18,7 @@ func OnboardingChecklistEmailWithTheme(selectedTheme theme.Theme) (*myrtle.Email
 	return myrtle.NewBuilder(
 		selectedTheme,
 	).
-		Preheader("Complete your onboarding checklist").
-		Product("Myrtle", "https://github.com/gzuidhof/myrtle").
-		Logo("/assets/logo.png", "Myrtle").
+		WithPreheader("Complete your onboarding checklist").
 		AddHeading("Welcome!", myrtle.HeadingLevel(1)).
 		AddText("Your workspace is ready. Complete these steps to get value quickly:").
 		AddList([]string{"Invite your team", "Connect your domain", "Send your first transactional email"}, true).

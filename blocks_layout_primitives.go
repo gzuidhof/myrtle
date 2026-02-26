@@ -1,11 +1,16 @@
 package myrtle
 
-import "github.com/gzuidhof/myrtle/theme"
+import (
+	"strings"
+
+	"github.com/gzuidhof/myrtle/theme"
+)
 
 type DividerBlock struct {
 	Variant   DividerVariant
 	Thickness int
 	Inset     int
+	Label     string
 }
 
 type DividerVariant string
@@ -31,10 +36,16 @@ func (block DividerBlock) TemplateData() any {
 	if normalized.Variant != DividerVariantDashed && normalized.Variant != DividerVariantDotted {
 		normalized.Variant = DividerVariantSolid
 	}
+	normalized.Label = strings.TrimSpace(normalized.Label)
 
 	return normalized
 }
 
-func (block DividerBlock) RenderMarkdown(_ RenderContext) (string, error) {
-	return "---", nil
+func (block DividerBlock) RenderText(_ RenderContext) (string, error) {
+	label := strings.TrimSpace(block.Label)
+	if label != "" {
+		return "----- " + label + " -----", nil
+	}
+
+	return "--------------------", nil
 }

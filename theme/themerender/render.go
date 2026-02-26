@@ -118,6 +118,15 @@ func ParseHTMLTemplates(name string, filesystem fs.FS, files ...string) *templat
 		"isDiscountLike": func(label, value string) bool {
 			return isDiscountLike(label, value)
 		},
+		"physicalAlign": func(alignment any, values theme.Values) string {
+			return physicalAlign(alignment, values)
+		},
+		"physicalSide": func(side any, values theme.Values) string {
+			return physicalSide(side, values)
+		},
+		"isRTL": func(values theme.Values) bool {
+			return isRTL(values)
+		},
 	}).ParseFS(filesystem, files...))
 }
 
@@ -231,42 +240,43 @@ func renderGroupDataHTML(
 
 func DefaultBlockRenderHandlers() map[theme.BlockKind]BlockRenderHandler {
 	return map[theme.BlockKind]BlockRenderHandler{
-		theme.BlockKindText:             renderTextBlock,
-		theme.BlockKindHeading:          renderHeadingBlock,
-		theme.BlockKindSpacer:           renderSpacerBlock,
-		theme.BlockKindList:             renderListBlock,
-		theme.BlockKindKeyValue:         renderKeyValueBlock,
-		theme.BlockKindBarChart:         renderBarChartBlock,
-		theme.BlockKindSparkline:        renderSparklineBlock,
-		theme.BlockKindStackedBar:       renderStackedBarBlock,
-		theme.BlockKindProgress:         renderProgressBlock,
-		theme.BlockKindDistribution:     renderDistributionBlock,
-		theme.BlockKindTimeline:         renderTimelineBlock,
-		theme.BlockKindStatsRow:         renderStatsRowBlock,
-		theme.BlockKindBadge:            renderBadgeBlock,
-		theme.BlockKindSummaryCard:      renderSummaryCardBlock,
-		theme.BlockKindAttachment:       renderAttachmentBlock,
-		theme.BlockKindHero:             renderHeroBlock,
-		theme.BlockKindFooterLinks:      renderFooterLinksBlock,
-		theme.BlockKindPriceSummary:     renderPriceSummaryBlock,
-		theme.BlockKindEmptyState:       renderEmptyStateBlock,
-		theme.BlockKindQuote:            renderQuoteBlock,
-		theme.BlockKindCallout:          renderCalloutBlock,
-		theme.BlockKindMessage:          renderMessageBlock,
-		theme.BlockKindMessageDigest:    renderMessageDigestBlock,
-		theme.BlockKindLegal:            renderLegalBlock,
-		theme.BlockKindColumns:          renderColumnsBlock,
-		theme.BlockKindSection:          renderSectionBlock,
-		theme.BlockKindGrid:             renderGridBlock,
-		theme.BlockKindCardList:         renderCardListBlock,
-		theme.BlockKindButton:           renderButtonBlock,
-		theme.BlockKindButtonGroup:      renderButtonGroupBlock,
-		theme.BlockKindDivider:          renderDividerBlock,
-		theme.BlockKindImage:            renderImageBlock,
-		theme.BlockKindTable:            renderTableBlock,
-		theme.BlockKindVerificationCode: renderVerificationCodeBlock,
-		theme.BlockKindTiles:            renderTilesBlock,
-		theme.BlockKindFreeMarkdown:     renderFreeMarkdownBlock,
+		theme.BlockKindText:               renderTextBlock,
+		theme.BlockKindHeading:            renderHeadingBlock,
+		theme.BlockKindSpacer:             renderSpacerBlock,
+		theme.BlockKindList:               renderListBlock,
+		theme.BlockKindKeyValue:           renderKeyValueBlock,
+		theme.BlockKindHorizontalBarChart: renderHorizontalBarChartBlock,
+		theme.BlockKindVerticalBarChart:   renderVerticalBarChartBlock,
+		theme.BlockKindSparkline:          renderSparklineBlock,
+		theme.BlockKindStackedBar:         renderStackedBarBlock,
+		theme.BlockKindProgress:           renderProgressBlock,
+		theme.BlockKindDistribution:       renderDistributionBlock,
+		theme.BlockKindTimeline:           renderTimelineBlock,
+		theme.BlockKindStatsRow:           renderStatsRowBlock,
+		theme.BlockKindBadge:              renderBadgeBlock,
+		theme.BlockKindSummaryCard:        renderSummaryCardBlock,
+		theme.BlockKindAttachment:         renderAttachmentBlock,
+		theme.BlockKindHero:               renderHeroBlock,
+		theme.BlockKindFooterLinks:        renderFooterLinksBlock,
+		theme.BlockKindPriceSummary:       renderPriceSummaryBlock,
+		theme.BlockKindEmptyState:         renderEmptyStateBlock,
+		theme.BlockKindQuote:              renderQuoteBlock,
+		theme.BlockKindCallout:            renderCalloutBlock,
+		theme.BlockKindMessage:            renderMessageBlock,
+		theme.BlockKindMessageDigest:      renderMessageDigestBlock,
+		theme.BlockKindLegal:              renderLegalBlock,
+		theme.BlockKindColumns:            renderColumnsBlock,
+		theme.BlockKindSection:            renderSectionBlock,
+		theme.BlockKindGrid:               renderGridBlock,
+		theme.BlockKindCardList:           renderCardListBlock,
+		theme.BlockKindButton:             renderButtonBlock,
+		theme.BlockKindButtonGroup:        renderButtonGroupBlock,
+		theme.BlockKindDivider:            renderDividerBlock,
+		theme.BlockKindImage:              renderImageBlock,
+		theme.BlockKindTable:              renderTableBlock,
+		theme.BlockKindVerificationCode:   renderVerificationCodeBlock,
+		theme.BlockKindTiles:              renderTilesBlock,
+		theme.BlockKindFreeMarkdown:       renderFreeMarkdownBlock,
 	}
 }
 
@@ -364,16 +374,38 @@ func renderKeyValueBlock(templates *template.Template, view theme.BlockView) (st
 	return result, true, nil
 }
 
-func renderBarChartBlock(templates *template.Template, view theme.BlockView) (string, bool, error) {
-	barChartBlock, ok := view.Data.(myrtle.BarChartBlock)
+func renderHorizontalBarChartBlock(templates *template.Template, view theme.BlockView) (string, bool, error) {
+	horizontalBarChartBlock, ok := view.Data.(myrtle.HorizontalBarChartBlock)
 	if !ok {
 		return "", false, nil
 	}
 
 	result, err := ExecuteTemplate(templates, "block.bar_chart.html.tmpl", struct {
-		Block  myrtle.BarChartBlock
+		Block  myrtle.HorizontalBarChartBlock
 		Values theme.Values
-	}{Block: barChartBlock, Values: view.Values})
+	}{Block: horizontalBarChartBlock, Values: view.Values})
+	if err != nil {
+		return "", false, err
+	}
+
+	return result, true, nil
+}
+
+func renderVerticalBarChartBlock(templates *template.Template, view theme.BlockView) (string, bool, error) {
+	verticalBarChartData, ok := view.Data.(myrtle.VerticalBarChartTemplateData)
+	if !ok {
+		verticalBarChartBlock, blockOK := view.Data.(myrtle.VerticalBarChartBlock)
+		if !blockOK {
+			return "", false, nil
+		}
+
+		verticalBarChartData = verticalBarChartBlock.TemplateData().(myrtle.VerticalBarChartTemplateData)
+	}
+
+	result, err := ExecuteTemplate(templates, "block.vertical_bar_chart.html.tmpl", struct {
+		Block  myrtle.VerticalBarChartTemplateData
+		Values theme.Values
+	}{Block: verticalBarChartData, Values: view.Values})
 	if err != nil {
 		return "", false, err
 	}
@@ -647,7 +679,12 @@ func renderMessageBlock(templates *template.Template, view theme.BlockView) (str
 	if err != nil {
 		return "", false, err
 	}
-	previewHTML, err := renderMarkdownInline(normalized.Preview)
+	previewSource := normalized.Preview
+	if normalized.PreviewMarkdown != "" {
+		previewSource = normalized.PreviewMarkdown
+	}
+
+	previewHTML, err := renderMarkdownInline(previewSource)
 	if err != nil {
 		return "", false, err
 	}
@@ -701,7 +738,12 @@ func renderMessageDigestBlock(templates *template.Template, view theme.BlockView
 		if err != nil {
 			return "", false, err
 		}
-		previewHTML, err := renderMarkdownInline(message.Preview)
+		previewSource := message.Preview
+		if message.PreviewMarkdown != "" {
+			previewSource = message.PreviewMarkdown
+		}
+
+		previewHTML, err := renderMarkdownInline(previewSource)
 		if err != nil {
 			return "", false, err
 		}
@@ -1169,4 +1211,42 @@ func isDiscountLike(label, value string) bool {
 
 	normalizedValue := strings.TrimSpace(value)
 	return strings.HasPrefix(normalizedValue, "-")
+}
+
+func isRTL(values theme.Values) bool {
+	return values.Direction == theme.DirectionRTL
+}
+
+func physicalAlign(alignment any, values theme.Values) string {
+	value := strings.TrimSpace(fmt.Sprint(alignment))
+	switch value {
+	case "center":
+		return "center"
+	case "end":
+		if isRTL(values) {
+			return "left"
+		}
+		return "right"
+	default:
+		if isRTL(values) {
+			return "right"
+		}
+		return "left"
+	}
+}
+
+func physicalSide(side any, values theme.Values) string {
+	value := strings.TrimSpace(fmt.Sprint(side))
+	switch value {
+	case "end":
+		if isRTL(values) {
+			return "left"
+		}
+		return "right"
+	default:
+		if isRTL(values) {
+			return "right"
+		}
+		return "left"
+	}
 }

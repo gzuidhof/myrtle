@@ -39,44 +39,44 @@ func (block ColumnsBlock) TemplateData() any {
 	return normalized
 }
 
-func (block ColumnsBlock) RenderMarkdown(context RenderContext) (string, error) {
-	left, err := renderColumnMarkdown(block.Left, context)
+func (block ColumnsBlock) RenderText(context RenderContext) (string, error) {
+	left, err := renderColumnText(block.Left, context)
 	if err != nil {
 		return "", err
 	}
 
-	right, err := renderColumnMarkdown(block.Right, context)
+	right, err := renderColumnText(block.Right, context)
 	if err != nil {
 		return "", err
 	}
 
 	parts := make([]string, 0, 2)
 	if strings.TrimSpace(left) != "" {
-		parts = append(parts, "### Column 1\n\n"+left)
+		parts = append(parts, "[ Column 1 ]\n--------------------\n"+left)
 	}
 	if strings.TrimSpace(right) != "" {
-		parts = append(parts, "### Column 2\n\n"+right)
+		parts = append(parts, "[ Column 2 ]\n--------------------\n"+right)
 	}
 
 	return strings.Join(parts, "\n\n"), nil
 }
 
-func renderColumnMarkdown(blocks []Block, context RenderContext) (string, error) {
+func renderColumnText(blocks []Block, context RenderContext) (string, error) {
 	parts := make([]string, 0, len(blocks))
 	for _, block := range blocks {
 		if block == nil {
 			continue
 		}
 
-		markdown, err := block.RenderMarkdown(context)
+		text, err := block.RenderText(context)
 		if err != nil {
 			return "", err
 		}
-		if strings.TrimSpace(markdown) == "" {
+		if strings.TrimSpace(text) == "" {
 			continue
 		}
 
-		parts = append(parts, markdown)
+		parts = append(parts, text)
 	}
 
 	return strings.Join(parts, "\n\n"), nil

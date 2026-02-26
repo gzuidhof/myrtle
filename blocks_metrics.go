@@ -34,13 +34,14 @@ func (block TimelineBlock) TemplateData() any {
 	return normalized
 }
 
-func (block TimelineBlock) RenderMarkdown(_ RenderContext) (string, error) {
+func (block TimelineBlock) RenderText(_ RenderContext) (string, error) {
 	parts := make([]string, 0, len(block.Items)+2)
 	if strings.TrimSpace(block.Header) != "" {
-		parts = append(parts, "### "+strings.TrimSpace(block.Header))
+		header := strings.TrimSpace(block.Header)
+		parts = append(parts, header, strings.Repeat("-", min(48, max(8, len(header)))))
 	}
 	if strings.TrimSpace(block.AggregateHeader) != "" {
-		parts = append(parts, "_"+strings.TrimSpace(block.AggregateHeader)+"_")
+		parts = append(parts, strings.TrimSpace(block.AggregateHeader))
 	}
 
 	currentIndex := block.CurrentIndex
@@ -59,7 +60,7 @@ func (block TimelineBlock) RenderMarkdown(_ RenderContext) (string, error) {
 			line = "- 👉 "
 		}
 		if strings.TrimSpace(item.Time) != "" {
-			line += "**" + strings.TrimSpace(item.Time) + "** — "
+			line += strings.TrimSpace(item.Time) + " - "
 		}
 		line += title
 		if strings.TrimSpace(item.Detail) != "" {
@@ -105,10 +106,11 @@ func (block StatsRowBlock) TemplateData() any {
 	return normalized
 }
 
-func (block StatsRowBlock) RenderMarkdown(_ RenderContext) (string, error) {
+func (block StatsRowBlock) RenderText(_ RenderContext) (string, error) {
 	parts := make([]string, 0, len(block.Stats)+1)
 	if strings.TrimSpace(block.Header) != "" {
-		parts = append(parts, "### "+strings.TrimSpace(block.Header))
+		header := strings.TrimSpace(block.Header)
+		parts = append(parts, header, strings.Repeat("-", min(48, max(8, len(header)))))
 	}
 
 	for _, stat := range block.Stats {
@@ -121,7 +123,7 @@ func (block StatsRowBlock) RenderMarkdown(_ RenderContext) (string, error) {
 
 		line := "- "
 		if value != "" {
-			line += "**" + value + "**"
+			line += value
 		}
 		if label != "" {
 			line += " " + label
@@ -159,12 +161,12 @@ func (block BadgeBlock) TemplateData() any {
 	return normalized
 }
 
-func (block BadgeBlock) RenderMarkdown(_ RenderContext) (string, error) {
+func (block BadgeBlock) RenderText(_ RenderContext) (string, error) {
 	text := strings.TrimSpace(block.Text)
 	if text == "" {
 		return "", nil
 	}
-	return fmt.Sprintf("**[%s]** %s", strings.ToUpper(string(normalizedBadgeTone(block.Tone))), text), nil
+	return fmt.Sprintf("[%s] %s", strings.ToUpper(string(normalizedBadgeTone(block.Tone))), text), nil
 }
 
 type SummaryCardBlock struct {
@@ -181,16 +183,17 @@ func (block SummaryCardBlock) TemplateData() any {
 	return block
 }
 
-func (block SummaryCardBlock) RenderMarkdown(_ RenderContext) (string, error) {
+func (block SummaryCardBlock) RenderText(_ RenderContext) (string, error) {
 	parts := make([]string, 0, 3)
 	if strings.TrimSpace(block.Title) != "" {
-		parts = append(parts, "### "+strings.TrimSpace(block.Title))
+		title := strings.TrimSpace(block.Title)
+		parts = append(parts, "[ "+title+" ]", strings.Repeat("-", min(48, max(8, len(title)+4))))
 	}
 	if strings.TrimSpace(block.Body) != "" {
 		parts = append(parts, strings.TrimSpace(block.Body))
 	}
 	if strings.TrimSpace(block.Footer) != "" {
-		parts = append(parts, "_"+strings.TrimSpace(block.Footer)+"_")
+		parts = append(parts, strings.TrimSpace(block.Footer))
 	}
 	return strings.Join(parts, "\n\n"), nil
 }
@@ -210,19 +213,19 @@ func (block AttachmentBlock) TemplateData() any {
 	return block
 }
 
-func (block AttachmentBlock) RenderMarkdown(_ RenderContext) (string, error) {
+func (block AttachmentBlock) RenderText(_ RenderContext) (string, error) {
 	filename := strings.TrimSpace(block.Filename)
 	url := strings.TrimSpace(block.URL)
 	if filename == "" || url == "" {
 		return "", nil
 	}
 
-	line := fmt.Sprintf("[%s](%s)", filename, url)
+	line := fmt.Sprintf("%s (%s)", filename, url)
 	if strings.TrimSpace(block.Meta) != "" {
 		line += " — " + strings.TrimSpace(block.Meta)
 	}
 	if strings.TrimSpace(block.CTA) != "" {
-		line += fmt.Sprintf(" ([%s](%s))", strings.TrimSpace(block.CTA), url)
+		line += fmt.Sprintf(" (%s: %s)", strings.TrimSpace(block.CTA), url)
 	}
 
 	return line, nil

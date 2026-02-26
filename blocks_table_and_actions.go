@@ -12,17 +12,38 @@ type TableBlock struct {
 	Rows                     [][]string
 	ZebraRows                bool
 	Compact                  bool
+	Density                  TableDensityValue
+	HeaderTone               TableHeaderToneValue
+	BorderStyle              TableBorderStyleValue
 	RightAlignNumericColumns bool
 	EmphasizeTotalRow        bool
-	ColumnAlignments         map[int]TableColumnAlignment
+	ColumnAlignments         map[int]TableColumnAlignmentValue
 }
 
-type TableColumnAlignment string
+type TableColumnAlignmentValue string
+
+type TableDensityValue string
+
+type TableHeaderToneValue string
+
+type TableBorderStyleValue string
 
 const (
-	TableColumnAlignmentLeft   TableColumnAlignment = "left"
-	TableColumnAlignmentCenter TableColumnAlignment = "center"
-	TableColumnAlignmentRight  TableColumnAlignment = "right"
+	TableColumnAlignmentStart  TableColumnAlignmentValue = "start"
+	TableColumnAlignmentCenter TableColumnAlignmentValue = "center"
+	TableColumnAlignmentEnd    TableColumnAlignmentValue = "end"
+
+	TableDensityCompact TableDensityValue = "compact"
+	TableDensityNormal  TableDensityValue = "normal"
+	TableDensityRelaxed TableDensityValue = "relaxed"
+
+	TableHeaderTonePrimary TableHeaderToneValue = "primary"
+	TableHeaderToneMuted   TableHeaderToneValue = "muted"
+	TableHeaderTonePlain   TableHeaderToneValue = "plain"
+
+	TableBorderStyleSolid  TableBorderStyleValue = "solid"
+	TableBorderStyleDashed TableBorderStyleValue = "dashed"
+	TableBorderStyleDotted TableBorderStyleValue = "dotted"
 )
 
 func (block TableBlock) Kind() theme.BlockKind {
@@ -31,8 +52,19 @@ func (block TableBlock) Kind() theme.BlockKind {
 
 func (block TableBlock) TemplateData() any {
 	normalized := block
+	if normalized.Density == "" {
+		if normalized.Compact {
+			normalized.Density = TableDensityCompact
+		} else {
+			normalized.Density = TableDensityNormal
+		}
+	} else {
+		normalized.Density = normalizedTableDensity(normalized.Density)
+	}
+	normalized.HeaderTone = normalizedTableHeaderTone(normalized.HeaderTone)
+	normalized.BorderStyle = normalizedTableBorderStyle(normalized.BorderStyle)
 	if len(block.ColumnAlignments) > 0 {
-		normalized.ColumnAlignments = make(map[int]TableColumnAlignment, len(block.ColumnAlignments))
+		normalized.ColumnAlignments = make(map[int]TableColumnAlignmentValue, len(block.ColumnAlignments))
 		for index, alignment := range block.ColumnAlignments {
 			normalized.ColumnAlignments[index] = normalizedTableColumnAlignment(alignment)
 		}
@@ -41,24 +73,22 @@ func (block TableBlock) TemplateData() any {
 	return normalized
 }
 
-func (block TableBlock) RenderMarkdown(_ RenderContext) (string, error) {
+func (block TableBlock) RenderText(_ RenderContext) (string, error) {
 	var parts []string
 	if strings.TrimSpace(block.Header) != "" {
-		parts = append(parts, "### "+strings.TrimSpace(block.Header))
+		header := strings.TrimSpace(block.Header)
+		parts = append(parts, "[ "+header+" ]")
+		parts = append(parts, strings.Repeat("-", max(8, min(48, len(header)+4))))
 	}
 
 	if len(block.Columns) > 0 {
-		parts = append(parts, "| "+strings.Join(block.Columns, " | ")+" |")
-
-		separators := make([]string, len(block.Columns))
-		for index := range separators {
-			separators[index] = "---"
-		}
-		parts = append(parts, "| "+strings.Join(separators, " | ")+" |")
+		headerLine := strings.Join(block.Columns, " - ")
+		parts = append(parts, headerLine)
+		parts = append(parts, strings.Repeat("-", max(8, min(72, len(headerLine)))))
 	}
 
 	for _, row := range block.Rows {
-		parts = append(parts, "| "+strings.Join(row, " | ")+" |")
+		parts = append(parts, strings.Join(row, " - "))
 	}
 
 	return strings.Join(parts, "\n"), nil
@@ -77,7 +107,7 @@ func (block VerificationCodeBlock) TemplateData() any {
 	return block
 }
 
-func (block VerificationCodeBlock) RenderMarkdown(_ RenderContext) (string, error) {
+func (block VerificationCodeBlock) RenderText(_ RenderContext) (string, error) {
 	value := strings.TrimSpace(block.Value)
 	if value == "" {
 		return "", nil
@@ -102,15 +132,42 @@ func (block FreeMarkdownBlock) TemplateData() any {
 	return block
 }
 
-func (block FreeMarkdownBlock) RenderMarkdown(_ RenderContext) (string, error) {
+func (block FreeMarkdownBlock) RenderText(_ RenderContext) (string, error) {
 	return strings.TrimSpace(block.Markdown), nil
 }
 
-func normalizedTableColumnAlignment(value TableColumnAlignment) TableColumnAlignment {
+func normalizedTableColumnAlignment(value TableColumnAlignmentValue) TableColumnAlignmentValue {
 	switch value {
-	case TableColumnAlignmentCenter, TableColumnAlignmentRight:
+	case TableColumnAlignmentCenter, TableColumnAlignmentEnd:
 		return value
 	default:
-		return TableColumnAlignmentLeft
+		return TableColumnAlignmentStart
+	}
+}
+
+func normalizedTableDensity(value TableDensityValue) TableDensityValue {
+	switch value {
+	case TableDensityCompact, TableDensityRelaxed:
+		return value
+	default:
+		return TableDensityNormal
+	}
+}
+
+func normalizedTableHeaderTone(value TableHeaderToneValue) TableHeaderToneValue {
+	switch value {
+	case TableHeaderToneMuted, TableHeaderTonePlain:
+		return value
+	default:
+		return TableHeaderTonePrimary
+	}
+}
+
+func normalizedTableBorderStyle(value TableBorderStyleValue) TableBorderStyleValue {
+	switch value {
+	case TableBorderStyleDashed, TableBorderStyleDotted:
+		return value
+	default:
+		return TableBorderStyleSolid
 	}
 }

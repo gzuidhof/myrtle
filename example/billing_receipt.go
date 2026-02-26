@@ -19,9 +19,8 @@ func BillingReceiptEmailWithTheme(selectedTheme theme.Theme) (*myrtle.Email, err
 		selectedTheme,
 	).
 		AddHeading("Your payment receipt").
-		Preheader("Invoice INV-2026-021 has been paid").
-		Product("Myrtle Billing", "https://example.com/billing").
-		Logo("/assets/logo.png", "Myrtle Billing").
+		WithPreheader("Invoice INV-2026-021 has been paid").
+		WithHeader(commonHeaderGroup("Myrtle Billing")).
 		AddHeading("Payment confirmed", myrtle.HeadingLevel(2)).
 		AddKeyValue("Receipt details", []myrtle.KeyValuePair{
 			{Key: "Invoice", Value: "INV-2026-021"},

@@ -10,6 +10,7 @@ import (
 type SectionBlock struct {
 	Title    string
 	Subtitle string
+	Category string
 	Padding  int
 	Border   bool
 	Blocks   []Block
@@ -47,6 +48,9 @@ func (block SectionBlock) Kind() theme.BlockKind {
 
 func (block SectionBlock) TemplateData() any {
 	normalized := block
+	normalized.Title = strings.TrimSpace(normalized.Title)
+	normalized.Subtitle = strings.TrimSpace(normalized.Subtitle)
+	normalized.Category = strings.TrimSpace(normalized.Category)
 	if normalized.Padding <= 0 {
 		normalized.Padding = 16
 	}
@@ -56,17 +60,20 @@ func (block SectionBlock) TemplateData() any {
 	return normalized
 }
 
-func (block SectionBlock) RenderMarkdown(context RenderContext) (string, error) {
+func (block SectionBlock) RenderText(context RenderContext) (string, error) {
 	parts := make([]string, 0, 3)
+	if category := strings.TrimSpace(block.Category); category != "" {
+		parts = append(parts, strings.ToUpper(category))
+	}
 
 	if title := strings.TrimSpace(block.Title); title != "" {
-		parts = append(parts, "## "+title)
+		parts = append(parts, "[ "+title+" ]", strings.Repeat("-", min(48, max(8, len(title)+4))))
 	}
 	if subtitle := strings.TrimSpace(block.Subtitle); subtitle != "" {
 		parts = append(parts, subtitle)
 	}
 
-	body, err := renderColumnMarkdown(block.Blocks, context)
+	body, err := renderColumnText(block.Blocks, context)
 	if err != nil {
 		return "", err
 	}
@@ -99,12 +106,12 @@ func (block GridBlock) TemplateData() any {
 	return normalized
 }
 
-func (block GridBlock) RenderMarkdown(context RenderContext) (string, error) {
+func (block GridBlock) RenderText(context RenderContext) (string, error) {
 	normalized := block.TemplateData().(GridBlock)
 	parts := make([]string, 0, len(normalized.Items))
 
 	for index, item := range normalized.Items {
-		body, err := renderColumnMarkdown(item.Blocks, context)
+		body, err := renderColumnText(item.Blocks, context)
 		if err != nil {
 			return "", err
 		}
@@ -112,7 +119,7 @@ func (block GridBlock) RenderMarkdown(context RenderContext) (string, error) {
 			continue
 		}
 
-		parts = append(parts, fmt.Sprintf("### Grid item %d\n\n%s", index+1, body))
+		parts = append(parts, fmt.Sprintf("[ Grid item %d ]\n--------------------\n%s", index+1, body))
 	}
 
 	return strings.Join(parts, "\n\n"), nil
@@ -153,14 +160,14 @@ func (block CardListBlock) TemplateData() any {
 	return normalized
 }
 
-func (block CardListBlock) RenderMarkdown(_ RenderContext) (string, error) {
+func (block CardListBlock) RenderText(_ RenderContext) (string, error) {
 	normalized := block.TemplateData().(CardListBlock)
 	parts := make([]string, 0, len(normalized.Cards))
 
 	for _, card := range normalized.Cards {
 		line := "- "
 		if card.Title != "" {
-			line += "**" + card.Title + "**"
+			line += card.Title
 		}
 		if card.Body != "" {
 			if card.Title != "" {
@@ -173,7 +180,7 @@ func (block CardListBlock) RenderMarkdown(_ RenderContext) (string, error) {
 			if label == "" {
 				label = "Open"
 			}
-			line += fmt.Sprintf(" ([%s](%s))", label, card.URL)
+			line += fmt.Sprintf(" (%s: %s)", label, card.URL)
 		}
 
 		parts = append(parts, strings.TrimSpace(line))

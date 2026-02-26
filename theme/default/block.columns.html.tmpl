@@ -1,10 +1,19 @@
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0 0 16px;">
   <tr>
-    <td width="{{ .Block.LeftWidth }}%" valign="{{ if eq .Block.VerticalAlign "middle" }}middle{{ else if eq .Block.VerticalAlign "bottom" }}bottom{{ else }}top{{ end }}" style="padding:0 {{ .Block.Gap }}px 0 0;">
+    {{ if isRTL .Values }}
+    <td width="{{ .Block.RightWidth }}%" valign="{{ if eq .Block.VerticalAlign "middle" }}middle{{ else if eq .Block.VerticalAlign "bottom" }}bottom{{ else }}top{{ end }}" style="padding:0;padding-{{ physicalSide "end" .Values }}:{{ .Block.Gap }}px;">
+      {{ safe .RightHTML }}
+    </td>
+    <td width="{{ .Block.LeftWidth }}%" valign="{{ if eq .Block.VerticalAlign "middle" }}middle{{ else if eq .Block.VerticalAlign "bottom" }}bottom{{ else }}top{{ end }}" style="padding:0;">
+      {{ safe .LeftHTML }}
+    </td>
+    {{ else }}
+    <td width="{{ .Block.LeftWidth }}%" valign="{{ if eq .Block.VerticalAlign "middle" }}middle{{ else if eq .Block.VerticalAlign "bottom" }}bottom{{ else }}top{{ end }}" style="padding:0;padding-{{ physicalSide "end" .Values }}:{{ .Block.Gap }}px;">
       {{ safe .LeftHTML }}
     </td>
     <td width="{{ .Block.RightWidth }}%" valign="{{ if eq .Block.VerticalAlign "middle" }}middle{{ else if eq .Block.VerticalAlign "bottom" }}bottom{{ else }}top{{ end }}" style="padding:0;">
       {{ safe .RightHTML }}
     </td>
+    {{ end }}
   </tr>
 </table>

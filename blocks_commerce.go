@@ -26,10 +26,11 @@ func (block PriceSummaryBlock) TemplateData() any {
 	return block
 }
 
-func (block PriceSummaryBlock) RenderMarkdown(_ RenderContext) (string, error) {
+func (block PriceSummaryBlock) RenderText(_ RenderContext) (string, error) {
 	parts := make([]string, 0, len(block.Items)+2)
 	if strings.TrimSpace(block.Header) != "" {
-		parts = append(parts, "### "+strings.TrimSpace(block.Header))
+		header := strings.TrimSpace(block.Header)
+		parts = append(parts, header, strings.Repeat("-", min(48, max(8, len(header)))))
 	}
 
 	for _, item := range block.Items {
@@ -39,11 +40,11 @@ func (block PriceSummaryBlock) RenderMarkdown(_ RenderContext) (string, error) {
 			continue
 		}
 
-		parts = append(parts, "- **"+label+":** "+value)
+		parts = append(parts, "- "+label+": "+value)
 	}
 
 	if strings.TrimSpace(block.TotalLabel) != "" || strings.TrimSpace(block.TotalValue) != "" {
-		parts = append(parts, "**"+strings.TrimSpace(block.TotalLabel)+":** "+strings.TrimSpace(block.TotalValue))
+		parts = append(parts, strings.TrimSpace(block.TotalLabel)+": "+strings.TrimSpace(block.TotalValue))
 	}
 
 	return strings.Join(parts, "\n"), nil
@@ -64,16 +65,17 @@ func (block EmptyStateBlock) TemplateData() any {
 	return block
 }
 
-func (block EmptyStateBlock) RenderMarkdown(_ RenderContext) (string, error) {
+func (block EmptyStateBlock) RenderText(_ RenderContext) (string, error) {
 	parts := make([]string, 0, 3)
 	if strings.TrimSpace(block.Title) != "" {
-		parts = append(parts, "### "+strings.TrimSpace(block.Title))
+		title := strings.TrimSpace(block.Title)
+		parts = append(parts, "[ "+title+" ]", strings.Repeat("-", min(48, max(8, len(title)+4))))
 	}
 	if strings.TrimSpace(block.Body) != "" {
 		parts = append(parts, strings.TrimSpace(block.Body))
 	}
 	if strings.TrimSpace(block.ActionLabel) != "" && strings.TrimSpace(block.ActionURL) != "" {
-		parts = append(parts, "["+strings.TrimSpace(block.ActionLabel)+"]("+strings.TrimSpace(block.ActionURL)+")")
+		parts = append(parts, strings.TrimSpace(block.ActionLabel)+" ("+strings.TrimSpace(block.ActionURL)+")")
 	}
 
 	return strings.Join(parts, "\n\n"), nil

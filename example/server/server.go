@@ -5,6 +5,8 @@ import (
 	"io/fs"
 	"net/http"
 	"strings"
+
+	"github.com/gzuidhof/myrtle/example/server/smtpclient"
 )
 
 //go:embed templates/*.html.tmpl
@@ -16,6 +18,8 @@ var assetsFS embed.FS
 type Server struct {
 	templates templateSet
 	mux       *http.ServeMux
+	smtp      *smtpclient.Client
+	defaultTo string
 }
 
 func New() (*Server, error) {
@@ -32,8 +36,19 @@ func New() (*Server, error) {
 		return nil, err
 	}
 
+	smtpSettings, err := loadSMTPSettings()
+	if err != nil {
+		return nil, err
+	}
+
+	if smtpSettings != nil {
+		server.smtp = smtpSettings.Client
+		server.defaultTo = smtpSettings.DefaultTo
+	}
+
 	mux.HandleFunc("/", server.handleIndex)
 	mux.HandleFunc("/emails/", server.handleEmails)
+	mux.HandleFunc("/emails/send", server.handleSendEmail)
 	mux.HandleFunc("/blocks/", server.handleBlocks)
 	mux.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.FS(assetFiles))))
 

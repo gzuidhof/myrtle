@@ -12,7 +12,7 @@ type ButtonBlock struct {
 	URL       string
 	Tone      ButtonToneValue
 	Style     ButtonStyleValue
-	Alignment ButtonAlignment
+	Alignment ButtonAlignmentValue
 	Size      ButtonSizeValue
 	NoWrap    bool
 	FullWidth bool
@@ -27,7 +27,7 @@ type ButtonGroupButton struct {
 
 type ButtonGroupBlock struct {
 	Buttons           []ButtonGroupButton
-	Alignment         ButtonAlignment
+	Alignment         ButtonAlignmentValue
 	Joined            bool
 	Gap               int
 	StackOnMobile     bool
@@ -35,10 +35,10 @@ type ButtonGroupBlock struct {
 }
 
 type (
-	ButtonToneValue  string
-	ButtonStyleValue string
-	ButtonAlignment  string
-	ButtonSizeValue  string
+	ButtonToneValue      string
+	ButtonStyleValue     string
+	ButtonAlignmentValue string
+	ButtonSizeValue      string
 )
 
 const (
@@ -50,9 +50,9 @@ const (
 	ButtonStyleOutline ButtonStyleValue = "outline"
 	ButtonStyleGhost   ButtonStyleValue = "ghost"
 
-	ButtonAlignmentLeft   ButtonAlignment = "left"
-	ButtonAlignmentCenter ButtonAlignment = "center"
-	ButtonAlignmentRight  ButtonAlignment = "right"
+	ButtonAlignmentStart  ButtonAlignmentValue = "start"
+	ButtonAlignmentCenter ButtonAlignmentValue = "center"
+	ButtonAlignmentEnd    ButtonAlignmentValue = "end"
 
 	ButtonSizeSmall  ButtonSizeValue = "small"
 	ButtonSizeMedium ButtonSizeValue = "medium"
@@ -72,8 +72,20 @@ func (block ButtonBlock) TemplateData() any {
 	return normalized
 }
 
-func (block ButtonBlock) RenderMarkdown(_ RenderContext) (string, error) {
-	return fmt.Sprintf("[%s](%s)", block.Label, block.URL), nil
+func (block ButtonBlock) RenderText(_ RenderContext) (string, error) {
+	label := strings.TrimSpace(block.Label)
+	url := strings.TrimSpace(block.URL)
+	if label == "" && url == "" {
+		return "", nil
+	}
+	if label == "" {
+		return url, nil
+	}
+	if url == "" {
+		return label, nil
+	}
+
+	return fmt.Sprintf("%s (%s)", label, url), nil
 }
 
 func normalizedButtonTone(value ButtonToneValue) ButtonToneValue {
@@ -94,12 +106,12 @@ func normalizedButtonStyle(value ButtonStyleValue) ButtonStyleValue {
 	}
 }
 
-func normalizedButtonAlignment(value ButtonAlignment) ButtonAlignment {
+func normalizedButtonAlignment(value ButtonAlignmentValue) ButtonAlignmentValue {
 	switch value {
-	case ButtonAlignmentCenter, ButtonAlignmentRight:
+	case ButtonAlignmentCenter, ButtonAlignmentEnd:
 		return value
 	default:
-		return ButtonAlignmentLeft
+		return ButtonAlignmentStart
 	}
 }
 
@@ -155,11 +167,11 @@ func normalizedButtonGroupGap(value int) int {
 	return value
 }
 
-func (block ButtonGroupBlock) RenderMarkdown(_ RenderContext) (string, error) {
+func (block ButtonGroupBlock) RenderText(_ RenderContext) (string, error) {
 	normalized := block.TemplateData().(ButtonGroupBlock)
 	parts := make([]string, 0, len(normalized.Buttons))
 	for _, button := range normalized.Buttons {
-		parts = append(parts, fmt.Sprintf("[%s](%s)", button.Label, button.URL))
+		parts = append(parts, fmt.Sprintf("%s (%s)", button.Label, button.URL))
 	}
 
 	return strings.Join(parts, " · "), nil

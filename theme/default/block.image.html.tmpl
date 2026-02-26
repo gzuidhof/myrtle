@@ -1,11 +1,13 @@
 {{/*
 Image block with width and alignment support.
-Supported .Block fields: Src, Alt, Width, Align
+Supported .Block fields: Src, Alt, Href, Width, Align
 */}}
 {{ $align := .Block.Align }}
 {{ $width := .Block.Width }}
-<p style="margin:20px 0;{{if eq $align "center"}}text-align:center;{{else if eq $align "right"}}text-align:right;{{else if eq $align "full"}}margin-left:0;margin-right:0;width:100%;{{end}}">
+<p style="margin:20px 0;{{if eq $align "full"}}margin-left:0;margin-right:0;width:100%;{{else}}text-align:{{ physicalAlign $align $.Values }};{{end}}">
+	{{ if .Block.Href }}<a href="{{ .Block.Href }}" style="text-decoration:none;">{{ end }}
 	<img src="{{ .Block.Src }}" alt="{{ .Block.Alt }}"
-		style="max-width:100%;height:auto;border-radius:8px;{{if $width}}{{if gt $width 0}}width:{{$width}}px;max-width:{{$width}}px;{{end}}{{else if eq $align "full"}}width:100%;max-width:100%;display:block;{{end}}"
+		style="max-width:100%;height:auto;border-radius:{{ $.Values.Styles.RadiusElement }};{{if $width}}{{if gt $width 0}}width:{{$width}}px;max-width:{{$width}}px;{{end}}{{else if eq $align "full"}}width:100%;max-width:100%;display:block;{{end}}"
 	/>
+	{{ if .Block.Href }}</a>{{ end }}
 </p>

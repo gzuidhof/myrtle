@@ -38,11 +38,22 @@
         {{ range .EmailItems }}
         <article id="email-{{ .Key }}" class="item section-anchor">
           <h3>{{ .Name }}</h3>
+          {{ if $.SMTPEnabled }}
+          {{ if and $.SendStatus (eq $.SendStatus.Name .Key) }}
+          <p class="send-status {{ if $.SendStatus.Success }}ok{{ else }}error{{ end }}">{{ $.SendStatus.Message }}</p>
+          {{ end }}
+          <form method="post" action="/emails/send" class="send-form">
+            <input type="hidden" name="name" value="{{ .Key }}" />
+            <input type="hidden" name="theme" value="{{ $.Theme }}" />
+            <input type="email" name="to" value="{{ $.SMTPDefault }}" placeholder="you@example.com" required />
+            <button type="submit">Send email</button>
+          </form>
+          {{ end }}
           <p><a href="{{ .HTMLURL }}" target="_blank" rel="noopener noreferrer">Open HTML in new tab</a></p>
           <iframe src="{{ .HTMLURL }}" title="Email {{ .Name }}" height="520" loading="lazy"></iframe>
           <details>
-            <summary>Markdown fallback</summary>
-            <pre>{{ .Markdown }}</pre>
+            <summary>Text fallback</summary>
+            <pre>{{ .Text }}</pre>
           </details>
         </article>
         {{ end }}
@@ -60,8 +71,8 @@
           <p><a href="{{ .HTMLURL }}" target="_blank" rel="noopener noreferrer">Open HTML in new tab</a></p>
           <iframe src="{{ .HTMLURL }}" title="Block {{ .Name }}" height="320" loading="lazy"></iframe>
           <details>
-            <summary>Markdown fallback</summary>
-            <pre>{{ .Markdown }}</pre>
+            <summary>Text fallback</summary>
+            <pre>{{ .Text }}</pre>
           </details>
         </article>
         {{ end }}

@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" dir="{{ .Values.Direction }}">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>{{ if .Header }}{{ .Header.Title }}{{ else }}Email{{ end }}</title>
+  <title>Email</title>
 </head>
 <!--[if !mso]><!-->
 <style type="text/css">
@@ -25,30 +25,42 @@
 </style>
 <!--<![endif]-->
 </head>
-<body style="margin:0;background:{{ .Values.Styles.ColorPageBackground }};padding:24px;font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
+<body dir="{{ .Values.Direction }}" style="margin:0;background:{{ .Values.Styles.ColorPageBackground }};padding:{{ .Values.Styles.OuterPadding }};font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
   {{ if .Preheader }}
   <div style="display:none;max-height:0;overflow:hidden;opacity:0;">{{ .Preheader }}</div>
   {{ end }}
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="width:100%;max-width:640px;margin:0 auto;background:{{ .Values.Styles.ColorMainBackground }};border-radius:{{ .Values.Styles.RadiusMain }};border:{{ .Values.Styles.BorderMain }};font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
+  {{ if and .Header .Header.HTML (eq .Header.Placement "outside") }}
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="width:{{ .Values.Styles.WidthMain }};max-width:{{ .Values.Styles.MaxWidthMain }};margin:0 auto 12px;font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
+    <tr>
+      <td style="padding:0 {{ .Values.Styles.OutsideContentInset }};box-sizing:border-box;overflow-wrap:anywhere;word-break:break-word;word-wrap:break-word;font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
+        {{ safe .Header.HTML }}
+      </td>
+    </tr>
+  </table>
+  {{ end }}
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="width:{{ .Values.Styles.WidthMain }};max-width:{{ .Values.Styles.MaxWidthMain }};margin:0 auto;background:{{ .Values.Styles.ColorMainBackground }};border-radius:{{ .Values.Styles.RadiusMain }};border:{{ .Values.Styles.BorderMain }};font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
     <tr>
       <td style="padding:24px;box-sizing:border-box;overflow-wrap:anywhere;word-break:break-word;word-wrap:break-word;font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
-        {{ if and .Header .Header.LogoURL }}
-          <p style="margin:0 0 16px;text-align:{{ if eq .Header.Alignment "left" }}left{{ else }}center{{ end }};">
-            {{ if .Header.ProductLink }}<a href="{{ .Header.ProductLink }}" style="text-decoration:none;">{{ end }}
-              <img src="{{ .Header.LogoURL }}" alt="{{ .Header.LogoAlt }}" style="height:72px;width:auto;display:inline-block;vertical-align:middle;" />
-            {{ if .Header.ProductLink }}</a>{{ end }}
-          </p>
-        {{ end }}
-        {{ if and .Header .Header.ShowProductName }}
-          <p style="margin:0 0 20px;font-size:14px;color:{{ .Values.Styles.ColorTextMuted }};text-align:{{ if eq .Header.Alignment "left" }}left{{ else }}center{{ end }};">
-            {{ if .Header.ProductLink }}<a href="{{ .Header.ProductLink }}" style="color:{{ .Values.Styles.ColorTextMuted }};text-decoration:none;">{{ end }}{{ .Header.ProductName }}{{ if .Header.ProductLink }}</a>{{ end }}
-          </p>
+        {{ if and .Header .Header.HTML (ne .Header.Placement "outside") }}
+          {{ safe .Header.HTML }}
         {{ end }}
         {{ range .Blocks }}
           {{ safe . }}
         {{ end }}
+        {{ if and .Footer .Footer.HTML (ne .Footer.Placement "outside") }}
+          {{ safe .Footer.HTML }}
+        {{ end }}
       </td>
     </tr>
   </table>
+  {{ if and .Footer .Footer.HTML (eq .Footer.Placement "outside") }}
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="width:{{ .Values.Styles.WidthMain }};max-width:{{ .Values.Styles.MaxWidthMain }};margin:12px auto 0;font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
+    <tr>
+      <td style="padding:0 {{ .Values.Styles.OutsideContentInset }};box-sizing:border-box;overflow-wrap:anywhere;word-break:break-word;word-wrap:break-word;font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
+        {{ safe .Footer.HTML }}
+      </td>
+    </tr>
+  </table>
+  {{ end }}
 </body>
 </html>

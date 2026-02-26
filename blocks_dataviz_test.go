@@ -67,25 +67,25 @@ func TestSparklineGlyphs(t *testing.T) {
 			name:           "single point",
 			points:         []int{7},
 			expectedLength: 1,
-			expectedRunes:  "▅",
+			expectedRunes:  "+",
 		},
 		{
 			name:           "flat line",
 			points:         []int{5, 5, 5, 5},
 			expectedLength: 4,
-			expectedRunes:  "▅",
+			expectedRunes:  "+",
 		},
 		{
 			name:           "increasing range",
 			points:         []int{0, 1, 2, 3, 4, 5, 6, 7},
 			expectedLength: 8,
-			expectedRunes:  "▁▂▃▄▅▆▇█",
+			expectedRunes:  ".:-=+*#@",
 		},
 		{
 			name:           "large range",
 			points:         []int{0, 100, 1000, 10000},
 			expectedLength: 4,
-			expectedRunes:  "▁",
+			expectedRunes:  ".",
 		},
 	}
 
@@ -110,7 +110,7 @@ func TestSparklineGlyphs(t *testing.T) {
 	}
 }
 
-func TestSparklineBlockTemplateDataAndMarkdown(t *testing.T) {
+func TestSparklineBlockTemplateDataAndText(t *testing.T) {
 	t.Parallel()
 
 	block := SparklineBlock{
@@ -133,31 +133,31 @@ func TestSparklineBlockTemplateDataAndMarkdown(t *testing.T) {
 		t.Fatalf("expected unknown sparkline delta semantic to normalize to none, got %q", normalized.DeltaSemantic)
 	}
 
-	markdown, err := block.RenderMarkdown(RenderContext{})
+	text, err := block.RenderText(RenderContext{})
 	if err != nil {
-		t.Fatalf("RenderMarkdown returned error: %v", err)
+		t.Fatalf("RenderText returned error: %v", err)
 	}
-	if !strings.Contains(markdown, "### Trend") {
-		t.Fatalf("expected header in markdown, got: %q", markdown)
+	if !strings.Contains(text, "Trend\n") {
+		t.Fatalf("expected header in text output, got: %q", text)
 	}
-	if !strings.Contains(markdown, "Users: 1,240 (+12%)") {
-		t.Fatalf("expected summary line in markdown, got: %q", markdown)
+	if !strings.Contains(text, "Users: 1,240 (+12%)") {
+		t.Fatalf("expected summary line in text, got: %q", text)
 	}
-	if !strings.Contains(markdown, "▁") || !strings.Contains(markdown, "█") {
-		t.Fatalf("expected sparkline glyphs in markdown, got: %q", markdown)
+	if !strings.Contains(text, ".") || !strings.Contains(text, "@") {
+		t.Fatalf("expected sparkline glyphs in text output, got: %q", text)
 	}
 
 	withoutDelta := SparklineBlock{Header: "Trend", Label: "Users", Value: "1,240", Points: []int{1, 2, 3}}
-	withoutDeltaMarkdown, err := withoutDelta.RenderMarkdown(RenderContext{})
+	withoutDeltaText, err := withoutDelta.RenderText(RenderContext{})
 	if err != nil {
-		t.Fatalf("RenderMarkdown without delta returned error: %v", err)
+		t.Fatalf("RenderText without delta returned error: %v", err)
 	}
-	if strings.Contains(withoutDeltaMarkdown, "(") {
-		t.Fatalf("expected no delta section in markdown when unset, got: %q", withoutDeltaMarkdown)
+	if strings.Contains(withoutDeltaText, "(") {
+		t.Fatalf("expected no delta section in text when unset, got: %q", withoutDeltaText)
 	}
 }
 
-func TestStackedBarBlockTemplateDataAndMarkdown(t *testing.T) {
+func TestStackedBarBlockTemplateDataAndText(t *testing.T) {
 	t.Parallel()
 
 	block := StackedBarBlock{
@@ -184,22 +184,22 @@ func TestStackedBarBlockTemplateDataAndMarkdown(t *testing.T) {
 		t.Fatalf("expected lower clamp to 0, got %d", normalized.Rows[0].Segments[1].Percent)
 	}
 
-	markdown, err := block.RenderMarkdown(RenderContext{})
+	text, err := block.RenderText(RenderContext{})
 	if err != nil {
-		t.Fatalf("RenderMarkdown returned error: %v", err)
+		t.Fatalf("RenderText returned error: %v", err)
 	}
-	if !strings.Contains(markdown, "### Funnel") || !strings.Contains(markdown, "**Q1:**") {
-		t.Fatalf("expected header and row in markdown, got: %q", markdown)
+	if !strings.Contains(text, "Funnel") || !strings.Contains(text, "Q1:") {
+		t.Fatalf("expected header and row in text output, got: %q", text)
 	}
-	if !strings.Contains(markdown, "**Total:** 120k") {
-		t.Fatalf("expected total line in markdown, got: %q", markdown)
+	if !strings.Contains(text, "Total: 120k") {
+		t.Fatalf("expected total line in text output, got: %q", text)
 	}
-	if !strings.Contains(markdown, "Won 100%") || !strings.Contains(markdown, "Lost 12") {
-		t.Fatalf("expected segment values in markdown, got: %q", markdown)
+	if !strings.Contains(text, "Won 100%") || !strings.Contains(text, "Lost 12") {
+		t.Fatalf("expected segment values in text, got: %q", text)
 	}
 }
 
-func TestProgressBlockTemplateDataAndMarkdown(t *testing.T) {
+func TestProgressBlockTemplateDataAndText(t *testing.T) {
 	t.Parallel()
 
 	block := ProgressBlock{
@@ -218,19 +218,19 @@ func TestProgressBlockTemplateDataAndMarkdown(t *testing.T) {
 		t.Fatalf("expected upper clamp to 100, got %d", normalized.Items[1].Percent)
 	}
 
-	markdown, err := block.RenderMarkdown(RenderContext{})
+	text, err := block.RenderText(RenderContext{})
 	if err != nil {
-		t.Fatalf("RenderMarkdown returned error: %v", err)
+		t.Fatalf("RenderText returned error: %v", err)
 	}
-	if !strings.Contains(markdown, "### Delivery") || !strings.Contains(markdown, "Build") {
-		t.Fatalf("expected progress markdown content, got: %q", markdown)
+	if !strings.Contains(text, "Delivery") || !strings.Contains(text, "Build") {
+		t.Fatalf("expected progress text content, got: %q", text)
 	}
-	if !strings.Contains(markdown, "█") {
-		t.Fatalf("expected progress bar glyphs, got: %q", markdown)
+	if !strings.Contains(text, "#") {
+		t.Fatalf("expected progress bar glyphs, got: %q", text)
 	}
 }
 
-func TestDistributionBlockTemplateDataAndMarkdown(t *testing.T) {
+func TestDistributionBlockTemplateDataAndText(t *testing.T) {
 	t.Parallel()
 
 	block := DistributionBlock{
@@ -253,14 +253,14 @@ func TestDistributionBlockTemplateDataAndMarkdown(t *testing.T) {
 		t.Fatalf("expected proportional bucket width 50, got %d", normalized.Buckets[2].WidthPercent)
 	}
 
-	markdown, err := block.RenderMarkdown(RenderContext{})
+	text, err := block.RenderText(RenderContext{})
 	if err != nil {
-		t.Fatalf("RenderMarkdown returned error: %v", err)
+		t.Fatalf("RenderText returned error: %v", err)
 	}
-	if !strings.Contains(markdown, "### Latency") || !strings.Contains(markdown, "(10)") {
-		t.Fatalf("expected distribution markdown content, got: %q", markdown)
+	if !strings.Contains(text, "Latency") || !strings.Contains(text, "(10)") {
+		t.Fatalf("expected distribution text content, got: %q", text)
 	}
-	if !strings.Contains(markdown, "(0)") {
-		t.Fatalf("expected clamped zero-count bucket in markdown, got: %q", markdown)
+	if !strings.Contains(text, "(0)") {
+		t.Fatalf("expected clamped zero-count bucket in text output, got: %q", text)
 	}
 }

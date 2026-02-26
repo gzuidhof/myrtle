@@ -9,9 +9,14 @@ import (
 
 var ErrThemeCannotRenderBlock = errors.New("myrtle: theme cannot render block")
 
+type htmlBlock interface {
+	RenderHTML(values theme.Values) (string, error)
+}
+
 // Email is an immutable rendered message composed from header metadata, values, and blocks.
 type Email struct {
 	header    *HeaderSection
+	footer    *FooterSection
 	preheader string
 	values    theme.Values
 	blocks    []Block
@@ -30,6 +35,15 @@ func (email *Email) Values() theme.Values {
 
 // HTML renders the email into themed HTML by rendering each block then composing the full layout.
 func (email *Email) HTML() (string, error) {
+	header, err := email.headerHTMLView()
+	if err != nil {
+		return "", err
+	}
+	footer, err := email.footerHTMLView()
+	if err != nil {
+		return "", err
+	}
+
 	fragments := make([]string, 0, len(email.blocks))
 
 	for _, block := range email.blocks {
@@ -37,13 +51,12 @@ func (email *Email) HTML() (string, error) {
 			continue
 		}
 
-		if customHTML, ok, err := email.theme.RenderBlockHTML(theme.BlockView{
-			Kind:   block.Kind(),
-			Data:   block.TemplateData(),
-			Values: email.values,
-		}); err != nil {
+		customHTML, ok, err := email.renderBlockHTML(block)
+		if err != nil {
 			return "", err
-		} else if ok {
+		}
+
+		if ok {
 			fragments = append(fragments, customHTML)
 			continue
 		}
@@ -52,23 +65,43 @@ func (email *Email) HTML() (string, error) {
 	}
 
 	return email.theme.RenderHTML(theme.EmailView{
-		Header:    email.headerView(),
+		Header:    header,
+		Footer:    footer,
 		Preheader: email.preheader,
 		Values:    email.values,
 		Blocks:    fragments,
 	})
 }
 
-// Text renders the email into a markdown/text fallback representation.
+func (email *Email) renderBlockHTML(block Block) (string, bool, error) {
+	data := block.TemplateData()
+
+	if htmlRenderer, ok := block.(htmlBlock); ok {
+		customHTML, err := htmlRenderer.RenderHTML(email.values)
+		if err != nil {
+			return "", false, err
+		}
+
+		return customHTML, true, nil
+	}
+
+	return email.theme.RenderBlockHTML(theme.BlockView{
+		Kind:   block.Kind(),
+		Data:   data,
+		Values: email.values,
+	})
+}
+
+// Text renders the email into a plain-text fallback representation.
 func (email *Email) Text() (string, error) {
-	markdownParts := make([]string, 0, len(email.blocks)+2)
+	textParts := make([]string, 0, len(email.blocks)+2)
 
 	for _, block := range email.blocks {
 		if block == nil {
 			continue
 		}
 
-		markdown, err := block.RenderMarkdown(RenderContext{
+		text, err := block.RenderText(RenderContext{
 			Preheader: email.Preheader(),
 			Values:    email.values,
 		})
@@ -76,19 +109,27 @@ func (email *Email) Text() (string, error) {
 			return "", err
 		}
 
-		if strings.TrimSpace(markdown) == "" {
+		if strings.TrimSpace(text) == "" {
 			continue
 		}
 
-		markdownParts = append(markdownParts, markdown)
+		textParts = append(textParts, text)
 	}
 
-	body := strings.Join(markdownParts, "\n\n")
-	markdownHeader := email.markdownHeaderView()
+	body := strings.Join(textParts, "\n\n")
+	textHeader, err := email.textHeaderView()
+	if err != nil {
+		return "", err
+	}
+	textFooter, err := email.textFooterView()
+	if err != nil {
+		return "", err
+	}
 
-	if wrapper, ok := email.theme.(theme.MarkdownWrapper); ok {
-		return wrapper.WrapMarkdown(theme.TextView{
-			Header:    markdownHeader,
+	if wrapper, ok := email.theme.(theme.TextWrapper); ok {
+		return wrapper.WrapText(theme.TextView{
+			Header:    textHeader,
+			Footer:    textFooter,
 			Preheader: email.preheader,
 			Values:    email.values,
 			Body:      body,
@@ -97,43 +138,104 @@ func (email *Email) Text() (string, error) {
 
 	var outputParts []string
 	if strings.TrimSpace(email.Preheader()) != "" {
-		outputParts = append(outputParts, "_"+email.Preheader()+"_")
+		outputParts = append(outputParts, email.Preheader())
 	}
 	if strings.TrimSpace(body) != "" {
 		outputParts = append(outputParts, body)
+	}
+	if textFooter != nil && strings.TrimSpace(textFooter.Text) != "" {
+		outputParts = append(outputParts, textFooter.Text)
 	}
 
 	return strings.Join(outputParts, "\n\n"), nil
 }
 
-func (email *Email) markdownHeaderView() *theme.HeaderView {
-	if email.header == nil || !email.header.RenderInMarkdown {
-		return nil
+func (email *Email) textHeaderView() (*theme.HeaderView, error) {
+	if email.header == nil || !email.header.RenderInText {
+		return nil, nil
 	}
 
-	return email.headerView()
+	if email.header.Block == nil {
+		return nil, nil
+	}
+
+	text, err := email.header.Block.RenderText(RenderContext{
+		Preheader: email.Preheader(),
+		Values:    email.values,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	text = strings.TrimSpace(text)
+	if text == "" {
+		return nil, nil
+	}
+
+	return &theme.HeaderView{Text: text}, nil
 }
 
-func (email *Email) headerView() *theme.HeaderView {
+func (email *Email) headerHTMLView() (*theme.HeaderView, error) {
 	if email.header == nil {
-		return nil
+		return nil, nil
 	}
 
-	alignment := normalizedHeaderAlignment(email.header.Alignment)
-	hasLogo := strings.TrimSpace(email.header.LogoURL) != ""
-	showTextWithLogo := email.header.ShowTextWithLogo
-	showTitle := strings.TrimSpace(email.header.Title) != "" && (!hasLogo || showTextWithLogo)
-	showProductName := strings.TrimSpace(email.header.ProductName) != "" && (!hasLogo || showTextWithLogo)
-
-	return &theme.HeaderView{
-		Title:           email.header.Title,
-		ShowTitle:       showTitle,
-		ProductName:     email.header.ProductName,
-		ShowProductName: showProductName,
-		ProductLink:     email.header.ProductLink,
-		LogoURL:         email.header.LogoURL,
-		LogoAlt:         email.header.LogoAlt,
-		LogoCentered:    alignment == HeaderAlignmentCenter,
-		Alignment:       string(alignment),
+	if email.header.Block == nil {
+		return nil, nil
 	}
+
+	headerHTML, ok, err := email.renderBlockHTML(email.header.Block)
+	if err != nil {
+		return nil, err
+	}
+	if !ok {
+		return nil, errors.Join(ErrThemeCannotRenderBlock, errors.New(string(email.header.Block.Kind())))
+	}
+
+	return &theme.HeaderView{HTML: headerHTML, Placement: string(normalizedHeaderPlacement(email.header.Placement))}, nil
+}
+
+func (email *Email) textFooterView() (*theme.FooterView, error) {
+	if email.footer == nil || !email.footer.RenderInText {
+		return nil, nil
+	}
+
+	if email.footer.Block == nil {
+		return nil, nil
+	}
+
+	text, err := email.footer.Block.RenderText(RenderContext{
+		Preheader: email.Preheader(),
+		Values:    email.values,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	text = strings.TrimSpace(text)
+	if text == "" {
+		return nil, nil
+	}
+
+	return &theme.FooterView{Text: text}, nil
+}
+
+func (email *Email) footerHTMLView() (*theme.FooterView, error) {
+	if email.footer == nil {
+		return nil, nil
+	}
+
+	if email.footer.Block == nil {
+		return nil, nil
+	}
+
+	footerHTML, ok, err := email.renderBlockHTML(email.footer.Block)
+	if err != nil {
+		return nil, err
+	}
+	if !ok {
+		return nil, errors.Join(ErrThemeCannotRenderBlock, errors.New(string(email.footer.Block.Kind())))
+	}
+
+	return &theme.FooterView{HTML: footerHTML, Placement: string(normalizedFooterPlacement(email.footer.Placement))}, nil
 }

@@ -2,6 +2,7 @@ package myrtle
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/gzuidhof/myrtle/theme"
 )
@@ -9,8 +10,9 @@ import (
 type ImageBlock struct {
 	Src   string
 	Alt   string
+	Href  string
 	Width int            // px, 0 means auto
-	Align ImageAlignment // "center", "left", "right", "full", "" (default)
+	Align ImageAlignment // "center", "start", "end", "full", "" (default)
 }
 
 type ImageAlignment string
@@ -18,8 +20,8 @@ type ImageAlignment string
 const (
 	ImageAlignmentDefault ImageAlignment = ""
 	ImageAlignmentCenter  ImageAlignment = "center"
-	ImageAlignmentLeft    ImageAlignment = "left"
-	ImageAlignmentRight   ImageAlignment = "right"
+	ImageAlignmentStart   ImageAlignment = "start"
+	ImageAlignmentEnd     ImageAlignment = "end"
 	ImageAlignmentFull    ImageAlignment = "full"
 )
 
@@ -33,13 +35,25 @@ func (block ImageBlock) TemplateData() any {
 	return normalized
 }
 
-func (block ImageBlock) RenderMarkdown(_ RenderContext) (string, error) {
-	return fmt.Sprintf("![%s](%s)", block.Alt, block.Src), nil
+func (block ImageBlock) RenderText(_ RenderContext) (string, error) {
+	alt := strings.TrimSpace(block.Alt)
+	src := strings.TrimSpace(block.Src)
+	if alt == "" && src == "" {
+		return "", nil
+	}
+	if alt == "" {
+		return src, nil
+	}
+	if src == "" {
+		return alt, nil
+	}
+
+	return fmt.Sprintf("%s (%s)", alt, src), nil
 }
 
 func normalizedImageAlignment(value ImageAlignment) ImageAlignment {
 	switch value {
-	case ImageAlignmentCenter, ImageAlignmentLeft, ImageAlignmentRight, ImageAlignmentFull:
+	case ImageAlignmentCenter, ImageAlignmentStart, ImageAlignmentEnd, ImageAlignmentFull:
 		return value
 	default:
 		return ImageAlignmentDefault
