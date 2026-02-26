@@ -19,14 +19,10 @@ func PasswordResetEmailWithTheme(selectedTheme theme.Theme) (*myrtle.Email, erro
 		selectedTheme,
 		myrtle.WithStyles(theme.Styles{ColorPrimary: "#2563eb"}),
 	).
-		Preheader("Use the secure link below to choose a new password").
-		Product("Myrtle Security", "https://example.com/security").
-		Logo("/assets/logo.png", "Myrtle Security").
+		WithPreheader("Use the secure link below to choose a new password").
 		AddHeading("Password reset request", myrtle.HeadingLevel(2)).
-		AddText(
-			"We received a request to reset the password for your account.",
-			"If this was you, continue below. This link expires in 30 minutes.",
-		).
+		AddText("We received a request to reset the password for your account.").
+		AddText("If this was you, continue below. This link expires in 30 minutes.").
 		AddText("Confirm your identity and set a new password:").
 		AddButton("Reset password", "https://example.com/security/reset?token=demo-token").
 		AddCallout(myrtle.CalloutTypeWarning, "Didn't request this?", "You can ignore this email. Your password will stay unchanged.").

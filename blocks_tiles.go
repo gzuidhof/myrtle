@@ -21,8 +21,8 @@ type TileAlignment string
 
 const (
 	TileAlignmentCenter TileAlignment = "center"
-	TileAlignmentLeft   TileAlignment = "left"
-	TileAlignmentRight  TileAlignment = "right"
+	TileAlignmentStart  TileAlignment = "start"
+	TileAlignmentEnd    TileAlignment = "end"
 )
 
 type TileEntry struct {
@@ -72,7 +72,7 @@ func (block TilesBlock) TemplateData() any {
 	return normalized
 }
 
-func (block TilesBlock) RenderMarkdown(_ RenderContext) (string, error) {
+func (block TilesBlock) RenderText(_ RenderContext) (string, error) {
 	normalized := block.TemplateData().(TilesBlock)
 	parts := make([]string, 0, len(normalized.Entries))
 
@@ -86,9 +86,9 @@ func (block TilesBlock) RenderMarkdown(_ RenderContext) (string, error) {
 				line += " "
 			}
 			if entry.URL != "" {
-				line += fmt.Sprintf("[**%s**](%s)", entry.Title, entry.URL)
+				line += fmt.Sprintf("%s (%s)", entry.Title, entry.URL)
 			} else {
-				line += "**" + entry.Title + "**"
+				line += entry.Title
 			}
 		}
 		if entry.Subtitle != "" {
@@ -126,7 +126,7 @@ func normalizedTilesColumns(value int) int {
 
 func normalizedTileAlignment(value TileAlignment) TileAlignment {
 	switch value {
-	case TileAlignmentLeft, TileAlignmentRight:
+	case TileAlignmentStart, TileAlignmentEnd:
 		return value
 	default:
 		return TileAlignmentCenter

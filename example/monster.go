@@ -11,6 +11,26 @@ func MonsterEmail() (*myrtle.Email, error) {
 }
 
 func MonsterEmailWithTheme(selectedTheme theme.Theme) (*myrtle.Email, error) {
+	return monsterEmailWithThemeAndStyles(selectedTheme, monsterLightStyles(), theme.DirectionLTR)
+}
+
+func MonsterDarkModeEmail() (*myrtle.Email, error) {
+	return MonsterDarkModeEmailWithTheme(defaulttheme.New())
+}
+
+func MonsterDarkModeEmailWithTheme(selectedTheme theme.Theme) (*myrtle.Email, error) {
+	return monsterEmailWithThemeAndStyles(selectedTheme, monsterDarkStyles(), theme.DirectionLTR)
+}
+
+func MonsterRTLEmail() (*myrtle.Email, error) {
+	return MonsterRTLEmailWithTheme(defaulttheme.New())
+}
+
+func MonsterRTLEmailWithTheme(selectedTheme theme.Theme) (*myrtle.Email, error) {
+	return monsterEmailWithThemeAndStyles(selectedTheme, monsterLightStyles(), theme.DirectionRTL)
+}
+
+func monsterEmailWithThemeAndStyles(selectedTheme theme.Theme, styles theme.Styles, direction theme.Direction) (*myrtle.Email, error) {
 	if selectedTheme == nil {
 		selectedTheme = defaulttheme.New()
 	}
@@ -24,16 +44,12 @@ func MonsterEmailWithTheme(selectedTheme theme.Theme) (*myrtle.Email, error) {
 
 	return myrtle.NewBuilder(
 		selectedTheme,
-		myrtle.WithStyles(theme.Styles{ColorPrimary: "#6d28d9", ColorSecondary: "#a855f7"}),
+		myrtle.WithStyles(styles),
+		myrtle.WithDirection(direction),
 	).
 		WithoutHeader().
-		Preheader("A single email that demonstrates every available block").
-		WithHeader(
-			myrtle.HeaderTitle("The Myrtle Monster Email"),
-			myrtle.HeaderProduct("Myrtle Platform", "https://github.com/gzuidhof/myrtle"),
-			myrtle.HeaderLogo("/assets/logo.png", "Myrtle Platform"),
-			myrtle.HeaderShowTextWithLogo(true),
-		).
+		WithPreheader("A single email that demonstrates every available block").
+		WithHeader(myrtle.HeadingBlock{Text: "The Myrtle Monster Email", Level: 1}, myrtle.HeaderPlacement(myrtle.HeaderPlacementOutside)).
 		Add(myrtle.HeroBlock{
 			Eyebrow:  "Monster Demo",
 			Title:    "A single email showing nearly every component",
@@ -65,17 +81,15 @@ func MonsterEmailWithTheme(selectedTheme theme.Theme) (*myrtle.Email, error) {
 		AddButtonGroup([]myrtle.ButtonGroupButton{{Label: "Approve", URL: "https://example.com/approve", Tone: myrtle.ButtonTonePrimary}, {Label: "Review", URL: "https://example.com/review", Tone: myrtle.ButtonToneSecondary}, {Label: "Delete", URL: "https://example.com/delete", Tone: myrtle.ButtonToneDanger}}, myrtle.ButtonGroupAlign(myrtle.ButtonAlignmentCenter), myrtle.ButtonGroupJoined(true)).
 		AddButtonGroup([]myrtle.ButtonGroupButton{{Label: "Primary", URL: "https://example.com/primary-group", Tone: myrtle.ButtonTonePrimary}, {Label: "Outline", URL: "https://example.com/outline-group", Style: myrtle.ButtonStyleOutline}, {Label: "Ghost", URL: "https://example.com/ghost-group", Tone: myrtle.ButtonToneDanger, Style: myrtle.ButtonStyleGhost}}, myrtle.ButtonGroupGap(12), myrtle.ButtonGroupStackOnMobile(true), myrtle.ButtonGroupFullWidthOnMobile(true)).
 		AddColumns(
-			func(column *myrtle.ColumnBuilder) {
-				column.AddHeading("Quick links", myrtle.HeadingLevel(3)).
-					AddList([]string{"Open dashboard", "Review incidents", "Manage preferences"}, false).
-					AddButton("Open dashboard", "https://example.com/dashboard")
-			},
-			func(column *myrtle.ColumnBuilder) {
-				column.AddHeading("Verification", myrtle.HeadingLevel(3)).
-					Add(myrtle.VerificationCodeBlock{Label: "One-time code", Value: "483920"}).
-					AddText("Use this code to authorize billing changes.").
-					AddButton("Open security", "https://example.com/security")
-			},
+			myrtle.NewGroup().
+				AddHeading("Quick links", myrtle.HeadingLevel(3)).
+				AddList([]string{"Open dashboard", "Review incidents", "Manage preferences"}, false).
+				AddButton("Open dashboard", "https://example.com/dashboard"),
+			myrtle.NewGroup().
+				AddHeading("Verification", myrtle.HeadingLevel(3)).
+				Add(myrtle.VerificationCodeBlock{Label: "One-time code", Value: "483920"}).
+				AddText("Use this code to authorize billing changes.").
+				AddButton("Open security", "https://example.com/security"),
 			myrtle.ColumnsWidths(55, 45),
 		).
 		AddDivider().
@@ -146,24 +160,24 @@ func MonsterEmailWithTheme(selectedTheme theme.Theme) (*myrtle.Email, error) {
 			myrtle.TableZebraRows(true),
 			myrtle.TableRightAlignNumericColumns(true),
 			myrtle.TableEmphasizeTotalRow(true),
-			myrtle.TableColumnAlignments(map[int]myrtle.TableColumnAlignment{
-				0: myrtle.TableColumnAlignmentLeft,
-				1: myrtle.TableColumnAlignmentRight,
-				2: myrtle.TableColumnAlignmentRight,
+			myrtle.TableColumnAlignments(map[int]myrtle.TableColumnAlignmentValue{
+				0: myrtle.TableColumnAlignmentStart,
+				1: myrtle.TableColumnAlignmentEnd,
+				2: myrtle.TableColumnAlignmentEnd,
 			}),
 		).
-		AddBarChart("Message volume by channel", []myrtle.BarChartItem{
-			{Label: "Email", Value: "68%", Percent: 68},
-			{Label: "SMS", Value: "21%", Percent: 21},
-			{Label: "Push", Value: "11%", Percent: 11},
+		AddHorizontalBarChart("Message volume by channel", []myrtle.HorizontalBarChartItem{
+			{Label: "Email", Value: "68%", Percent: 68, Color: "#2563eb"},
+			{Label: "SMS", Value: "21%", Percent: 21, Color: "#7c3aed"},
+			{Label: "Push", Value: "11%", Percent: 11, Color: "#0ea5e9"},
 		}).
 		AddSparkline("Trend", "Signups", "1,204", []int{8, 12, 9, 14, 18, 16, 20}, myrtle.SparklineDelta("+8%"), myrtle.SparklineDeltaSemantic(myrtle.StatDeltaSemanticPositive)).
 		AddStackedBar("Stage composition", []myrtle.StackedBarRow{
-			{Label: "Acquisition", Segments: []myrtle.StackedBarSegment{{Label: "Email", Percent: 58, Value: "58%"}, {Label: "SMS", Percent: 24, Value: "24%"}, {Label: "Push", Percent: 18, Value: "18%"}}},
-			{Label: "Activation", Segments: []myrtle.StackedBarSegment{{Label: "Email", Percent: 42, Value: "42%"}, {Label: "SMS", Percent: 33, Value: "33%"}, {Label: "Push", Percent: 25, Value: "25%"}}},
+			{Label: "Acquisition", Segments: []myrtle.StackedBarSegment{{Label: "Email", Percent: 58, Value: "58%", Color: "#2563eb"}, {Label: "SMS", Percent: 24, Value: "24%", Color: "#7c3aed"}, {Label: "Push", Percent: 18, Value: "18%", Color: "#0ea5e9"}}},
+			{Label: "Activation", Segments: []myrtle.StackedBarSegment{{Label: "Email", Percent: 42, Value: "42%", Color: "#16a34a"}, {Label: "SMS", Percent: 33, Value: "33%", Color: "#f59e0b"}, {Label: "Push", Percent: 25, Value: "25%", Color: "#dc2626"}}},
 		}, myrtle.StackedBarTotal("Total", "120k")).
-		AddProgress("Release checklist", []myrtle.ProgressItem{{Label: "Schema migration", Percent: 100}, {Label: "API deploy", Percent: 76}, {Label: "Client rollout", Percent: 48}}).
-		AddDistribution("Latency buckets (ms)", []myrtle.DistributionBucket{{Label: "0-50", Count: 62}, {Label: "51-100", Count: 44}, {Label: "101-200", Count: 21}, {Label: "200+", Count: 8}}).
+		AddProgress("Release checklist", []myrtle.ProgressItem{{Label: "Schema migration", Percent: 100, Color: "#16a34a"}, {Label: "API deploy", Percent: 76, Color: "#f59e0b"}, {Label: "Client rollout", Percent: 48, Color: "#dc2626"}}).
+		AddDistribution("Latency buckets (ms)", []myrtle.DistributionBucket{{Label: "0-50", Count: 62, Color: "#16a34a"}, {Label: "51-100", Count: 44, Color: "#0ea5e9"}, {Label: "101-200", Count: 21, Color: "#f59e0b"}, {Label: "200+", Count: 8, Color: "#dc2626"}}).
 		AddPriceSummary("Commercial summary", []myrtle.PriceLine{{Label: "Subtotal", Value: "$120.00"}, {Label: "Discount", Value: "-$12.00"}, {Label: "Tax", Value: "$8.64"}}, "Total", "$116.64").
 		AddKeyValue("Account summary", []myrtle.KeyValuePair{
 			{Key: "Plan", Value: "Business"},
@@ -179,14 +193,11 @@ func MonsterEmailWithTheme(selectedTheme theme.Theme) (*myrtle.Email, error) {
 			myrtle.TimelineCurrentIndex(1),
 		).
 		AddColumns(
-			func(column *myrtle.ColumnBuilder) {
-				column.AddCallout(myrtle.CalloutTypeSuccess, "All systems nominal", "No active incidents and queue lag is within normal range.").
-					AddCallout(myrtle.CalloutTypeWarning, "Action recommended", "Rotate API keys older than 90 days.")
-			},
-			func(column *myrtle.ColumnBuilder) {
-				column.AddCallout(myrtle.CalloutTypeError, "Failed webhooks", "2 endpoints failed retries in the last 24h.").
-					AddImage("/assets/chart-preview.png", "Myrtle chart preview")
-			},
+			myrtle.NewGroup().
+				AddCallout(myrtle.CalloutTypeSuccess, "All systems nominal", "No active incidents and queue lag is within normal range.").
+				AddCallout(myrtle.CalloutTypeWarning, "Action recommended", "Rotate API keys older than 90 days."),
+			myrtle.NewGroup().
+				AddCallout(myrtle.CalloutTypeError, "Failed webhooks", "2 endpoints failed retries in the last 24h."),
 			myrtle.ColumnsWidths(50, 50),
 		).
 		AddAttachment("weekly-report.pdf", "PDF · 312 KB", "https://example.com/reports/weekly", "Download").
@@ -196,4 +207,19 @@ func MonsterEmailWithTheme(selectedTheme theme.Theme) (*myrtle.Email, error) {
 		AddFooterLinks([]myrtle.FooterLink{{Label: "Docs", URL: "https://github.com/gzuidhof/myrtle"}, {Label: "Support", URL: "https://github.com/gzuidhof/myrtle/discussions"}, {Label: "Status", URL: "https://example.com/status"}}, "You can manage what you receive in preferences.").
 		AddLegal("Myrtle Inc.", "123 Market St, San Francisco, CA", "https://example.com/preferences", "https://example.com/unsubscribe").
 		Build(), nil
+}
+
+func monsterLightStyles() theme.Styles {
+	return theme.Styles{
+		ColorPrimary:   "#6d28d9",
+		ColorSecondary: "#a855f7",
+	}
+}
+
+func monsterDarkStyles() theme.Styles {
+	styles := theme.DefaultDarkModeStyles()
+	styles.ColorPrimary = "#8b5cf6"
+	styles.ColorSecondary = "#c084fc"
+
+	return styles
 }

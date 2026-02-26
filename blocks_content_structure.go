@@ -20,21 +20,21 @@ func (block HeadingBlock) TemplateData() any {
 	return block
 }
 
-func (block HeadingBlock) RenderMarkdown(_ RenderContext) (string, error) {
+func (block HeadingBlock) RenderText(_ RenderContext) (string, error) {
 	text := strings.TrimSpace(block.Text)
 	if text == "" {
 		return "", nil
 	}
 
-	level := block.Level
-	if level < 1 {
-		level = 1
+	dividerLength := len(text)
+	if dividerLength < 5 {
+		dividerLength = 5
 	}
-	if level > 6 {
-		level = 6
+	if dividerLength > 48 {
+		dividerLength = 48
 	}
 
-	return strings.Repeat("#", level) + " " + text, nil
+	return text + "\n" + strings.Repeat("-", dividerLength), nil
 }
 
 type SpacerBlock struct {
@@ -54,7 +54,7 @@ func (block SpacerBlock) TemplateData() any {
 	return normalized
 }
 
-func (block SpacerBlock) RenderMarkdown(_ RenderContext) (string, error) {
+func (block SpacerBlock) RenderText(_ RenderContext) (string, error) {
 	return "", nil
 }
 
@@ -71,7 +71,7 @@ func (block ListBlock) TemplateData() any {
 	return block
 }
 
-func (block ListBlock) RenderMarkdown(_ RenderContext) (string, error) {
+func (block ListBlock) RenderText(_ RenderContext) (string, error) {
 	parts := make([]string, 0, len(block.Items))
 	for _, item := range block.Items {
 		value := strings.TrimSpace(item)

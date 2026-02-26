@@ -1,4 +1,4 @@
-<div style="margin:0 0 16px;padding:12px 14px;border:1px solid {{ .Values.Styles.ColorBorder }};border-radius:8px;background:#ffffff;">
+<div style="margin:0 0 16px;padding:12px 14px;border:1px solid {{ .Values.Styles.ColorBorder }};border-radius:{{ .Values.Styles.RadiusElement }};background:{{ .Values.Styles.ColorSurface }};">
   {{ if .Block.Header }}<p style="margin:0 0 10px;font-weight:700;color:{{ .Values.Styles.ColorText }};">{{ .Block.Header }}</p>{{ end }}
   {{ range .Block.Items }}
   <p style="margin:0 0 6px;display:flex;justify-content:space-between;gap:12px;color:{{ $.Values.Styles.ColorText }};"><span>{{ .Label }}</span><span {{ if isDiscountLike .Label .Value }}style="color:{{ $.Values.Styles.ColorPrimary }};font-weight:600;"{{ end }}>{{ .Value }}</span></p>

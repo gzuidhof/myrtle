@@ -19,9 +19,8 @@ func ActivityEmptyStateEmailWithTheme(selectedTheme theme.Theme) (*myrtle.Email,
 		selectedTheme,
 		myrtle.WithStyles(theme.Styles{ColorPrimary: "#2563eb"}),
 	).
-		Preheader("Set up alerts to get notified when things change").
-		Product("Myrtle Ops", "https://example.com/ops").
-		Logo("/assets/logo.png", "Myrtle Ops").
+		WithPreheader("Set up alerts to get notified when things change").
+		WithHeader(commonHeaderGroup("Myrtle Ops")).
 		AddEmptyState("All clear", "No incidents or anomalies were detected in your monitored services.", "Configure alerts", "https://example.com/ops/alerts").
 		AddCallout(myrtle.CalloutTypeWarning, "Stay prepared", "Create escalation policies before the next incident.", myrtle.CalloutStyle(myrtle.CalloutVariantOutline)).
 		AddButton("Open dashboard", "https://example.com/ops/dashboard", myrtle.ButtonStyle(myrtle.ButtonStyleGhost)).

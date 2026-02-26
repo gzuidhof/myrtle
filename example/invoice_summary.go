@@ -19,9 +19,8 @@ func InvoiceSummaryEmailWithTheme(selectedTheme theme.Theme) (*myrtle.Email, err
 		selectedTheme,
 		myrtle.WithStyles(theme.Styles{ColorPrimary: "#0ea5e9"}),
 	).
-		Preheader("Line items and totals for invoice #INV-0242").
-		Product("Myrtle Billing", "https://example.com/billing").
-		Logo("/assets/logo.png", "Myrtle Billing").
+		WithPreheader("Line items and totals for invoice #INV-0242").
+		WithHeader(commonHeaderGroup("Myrtle Billing")).
 		AddPriceSummary("Invoice #INV-0242", []myrtle.PriceLine{
 			{Label: "Platform", Value: "$79.00"},
 			{Label: "Email volume", Value: "$18.40"},

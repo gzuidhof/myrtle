@@ -2,8 +2,8 @@
 <p><a href="/?theme={{ .Theme }}">← Back to directory</a></p>
 <h1>{{ .Name }}</h1>
 <iframe src="{{ .Preview }}" title="{{ .Name }} preview" height="560"></iframe>
-<h2>Markdown fallback</h2>
-<pre>{{ .Markdown }}</pre>
+<h2>Text fallback</h2>
+<pre>{{ .Text }}</pre>
 {{ end }}
 
 {{ template "layout.html.tmpl" . }}

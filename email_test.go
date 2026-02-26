@@ -10,6 +10,7 @@ import (
 	"github.com/gzuidhof/myrtle/theme"
 	defaulttheme "github.com/gzuidhof/myrtle/theme/default"
 	"github.com/gzuidhof/myrtle/theme/flat"
+	"github.com/gzuidhof/myrtle/theme/terminal"
 )
 
 func TestBuildAndRender(t *testing.T) {
@@ -17,10 +18,13 @@ func TestBuildAndRender(t *testing.T) {
 	builder := myrtle.NewBuilder(defaulttheme.New())
 
 	email := builder.
-		Preheader("This is the preheader").
-		Product("Myrtle", "https://myrtle.example").
-		WithHeader(myrtle.HeaderRenderInMarkdown(true)).
-		Logo("https://myrtle.example/logo.png", "").
+		WithPreheader("This is the preheader").
+		WithHeader(
+			myrtle.NewGroup().
+				Add(myrtle.ImageBlock{Src: "https://myrtle.example/logo.png", Alt: "Myrtle"}).
+				Add(myrtle.HeadingBlock{Text: "Welcome", Level: 1}),
+			myrtle.HeaderRenderInText(true),
+		).
 		AddText("Hello there").
 		AddButton("Open", "https://example.com").
 		Build()
@@ -38,22 +42,74 @@ func TestBuildAndRender(t *testing.T) {
 	if !strings.Contains(html, "https://myrtle.example/logo.png") {
 		t.Fatalf("expected html to contain logo url")
 	}
-	if !strings.Contains(html, `alt="Myrtle"`) {
-		t.Fatalf("expected html to use product name as default logo alt")
+	if !strings.Contains(html, "Welcome") {
+		t.Fatalf("expected html to contain header heading")
 	}
 
-	markdown, err := email.Text()
+	text, err := email.Text()
 	if err != nil {
 		t.Fatalf("Text returned error: %v", err)
 	}
-	if !strings.Contains(markdown, "[Open](https://example.com)") {
-		t.Fatalf("expected markdown to include button link")
+	if !strings.Contains(text, "Open (https://example.com)") {
+		t.Fatalf("expected text fallback to include button link")
 	}
-	if strings.Contains(markdown, "# Welcome") {
-		t.Fatalf("expected markdown not to include subject heading when logo is present by default")
+	if !strings.Contains(text, "Welcome") {
+		t.Fatalf("expected text fallback to include header when enabled")
 	}
-	if strings.Contains(markdown, "[Myrtle](https://myrtle.example)") {
-		t.Fatalf("expected markdown not to include product link when logo is present by default")
+}
+
+func TestImageBlockHrefRendersLinkedImage(t *testing.T) {
+	t.Parallel()
+	builder := myrtle.NewBuilder(defaulttheme.New())
+
+	email := builder.
+		Add(myrtle.ImageBlock{Src: "https://myrtle.example/logo.png", Alt: "Myrtle", Href: "https://example.com"}).
+		Build()
+
+	html, err := email.HTML()
+	if err != nil {
+		t.Fatalf("HTML returned error: %v", err)
+	}
+
+	if !strings.Contains(html, `<a href="https://example.com"`) {
+		t.Fatalf("expected image to be wrapped in link")
+	}
+	if !strings.Contains(html, `src="https://myrtle.example/logo.png"`) {
+		t.Fatalf("expected image src to render inside linked image")
+	}
+}
+
+func TestCustomContainerWidthAndPaddingStylesRender(t *testing.T) {
+	t.Parallel()
+	builder := myrtle.NewBuilder(
+		flat.New(),
+		myrtle.WithStyles(theme.Styles{
+			WidthMain:           "92%",
+			MaxWidthMain:        "720px",
+			OuterPadding:        "40px",
+			OutsideContentInset: "30px",
+		}),
+	)
+
+	email := builder.
+		WithHeader(myrtle.TextBlock{Text: "Outside header"}, myrtle.HeaderPlacement(myrtle.HeaderPlacementOutside)).
+		AddText("Body").
+		WithFooter(myrtle.TextBlock{Text: "Outside footer"}, myrtle.FooterPlacement(myrtle.FooterPlacementOutside)).
+		Build()
+
+	html, err := email.HTML()
+	if err != nil {
+		t.Fatalf("html returned error: %v", err)
+	}
+
+	if !strings.Contains(html, "padding:40px;") {
+		t.Fatalf("expected custom outer padding to render in html")
+	}
+	if !strings.Contains(html, "width:92%;max-width:720px;") {
+		t.Fatalf("expected custom width and max-width to render in html")
+	}
+	if !strings.Contains(html, "padding:0 30px;") {
+		t.Fatalf("expected custom outside content inset to render in html")
 	}
 }
 
@@ -65,8 +121,13 @@ func TestCustomBlockRegistry(t *testing.T) {
 
 	registry := myrtle.NewRegistry()
 	err := myrtle.Register(registry, "promo",
+		func(value Promo, values theme.Values) (string, error) {
+			_ = values
+			return "<section><h2>" + value.Title + " for Myrtle</h2></section>", nil
+		},
 		func(value Promo, context myrtle.RenderContext) (string, error) {
-			return "## " + value.Title + " for " + context.Values.ProductName, nil
+			_ = context
+			return "## " + value.Title + " for Myrtle", nil
 		},
 	)
 	if err != nil {
@@ -75,26 +136,68 @@ func TestCustomBlockRegistry(t *testing.T) {
 
 	builder := myrtle.NewBuilder(
 		defaulttheme.New(),
-		myrtle.WithRegistry(registry),
 	)
 
-	promoBlock, err := myrtle.Create(registry, "promo", Promo{Title: "Launch"})
+	promoBlock, err := myrtle.CreateBlock(registry, "promo", Promo{Title: "Launch"})
 	if err != nil {
 		t.Fatalf("create returned error: %v", err)
 	}
 
-	email := builder.WithHeader(myrtle.HeaderTitle("Custom")).ProductName("Myrtle").Add(promoBlock).Build()
+	email := builder.WithHeader(myrtle.HeadingBlock{Text: "Custom", Level: 1}).Add(promoBlock).Build()
 
-	if _, err := email.HTML(); err == nil {
-		t.Fatalf("expected html render to fail for custom block without theme override")
+	html, err := email.HTML()
+	if err != nil {
+		t.Fatalf("expected html render to succeed for registry custom block: %v", err)
+	}
+	if !strings.Contains(html, "Launch for Myrtle") {
+		t.Fatalf("expected html to contain custom rendered content")
 	}
 
-	markdown, err := email.Text()
+	text, err := email.Text()
 	if err != nil {
 		t.Fatalf("text returned error: %v", err)
 	}
-	if !strings.Contains(markdown, "## Launch for Myrtle") {
-		t.Fatalf("expected markdown to contain custom rendered content")
+	if !strings.Contains(text, "## Launch for Myrtle") {
+		t.Fatalf("expected text to contain custom rendered content")
+	}
+}
+
+func TestAddWithNewCustomBlock(t *testing.T) {
+	t.Parallel()
+	type Promo struct {
+		Title string
+	}
+
+	builder := myrtle.NewBuilder(defaulttheme.New())
+	block := myrtle.NewCustomBlock(
+		"promo_direct",
+		Promo{Title: "Launch"},
+		func(value Promo, values theme.Values) (string, error) {
+			_ = values
+			return "<section><h2>" + value.Title + " for Myrtle</h2></section>", nil
+		},
+		func(value Promo, context myrtle.RenderContext) (string, error) {
+			_ = context
+			return "## " + value.Title + " for Myrtle", nil
+		},
+	)
+
+	email := builder.Add(block).Build()
+
+	html, err := email.HTML()
+	if err != nil {
+		t.Fatalf("html returned error: %v", err)
+	}
+	if !strings.Contains(html, "Launch for Myrtle") {
+		t.Fatalf("expected html to contain custom rendered content")
+	}
+
+	text, err := email.Text()
+	if err != nil {
+		t.Fatalf("text returned error: %v", err)
+	}
+	if !strings.Contains(text, "## Launch for Myrtle") {
+		t.Fatalf("expected text to contain custom rendered content")
 	}
 }
 
@@ -102,10 +205,8 @@ func TestFlatThemeBuildAndRender(t *testing.T) {
 	t.Parallel()
 	builder := myrtle.NewBuilder(flat.New())
 
-	email := builder.WithHeader(myrtle.HeaderTitle("Flat style")).
-		Preheader("Simple layout").
-		Product("Myrtle", "https://myrtle.example").
-		Logo("https://myrtle.example/logo.png", "Myrtle logo").
+	email := builder.WithHeader(myrtle.HeadingBlock{Text: "Flat style", Level: 1}).
+		WithPreheader("Simple layout").
 		AddText("Hello from flat").
 		Build()
 
@@ -116,16 +217,16 @@ func TestFlatThemeBuildAndRender(t *testing.T) {
 	if !strings.Contains(html, "Hello from flat") {
 		t.Fatalf("expected flat html to include block content")
 	}
-	if !strings.Contains(html, "Myrtle logo") {
-		t.Fatalf("expected flat html to include custom logo alt text")
+	if !strings.Contains(html, "Flat style") {
+		t.Fatalf("expected flat html to include header content")
 	}
 
-	markdown, err := email.Text()
+	text, err := email.Text()
 	if err != nil {
 		t.Fatalf("text returned error: %v", err)
 	}
-	if strings.Contains(markdown, "[Myrtle](https://myrtle.example)") {
-		t.Fatalf("expected flat markdown not to include product link when logo is present by default")
+	if strings.Contains(text, "# Flat style") {
+		t.Fatalf("expected flat text not to include header by default")
 	}
 }
 
@@ -147,8 +248,8 @@ func TestThemeBlockFallbackToDefault(t *testing.T) {
 	}
 
 	builder := myrtle.NewBuilder(minimal)
-	email := builder.WithHeader(myrtle.HeaderTitle("Fallback")).
-		Preheader("delegation").
+	email := builder.WithHeader(myrtle.HeadingBlock{Text: "Fallback", Level: 1}).
+		WithPreheader("delegation").
 		AddText("Primary theme text").
 		AddButton("Fallback button", "https://example.com/fallback").
 		Build()
@@ -166,20 +267,20 @@ func TestThemeBlockFallbackToDefault(t *testing.T) {
 	}
 }
 
-func TestAddColumnsFunctionalAPI(t *testing.T) {
+func TestAddColumnsGroupAPI(t *testing.T) {
 	t.Parallel()
 	builder := myrtle.NewBuilder(defaulttheme.New())
+	left := myrtle.NewGroup().
+		AddHeading("Left", myrtle.HeadingLevel(3)).
+		AddText("Left body")
+	right := myrtle.NewGroup().
+		AddHeading("Right", myrtle.HeadingLevel(3)).
+		AddList([]string{"One", "Two"}, false)
 
-	email := builder.WithHeader(myrtle.HeaderTitle("Columns")).
+	email := builder.WithHeader(myrtle.HeadingBlock{Text: "Columns", Level: 1}).
 		AddColumns(
-			func(column *myrtle.ColumnBuilder) {
-				column.AddHeading("Left", myrtle.HeadingLevel(3)).
-					AddText("Left body")
-			},
-			func(column *myrtle.ColumnBuilder) {
-				column.AddHeading("Right", myrtle.HeadingLevel(3)).
-					AddList([]string{"One", "Two"}, false)
-			},
+			left,
+			right,
 			myrtle.ColumnsWidths(70, 30),
 		).
 		Build()
@@ -192,22 +293,25 @@ func TestAddColumnsFunctionalAPI(t *testing.T) {
 		t.Fatalf("expected html to contain rendered column content")
 	}
 
-	markdown, err := email.Text()
+	text, err := email.Text()
 	if err != nil {
 		t.Fatalf("text returned error: %v", err)
 	}
-	if !strings.Contains(markdown, "### Column 1") || !strings.Contains(markdown, "### Column 2") {
-		t.Fatalf("expected markdown to contain column sections")
+	if !strings.Contains(text, "[ Column 1 ]") || !strings.Contains(text, "[ Column 2 ]") {
+		t.Fatalf("expected text fallback to contain column sections")
 	}
 }
 
-func TestAddTextVariadic(t *testing.T) {
+func TestAddTextAndOptions(t *testing.T) {
 	t.Parallel()
 	builder := myrtle.NewBuilder(defaulttheme.New())
 
 	email := builder.
-		WithHeader(myrtle.HeaderTitle("Paragraphs")).
-		AddText("First paragraph.", "Second paragraph.").
+		WithHeader(myrtle.HeadingBlock{Text: "Paragraphs", Level: 1}).
+		AddText("First paragraph.", myrtle.TextTone(myrtle.TextToneMuted)).
+		AddText("Second paragraph.", myrtle.TextSize(myrtle.TextSizeSmall)).
+		AddText("Third paragraph.", myrtle.TextTone(myrtle.TextToneDanger), myrtle.TextAlign(myrtle.TextAlignEnd), myrtle.TextWeight(myrtle.TextWeightSemibold)).
+		AddText("Fourth paragraph.", myrtle.TextNoMargin(true), myrtle.TextSpacing(myrtle.TextSpacingCompact), myrtle.TextTransform(myrtle.TextTransformUppercase)).
 		Build()
 
 	html, err := email.HTML()
@@ -215,17 +319,38 @@ func TestAddTextVariadic(t *testing.T) {
 		t.Fatalf("html returned error: %v", err)
 	}
 
-	if strings.Count(html, "<p style=\"margin:0 0 16px;line-height:1.6;color:#111827;\">") < 2 {
+	if strings.Count(html, "<p style=\"margin:0 0 16px;line-height:1.6;") < 2 {
 		t.Fatalf("expected html to contain one text block per AddText argument")
 	}
+	if !strings.Contains(html, "color:#6b7280;") {
+		t.Fatalf("expected muted text style to be rendered")
+	}
+	if !strings.Contains(html, "font-size:13px;") {
+		t.Fatalf("expected small text style to be rendered")
+	}
+	if !strings.Contains(html, "color:#b91c1c;") {
+		t.Fatalf("expected danger tone text style to be rendered")
+	}
+	if !strings.Contains(html, "text-align:right;") {
+		t.Fatalf("expected text alignment style to be rendered")
+	}
+	if !strings.Contains(html, "font-weight:600;") {
+		t.Fatalf("expected text weight style to be rendered")
+	}
+	if !strings.Contains(html, "margin:0;line-height:1.4;") {
+		t.Fatalf("expected no-margin and compact spacing styles to be rendered")
+	}
+	if !strings.Contains(html, "text-transform:uppercase;") {
+		t.Fatalf("expected text transform style to be rendered")
+	}
 
-	markdown, err := email.Text()
+	text, err := email.Text()
 	if err != nil {
 		t.Fatalf("text returned error: %v", err)
 	}
 
-	if !strings.Contains(markdown, "First paragraph.\n\nSecond paragraph.") {
-		t.Fatalf("expected markdown to contain both text entries")
+	if !strings.Contains(text, "First paragraph.\n\nSecond paragraph.\n\nThird paragraph.\n\nFourth paragraph.") {
+		t.Fatalf("expected text to contain all text entries")
 	}
 }
 
@@ -255,8 +380,8 @@ func TestHeaderModeDisabledAndOverride(t *testing.T) {
 	)
 
 	emailWithoutHeader := builder.
-		Product("Myrtle", "https://myrtle.example").
-		Logo("https://myrtle.example/logo.png", "Myrtle logo").
+		WithHeader(myrtle.ImageBlock{Src: "https://myrtle.example/logo.png", Alt: "Myrtle logo"}).
+		WithoutHeader().
 		AddText("Body").
 		Build()
 
@@ -269,16 +394,15 @@ func TestHeaderModeDisabledAndOverride(t *testing.T) {
 	}
 }
 
-func TestHeaderLogoCenteredOption(t *testing.T) {
+func TestWithHeaderNilDisablesHeader(t *testing.T) {
 	t.Parallel()
 	builder := myrtle.NewBuilder(defaulttheme.New())
 
 	email := builder.
 		WithHeader(
-			myrtle.HeaderTitle("Centered logo"),
-			myrtle.HeaderLogo("https://myrtle.example/logo.png", "Myrtle logo"),
-			myrtle.HeaderLogoCentered(true),
+			myrtle.ImageBlock{Src: "https://myrtle.example/logo.png", Alt: "Myrtle logo"},
 		).
+		WithHeader(nil).
 		AddText("Body").
 		Build()
 
@@ -287,46 +411,38 @@ func TestHeaderLogoCenteredOption(t *testing.T) {
 		t.Fatalf("html returned error: %v", err)
 	}
 
-	if !strings.Contains(html, "text-align:center;") {
-		t.Fatalf("expected centered logo style when HeaderLogoCentered is enabled")
+	if strings.Contains(html, "https://myrtle.example/logo.png") {
+		t.Fatalf("expected header logo not to render when WithHeader(nil) is used")
 	}
 }
 
-func TestHeaderAlignmentDefaultCentered(t *testing.T) {
+func TestNewBuilderWithHeaderOptionsNilDisablesHeader(t *testing.T) {
 	t.Parallel()
-	builder := myrtle.NewBuilder(defaulttheme.New())
+	builder := myrtle.NewBuilder(
+		defaulttheme.New(),
+		myrtle.WithHeader(myrtle.HeadingBlock{Text: "Should not render", Level: 1}),
+		myrtle.WithHeader(nil),
+	)
 
-	email := builder.
-		WithHeader(
-			myrtle.HeaderTitle("Default aligned"),
-			myrtle.HeaderLogo("https://myrtle.example/logo.png", "Myrtle logo"),
-			myrtle.HeaderProduct("Myrtle", "https://myrtle.example"),
-			myrtle.HeaderShowTextWithLogo(true),
-		).
-		AddText("Body").
-		Build()
+	email := builder.AddText("Body").Build()
 
 	html, err := email.HTML()
 	if err != nil {
 		t.Fatalf("html returned error: %v", err)
 	}
 
-	if strings.Count(html, "text-align:center;") < 2 {
-		t.Fatalf("expected centered header alignment by default for logo and product")
+	if strings.Contains(html, "Should not render") {
+		t.Fatalf("expected header title not to render when WithHeaderOptions(nil) is used")
 	}
 }
 
-func TestHeaderAlignOptionLeft(t *testing.T) {
+func TestHeaderBlockCanControlAlignment(t *testing.T) {
 	t.Parallel()
 	builder := myrtle.NewBuilder(defaulttheme.New())
 
 	email := builder.
 		WithHeader(
-			myrtle.HeaderTitle("Left aligned"),
-			myrtle.HeaderLogo("https://myrtle.example/logo.png", "Myrtle logo"),
-			myrtle.HeaderProduct("Myrtle", "https://myrtle.example"),
-			myrtle.HeaderShowTextWithLogo(true),
-			myrtle.HeaderAlign(myrtle.HeaderAlignmentLeft),
+			myrtle.TextBlock{Text: "Centered header text", Align: myrtle.TextAlignCenter},
 		).
 		AddText("Body").
 		Build()
@@ -336,8 +452,171 @@ func TestHeaderAlignOptionLeft(t *testing.T) {
 		t.Fatalf("html returned error: %v", err)
 	}
 
-	if strings.Count(html, "text-align:left;") < 2 {
-		t.Fatalf("expected left header alignment when HeaderAlign(left) is set")
+	if !strings.Contains(html, "Centered header text") || !strings.Contains(html, "text-align:center;") {
+		t.Fatalf("expected centered header block content in html")
+	}
+}
+
+func TestHeaderBlockRendersInHTML(t *testing.T) {
+	t.Parallel()
+	builder := myrtle.NewBuilder(defaulttheme.New())
+
+	email := builder.WithHeader(myrtle.HeadingBlock{Text: "Default aligned", Level: 1}).
+		AddText("Body").
+		Build()
+
+	html, err := email.HTML()
+	if err != nil {
+		t.Fatalf("html returned error: %v", err)
+	}
+
+	if !strings.Contains(html, "Default aligned") {
+		t.Fatalf("expected header block to render in html")
+	}
+}
+
+func TestHeaderCanRenderOutsideMainContentBox(t *testing.T) {
+	t.Parallel()
+	builder := myrtle.NewBuilder(defaulttheme.New())
+
+	email := builder.
+		WithHeader(myrtle.HeadingBlock{Text: "Outside header", Level: 1}, myrtle.HeaderPlacement(myrtle.HeaderPlacementOutside)).
+		AddText("Body").
+		Build()
+
+	html, err := email.HTML()
+	if err != nil {
+		t.Fatalf("html returned error: %v", err)
+	}
+
+	containerIndex := strings.Index(html, "max-width:640px;margin:0 auto;background:")
+	headerIndex := strings.Index(html, "Outside header")
+	if containerIndex == -1 || headerIndex == -1 {
+		t.Fatalf("expected both main container and header to be rendered")
+	}
+	if headerIndex > containerIndex {
+		t.Fatalf("expected outside header to render before the main content container")
+	}
+}
+
+func TestHeaderBlockStartAlignment(t *testing.T) {
+	t.Parallel()
+	builder := myrtle.NewBuilder(defaulttheme.New())
+
+	email := builder.
+		WithHeader(myrtle.TextBlock{Text: "Left aligned", Align: myrtle.TextAlignStart}).
+		AddText("Body").
+		Build()
+
+	html, err := email.HTML()
+	if err != nil {
+		t.Fatalf("html returned error: %v", err)
+	}
+
+	if !strings.Contains(html, "Left aligned") || !strings.Contains(html, "text-align:left;") {
+		t.Fatalf("expected start-aligned header block in html")
+	}
+}
+
+func TestRTLDirectionUsesLogicalStartEnd(t *testing.T) {
+	t.Parallel()
+	builder := myrtle.NewBuilder(defaulttheme.New(), myrtle.WithDirection(theme.DirectionRTL))
+
+	email := builder.
+		WithHeader(myrtle.TextBlock{Text: "RTL aligned", Align: myrtle.TextAlignStart}).
+		AddText("Logical start text", myrtle.TextAlign(myrtle.TextAlignStart)).
+		AddText("Logical end text", myrtle.TextAlign(myrtle.TextAlignEnd)).
+		AddButton("Start button", "https://example.com/start", myrtle.ButtonAlign(myrtle.ButtonAlignmentStart)).
+		AddButton("End button", "https://example.com/end", myrtle.ButtonAlign(myrtle.ButtonAlignmentEnd)).
+		Build()
+
+	html, err := email.HTML()
+	if err != nil {
+		t.Fatalf("html returned error: %v", err)
+	}
+
+	if !strings.Contains(html, `dir="rtl"`) {
+		t.Fatalf("expected rtl direction attributes in rendered html")
+	}
+	if !strings.Contains(html, "RTL aligned") || !strings.Contains(html, "text-align:right;") {
+		t.Fatalf("expected header logical start alignment to map to right in rtl")
+	}
+	if !strings.Contains(html, "text-align:right;") {
+		t.Fatalf("expected logical start alignment to map to right in rtl")
+	}
+	if !strings.Contains(html, "text-align:left;") {
+		t.Fatalf("expected logical end alignment to map to left in rtl")
+	}
+}
+
+func TestRTLTableNumericAlignsToVisualEnd(t *testing.T) {
+	t.Parallel()
+	builder := myrtle.NewBuilder(defaulttheme.New(), myrtle.WithDirection(theme.DirectionRTL))
+
+	email := builder.
+		AddTable(
+			"Metrics",
+			[]string{"Name", "Value"},
+			[][]string{{"Users", "1200"}},
+			myrtle.TableRightAlignNumericColumns(true),
+		).
+		Build()
+
+	html, err := email.HTML()
+	if err != nil {
+		t.Fatalf("html returned error: %v", err)
+	}
+
+	if !strings.Contains(html, `dir="rtl"`) {
+		t.Fatalf("expected rtl direction attributes in rendered html")
+	}
+	if !strings.Contains(html, "text-align:left;\">1200</td>") {
+		t.Fatalf("expected numeric column alignment to map to visual end (left) in rtl")
+	}
+}
+
+func TestRTLProgressValueAlignsToVisualEnd(t *testing.T) {
+	t.Parallel()
+	builder := myrtle.NewBuilder(defaulttheme.New(), myrtle.WithDirection(theme.DirectionRTL))
+
+	email := builder.
+		AddProgress("Completion", []myrtle.ProgressItem{{Label: "Adoption", Value: "75%", Percent: 75}}).
+		Build()
+
+	html, err := email.HTML()
+	if err != nil {
+		t.Fatalf("html returned error: %v", err)
+	}
+
+	if !strings.Contains(html, `dir="rtl"`) {
+		t.Fatalf("expected rtl direction attributes in rendered html")
+	}
+	if !strings.Contains(html, "text-align:left;\">75%</span>") {
+		t.Fatalf("expected progress value alignment to map to visual end (left) in rtl")
+	}
+}
+
+func TestRTLStackedBarLegendAlignsToVisualEnd(t *testing.T) {
+	t.Parallel()
+	builder := myrtle.NewBuilder(defaulttheme.New(), myrtle.WithDirection(theme.DirectionRTL))
+
+	email := builder.
+		AddStackedBar("Pipeline", []myrtle.StackedBarRow{{
+			Label:    "Channel Mix",
+			Segments: []myrtle.StackedBarSegment{{Label: "Email", Value: "40%", Percent: 40}},
+		}}).
+		Build()
+
+	html, err := email.HTML()
+	if err != nil {
+		t.Fatalf("html returned error: %v", err)
+	}
+
+	if !strings.Contains(html, `dir="rtl"`) {
+		t.Fatalf("expected rtl direction attributes in rendered html")
+	}
+	if !strings.Contains(html, "font-size:12px;text-align:left;") {
+		t.Fatalf("expected stacked bar legend alignment to map to visual end (left) in rtl")
 	}
 }
 
@@ -345,41 +624,62 @@ func TestNewBuilderWithHeaderOptions(t *testing.T) {
 	t.Parallel()
 	builder := myrtle.NewBuilder(
 		defaulttheme.New(),
-		myrtle.WithHeaderOptions(
-			myrtle.HeaderTitle("Configured in constructor"),
-			myrtle.HeaderProduct("Myrtle", "https://myrtle.example"),
-			myrtle.HeaderRenderInMarkdown(true),
-		),
+		myrtle.WithHeader(myrtle.HeadingBlock{Text: "Configured in constructor", Level: 1}, myrtle.HeaderRenderInText(true)),
 	)
 
-	email := builder.Preheader("Set via NewBuilder option").AddText("Body").Build()
+	email := builder.WithPreheader("Set via NewBuilder option").AddText("Body").Build()
 
 	html, err := email.HTML()
 	if err != nil {
 		t.Fatalf("html returned error: %v", err)
 	}
-	if !strings.Contains(html, "<title>Configured in constructor</title>") {
-		t.Fatalf("expected header title from constructor header options")
+	if !strings.Contains(html, "Configured in constructor") {
+		t.Fatalf("expected header block from constructor option")
 	}
 
-	markdown, err := email.Text()
+	text, err := email.Text()
 	if err != nil {
 		t.Fatalf("text returned error: %v", err)
 	}
-	if !strings.Contains(markdown, "_Set via NewBuilder option_") {
+	if !strings.Contains(text, "Set via NewBuilder option") {
 		t.Fatalf("expected preheader from constructor header options")
 	}
 }
 
-func TestHeaderWithLogoHidesTitleAndProductByDefault(t *testing.T) {
+func TestHeaderBlockNotRenderedInTextByDefault(t *testing.T) {
+	t.Parallel()
+	builder := myrtle.NewBuilder(defaulttheme.New())
+
+	email := builder.
+		WithHeader(myrtle.HeadingBlock{Text: "Hidden by default", Level: 1}).
+		AddText("Body").
+		Build()
+
+	html, err := email.HTML()
+	if err != nil {
+		t.Fatalf("html returned error: %v", err)
+	}
+	if !strings.Contains(html, "Hidden by default") {
+		t.Fatalf("expected header block to render in html")
+	}
+
+	text, err := email.Text()
+	if err != nil {
+		t.Fatalf("text returned error: %v", err)
+	}
+	if strings.Contains(text, "Hidden by default\n") {
+		t.Fatalf("expected header block not to render in text by default")
+	}
+}
+
+func TestHeaderBlockRenderedInTextWhenOptedIn(t *testing.T) {
 	t.Parallel()
 	builder := myrtle.NewBuilder(defaulttheme.New())
 
 	email := builder.
 		WithHeader(
-			myrtle.HeaderTitle("Hidden by default"),
-			myrtle.HeaderLogo("https://myrtle.example/logo.png", "Myrtle logo"),
-			myrtle.HeaderProduct("Myrtle", "https://myrtle.example"),
+			myrtle.HeadingBlock{Text: "Visible when opted in", Level: 1},
+			myrtle.HeaderRenderInText(true),
 		).
 		AddText("Body").
 		Build()
@@ -388,116 +688,196 @@ func TestHeaderWithLogoHidesTitleAndProductByDefault(t *testing.T) {
 	if err != nil {
 		t.Fatalf("html returned error: %v", err)
 	}
-	if strings.Contains(html, ">Myrtle<") {
-		t.Fatalf("expected product name not to render in HTML header when logo is present by default")
+	if !strings.Contains(html, "Visible when opted in") {
+		t.Fatalf("expected header block to render in html")
 	}
 
-	markdown, err := email.Text()
+	text, err := email.Text()
 	if err != nil {
 		t.Fatalf("text returned error: %v", err)
 	}
-	if strings.Contains(markdown, "# Hidden by default") {
-		t.Fatalf("expected title not to render in markdown header when logo is present by default")
+	if !strings.Contains(text, "Visible when opted in") {
+		t.Fatalf("expected title to render in text header when opted in")
 	}
-	if strings.Contains(markdown, "[Myrtle](https://myrtle.example)") {
-		t.Fatalf("expected product link not to render in markdown header when logo is present by default")
+	if !strings.Contains(text, "Body") {
+		t.Fatalf("expected header block to render in text when enabled")
 	}
 }
 
-func TestHeaderWithLogoCanShowTitleAndProductWhenOptedIn(t *testing.T) {
+func TestTextHeaderNotRenderedByDefault(t *testing.T) {
 	t.Parallel()
 	builder := myrtle.NewBuilder(defaulttheme.New())
 
 	email := builder.
+		WithPreheader("Header preheader").
+		WithHeader(myrtle.HeadingBlock{Text: "Header title", Level: 1}).
+		AddText("Body text").
+		Build()
+
+	text, err := email.Text()
+	if err != nil {
+		t.Fatalf("text returned error: %v", err)
+	}
+
+	if strings.Contains(text, "Header title\n") {
+		t.Fatalf("expected title to be hidden in text by default")
+	}
+	if !strings.Contains(text, "Header preheader") {
+		t.Fatalf("expected preheader to render in text independently of header settings")
+	}
+	if !strings.Contains(text, "Body text") {
+		t.Fatalf("expected text body content to render")
+	}
+}
+
+func TestTextHeaderRenderedWhenEnabled(t *testing.T) {
+	t.Parallel()
+	builder := myrtle.NewBuilder(defaulttheme.New())
+
+	email := builder.
+		WithPreheader("Header preheader").
 		WithHeader(
-			myrtle.HeaderTitle("Visible when opted in"),
-			myrtle.HeaderLogo("https://myrtle.example/logo.png", "Myrtle logo"),
-			myrtle.HeaderProduct("Myrtle", "https://myrtle.example"),
-			myrtle.HeaderRenderInMarkdown(true),
-			myrtle.HeaderShowTextWithLogo(true),
+			myrtle.HeadingBlock{Text: "Header title", Level: 1},
+			myrtle.HeaderRenderInText(true),
 		).
+		AddText("Body text").
+		Build()
+
+	text, err := email.Text()
+	if err != nil {
+		t.Fatalf("text returned error: %v", err)
+	}
+
+	if !strings.Contains(text, "Header title") {
+		t.Fatalf("expected title to render in text when enabled")
+	}
+	if !strings.Contains(text, "Header preheader") {
+		t.Fatalf("expected preheader to render in text when enabled")
+	}
+}
+
+func TestFooterBlockRendersInHTML(t *testing.T) {
+	t.Parallel()
+	builder := myrtle.NewBuilder(defaulttheme.New())
+
+	email := builder.
 		AddText("Body").
+		WithFooter(myrtle.HeadingBlock{Text: "Footer heading", Level: 2}).
 		Build()
 
 	html, err := email.HTML()
 	if err != nil {
 		t.Fatalf("html returned error: %v", err)
 	}
-	if !strings.Contains(html, ">Myrtle<") {
-		t.Fatalf("expected product name to render in HTML header when opted in")
-	}
 
-	markdown, err := email.Text()
-	if err != nil {
-		t.Fatalf("text returned error: %v", err)
-	}
-	if !strings.Contains(markdown, "# Visible when opted in") {
-		t.Fatalf("expected title to render in markdown header when opted in")
-	}
-	if !strings.Contains(markdown, "[Myrtle](https://myrtle.example)") {
-		t.Fatalf("expected product link to render in markdown header when opted in")
+	if !strings.Contains(html, "Footer heading") {
+		t.Fatalf("expected footer block to render in html")
 	}
 }
 
-func TestMarkdownHeaderNotRenderedByDefault(t *testing.T) {
+func TestFooterBlockNotRenderedInTextByDefault(t *testing.T) {
 	t.Parallel()
 	builder := myrtle.NewBuilder(defaulttheme.New())
 
 	email := builder.
-		Preheader("Header preheader").
-		WithHeader(
-			myrtle.HeaderTitle("Header title"),
-			myrtle.HeaderProduct("Myrtle", "https://myrtle.example"),
-		).
-		AddText("Body text").
+		AddText("Body").
+		WithFooter(myrtle.TextBlock{Text: "Hidden footer"}).
 		Build()
 
-	markdown, err := email.Text()
+	text, err := email.Text()
 	if err != nil {
 		t.Fatalf("text returned error: %v", err)
 	}
 
-	if strings.Contains(markdown, "# Header title") {
-		t.Fatalf("expected title to be hidden in markdown by default")
-	}
-	if !strings.Contains(markdown, "_Header preheader_") {
-		t.Fatalf("expected preheader to render in markdown independently of markdown header settings")
-	}
-	if strings.Contains(markdown, "[Myrtle](https://myrtle.example)") {
-		t.Fatalf("expected product to be hidden in markdown by default")
-	}
-	if !strings.Contains(markdown, "Body text") {
-		t.Fatalf("expected markdown body content to render")
+	if strings.Contains(text, "Hidden footer") {
+		t.Fatalf("expected footer block not to render in text by default")
 	}
 }
 
-func TestMarkdownHeaderRenderedWhenEnabled(t *testing.T) {
+func TestFooterBlockRenderedInTextWhenOptedIn(t *testing.T) {
 	t.Parallel()
 	builder := myrtle.NewBuilder(defaulttheme.New())
 
 	email := builder.
-		Preheader("Header preheader").
-		WithHeader(
-			myrtle.HeaderTitle("Header title"),
-			myrtle.HeaderProduct("Myrtle", "https://myrtle.example"),
-			myrtle.HeaderRenderInMarkdown(true),
-		).
-		AddText("Body text").
+		AddText("Body").
+		WithFooter(myrtle.TextBlock{Text: "Visible footer"}, myrtle.FooterRenderInText(true)).
 		Build()
 
-	markdown, err := email.Text()
+	text, err := email.Text()
 	if err != nil {
 		t.Fatalf("text returned error: %v", err)
 	}
 
-	if !strings.Contains(markdown, "# Header title") {
-		t.Fatalf("expected title to render in markdown when enabled")
+	if !strings.Contains(text, "Visible footer") {
+		t.Fatalf("expected footer block to render in text when enabled")
 	}
-	if !strings.Contains(markdown, "_Header preheader_") {
-		t.Fatalf("expected preheader to render in markdown when enabled")
+}
+
+func TestFooterCanRenderOutsideMainContentBox(t *testing.T) {
+	t.Parallel()
+	builder := myrtle.NewBuilder(defaulttheme.New())
+
+	email := builder.
+		AddText("Body").
+		WithFooter(myrtle.TextBlock{Text: "Outside footer"}, myrtle.FooterPlacement(myrtle.FooterPlacementOutside)).
+		Build()
+
+	html, err := email.HTML()
+	if err != nil {
+		t.Fatalf("html returned error: %v", err)
 	}
-	if !strings.Contains(markdown, "[Myrtle](https://myrtle.example)") {
-		t.Fatalf("expected product to render in markdown when enabled")
+
+	containerIndex := strings.Index(html, "max-width:640px;margin:0 auto;background:")
+	footerIndex := strings.LastIndex(html, "Outside footer")
+	if containerIndex == -1 || footerIndex == -1 {
+		t.Fatalf("expected both main container and footer to be rendered")
+	}
+	if footerIndex < containerIndex {
+		t.Fatalf("expected outside footer to render after the main content container")
+	}
+}
+
+func TestFlatAndTerminalSupportOutsideHeaderAndFooter(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name  string
+		theme theme.Theme
+	}{
+		{name: "flat", theme: flat.New()},
+		{name: "terminal", theme: terminal.New()},
+	}
+
+	for _, testCase := range tests {
+		testCase := testCase
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+
+			builder := myrtle.NewBuilder(testCase.theme)
+			email := builder.
+				WithHeader(myrtle.TextBlock{Text: "Outside header", Align: myrtle.TextAlignCenter}, myrtle.HeaderPlacement(myrtle.HeaderPlacementOutside)).
+				AddText("Body").
+				WithFooter(myrtle.TextBlock{Text: "Outside footer", Align: myrtle.TextAlignCenter}, myrtle.FooterPlacement(myrtle.FooterPlacementOutside)).
+				Build()
+
+			html, err := email.HTML()
+			if err != nil {
+				t.Fatalf("html returned error: %v", err)
+			}
+
+			containerIndex := strings.Index(html, "max-width:640px;margin:0 auto;overflow-wrap:anywhere;word-break:break-word;word-wrap:break-word;background:")
+			headerIndex := strings.Index(html, "Outside header")
+			footerIndex := strings.LastIndex(html, "Outside footer")
+			if containerIndex == -1 || headerIndex == -1 || footerIndex == -1 {
+				t.Fatalf("expected container, outside header, and outside footer to render")
+			}
+			if headerIndex > containerIndex {
+				t.Fatalf("expected outside header to render before the main content container")
+			}
+			if footerIndex < containerIndex {
+				t.Fatalf("expected outside footer to render after the main content container")
+			}
+		})
 	}
 }
 
@@ -554,16 +934,13 @@ func TestAdvancedLayoutAndPrimitiveVariantsRender(t *testing.T) {
 			myrtle.CardListGap(10),
 		).
 		AddColumns(
-			func(column *myrtle.ColumnBuilder) {
-				column.AddText("Left")
-			},
-			func(column *myrtle.ColumnBuilder) {
-				column.AddText("Right")
-			},
+			myrtle.NewGroup().AddText("Left"),
+			myrtle.NewGroup().AddText("Right"),
 			myrtle.ColumnsGap(20),
 			myrtle.ColumnsAlign(myrtle.ColumnsVerticalAlignMiddle),
 		).
 		AddDividerStyled(myrtle.DividerStyle(myrtle.DividerVariantDashed), myrtle.DividerThickness(2), myrtle.DividerInset(16)).
+		AddDividerStyled(myrtle.DividerLabel("OR"), myrtle.DividerStyle(myrtle.DividerVariantDotted)).
 		AddSpacer(myrtle.SpacerSize(24)).
 		Build()
 
@@ -584,11 +961,14 @@ func TestAdvancedLayoutAndPrimitiveVariantsRender(t *testing.T) {
 	if !strings.Contains(html, "Card one") || !strings.Contains(html, "https://example.com/card1") {
 		t.Fatalf("expected card list item content and link to render")
 	}
-	if !strings.Contains(html, "valign=\"middle\"") || !strings.Contains(html, "padding:0 20px 0 0;") {
+	if !strings.Contains(html, "valign=\"middle\"") || !strings.Contains(html, "padding:0;padding-right:20px;") {
 		t.Fatalf("expected columns alignment and gap styles to render")
 	}
 	if !strings.Contains(html, "border-top:2px dashed") || !strings.Contains(html, "margin:24px 16px;") {
 		t.Fatalf("expected divider variant, thickness, and inset to render")
+	}
+	if !strings.Contains(html, ">OR<") || !strings.Contains(html, "text-transform:uppercase") {
+		t.Fatalf("expected labeled divider to render centered label")
 	}
 	if !strings.Contains(html, "height:24px;") {
 		t.Fatalf("expected spacer variant to resolve to configured size")
@@ -612,7 +992,7 @@ func TestBlockGroupHelperAcrossMultiBlockAPIs(t *testing.T) {
 	gridTwo := myrtle.NewGroup().AddText("Grid group 2")
 
 	email := myrtle.NewBuilder(defaulttheme.New()).
-		AddColumnsGroups(left, right, myrtle.ColumnsWidths(55, 45)).
+		AddColumns(left, right, myrtle.ColumnsWidths(55, 45)).
 		AddSectionGroup(section, myrtle.SectionTitle("Grouped section")).
 		AddGridGroups([]*myrtle.Group{gridOne, gridTwo}, myrtle.GridColumns(2)).
 		Build()
@@ -649,13 +1029,13 @@ func TestGroupCanRenderAsBlock(t *testing.T) {
 		t.Fatalf("expected grouped block content to render in html")
 	}
 
-	markdown, err := email.Text()
+	text, err := email.Text()
 	if err != nil {
 		t.Fatalf("text returned error: %v", err)
 	}
 
-	if !strings.Contains(markdown, "### Grouped heading") || !strings.Contains(markdown, "Grouped text") || !strings.Contains(markdown, "[Grouped CTA](https://example.com/group)") {
-		t.Fatalf("expected grouped block content to render in markdown")
+	if !strings.Contains(text, "Grouped heading") || !strings.Contains(text, "Grouped text") || !strings.Contains(text, "Grouped CTA (https://example.com/group)") {
+		t.Fatalf("expected grouped block content to render in text fallback")
 	}
 }
 
@@ -667,13 +1047,15 @@ func TestButtonCalloutAndTableVariantsRender(t *testing.T) {
 	)
 
 	email := builder.
-		AddButton("Secondary", "https://example.com", myrtle.ButtonTone(myrtle.ButtonToneSecondary), myrtle.ButtonAlign(myrtle.ButtonAlignmentRight), myrtle.ButtonFullWidth(true)).
+		AddButton("Secondary", "https://example.com", myrtle.ButtonTone(myrtle.ButtonToneSecondary), myrtle.ButtonAlign(myrtle.ButtonAlignmentEnd), myrtle.ButtonFullWidth(true)).
 		AddButton("Compact nowrap", "https://example.com/compact", myrtle.ButtonStyle(myrtle.ButtonStyleOutline), myrtle.ButtonSize(myrtle.ButtonSizeSmall), myrtle.ButtonNoWrap(true)).
 		AddButton("Outline", "https://example.com/outline", myrtle.ButtonStyle(myrtle.ButtonStyleOutline)).
 		AddButtonGroup([]myrtle.ButtonGroupButton{{Label: "Approve", URL: "https://example.com/approve", Tone: myrtle.ButtonTonePrimary}, {Label: "Review", URL: "https://example.com/review", Tone: myrtle.ButtonToneSecondary}}, myrtle.ButtonGroupAlign(myrtle.ButtonAlignmentCenter), myrtle.ButtonGroupJoined(true), myrtle.ButtonGroupFullWidthOnMobile(true)).
-		AddButtonGroup([]myrtle.ButtonGroupButton{{Label: "Outline", URL: "https://example.com/outline-group", Style: myrtle.ButtonStyleOutline}, {Label: "Ghost", URL: "https://example.com/ghost-group", Style: myrtle.ButtonStyleGhost}}, myrtle.ButtonGroupAlign(myrtle.ButtonAlignmentLeft), myrtle.ButtonGroupGap(14), myrtle.ButtonGroupStackOnMobile(true)).
+		AddButtonGroup([]myrtle.ButtonGroupButton{{Label: "Outline", URL: "https://example.com/outline-group", Style: myrtle.ButtonStyleOutline}, {Label: "Ghost", URL: "https://example.com/ghost-group", Style: myrtle.ButtonStyleGhost}}, myrtle.ButtonGroupAlign(myrtle.ButtonAlignmentStart), myrtle.ButtonGroupGap(14), myrtle.ButtonGroupStackOnMobile(true)).
 		AddCallout(myrtle.CalloutTypeCritical, "Critical", "Body", myrtle.CalloutStyle(myrtle.CalloutVariantSolid), myrtle.CalloutLink("Investigate", "https://example.com/investigate")).
 		AddTable("Metrics", []string{"Name", "Value"}, [][]string{{"Users", "1200"}, {"Rate", "4.2%"}}, myrtle.TableZebraRows(true), myrtle.TableCompact(true), myrtle.TableRightAlignNumericColumns(true)).
+		AddTable("Styled metrics", []string{"Name", "Value"}, [][]string{{"Users", "1200"}, {"Rate", "4.2%"}}, myrtle.TableDensity(myrtle.TableDensityRelaxed), myrtle.TableHeaderTone(myrtle.TableHeaderToneMuted), myrtle.TableBorderStyle(myrtle.TableBorderStyleDashed)).
+		AddTable("Plain metrics", []string{"Name", "Value"}, [][]string{{"Users", "1200"}, {"Rate", "4.2%"}}, myrtle.TableHeaderTone(myrtle.TableHeaderTonePlain), myrtle.TableBorderStyle(myrtle.TableBorderStyleDotted)).
 		Build()
 
 	html, err := email.HTML()
@@ -729,17 +1111,28 @@ func TestButtonCalloutAndTableVariantsRender(t *testing.T) {
 	if !strings.Contains(html, "text-align:right;") {
 		t.Fatalf("expected numeric table cells to be right aligned")
 	}
-	if !strings.Contains(html, "background:#f9fafb;") {
+	if !strings.Contains(html, "background:#f8fafc;") {
 		t.Fatalf("expected zebra row styling in table")
+	}
+	if !strings.Contains(html, "padding:12px 14px;") {
+		t.Fatalf("expected relaxed table density to render")
+	}
+	if !strings.Contains(html, "background:#f8fafc;color:#111827;") {
+		t.Fatalf("expected muted table header tone to render")
+	}
+	if !strings.Contains(html, "border-bottom:1px dashed") || !strings.Contains(html, "border-bottom:2px dotted") {
+		t.Fatalf("expected customized table border styles to render")
 	}
 }
 
-func TestBarChartThicknessAndTransparentBackgroundRender(t *testing.T) {
+func TestHorizontalBarChartThicknessAndTransparentBackgroundRender(t *testing.T) {
 	t.Parallel()
 	builder := myrtle.NewBuilder(defaulttheme.New())
 
 	email := builder.
-		AddBarChart("Delivery", []myrtle.BarChartItem{{Label: "US", Percent: 52}}, myrtle.BarChartThickness(14), myrtle.BarChartTransparentBackground(true)).
+		AddHorizontalBarChart("Delivery", []myrtle.HorizontalBarChartItem{{Label: "US", Percent: 52}}, myrtle.HorizontalBarChartThickness(14), myrtle.HorizontalBarChartTransparentBackground(true), myrtle.HorizontalBarChartTone(myrtle.ChartToneWarning)).
+		AddSparkline("Trend", "Rate", "4.1%", []int{8, 12, 9, 14, 18, 16, 20}, myrtle.SparklineTone(myrtle.ChartToneSuccess)).
+		AddStackedBar("Stage mix", []myrtle.StackedBarRow{{Label: "Acquisition", Segments: []myrtle.StackedBarSegment{{Label: "Email", Percent: 58, Value: "58%"}, {Label: "SMS", Percent: 24, Value: "24%"}, {Label: "Push", Percent: 18, Value: "18%"}}}}, myrtle.StackedBarTone(myrtle.ChartToneInfo)).
 		Build()
 
 	html, err := email.HTML()
@@ -752,6 +1145,554 @@ func TestBarChartThicknessAndTransparentBackgroundRender(t *testing.T) {
 	}
 	if !strings.Contains(html, "background:transparent;") {
 		t.Fatalf("expected transparent bar chart background in html")
+	}
+	if !strings.Contains(html, "background:#ca8a04;") {
+		t.Fatalf("expected warning tone to color bar chart")
+	}
+	if !strings.Contains(html, "background:#16a34a;") {
+		t.Fatalf("expected success tone to color sparkline")
+	}
+	if !strings.Contains(html, "background:#2563eb;") {
+		t.Fatalf("expected info tone to color stacked bar")
+	}
+	if !strings.Contains(html, "opacity:0.7") || !strings.Contains(html, "opacity:0.4") {
+		t.Fatalf("expected stacked bar to render increased opacity steps")
+	}
+}
+
+func TestDatavizPerItemColorsRender(t *testing.T) {
+	t.Parallel()
+	builder := myrtle.NewBuilder(defaulttheme.New())
+
+	email := builder.
+		AddHorizontalBarChart("Delivery", []myrtle.HorizontalBarChartItem{{Label: "US", Percent: 52, Color: "#123456"}}).
+		AddProgress("Rollout", []myrtle.ProgressItem{{Label: "Deploy", Percent: 80, Color: "#234567"}}).
+		AddStackedBar("Funnel", []myrtle.StackedBarRow{{Label: "Q1", Segments: []myrtle.StackedBarSegment{{Label: "Won", Percent: 60, Color: "#345678"}}}}).
+		AddDistribution("Latency", []myrtle.DistributionBucket{{Label: "0-50", Count: 10, Color: "#456789"}}).
+		Build()
+
+	html, err := email.HTML()
+	if err != nil {
+		t.Fatalf("html returned error: %v", err)
+	}
+
+	for _, color := range []string{"#123456", "#234567", "#345678", "#456789"} {
+		if !strings.Contains(html, "background:"+color) {
+			t.Fatalf("expected custom color %q to render in html", color)
+		}
+	}
+}
+
+func TestVerticalBarChartLegendAxisAndNegativeRender(t *testing.T) {
+	t.Parallel()
+	builder := myrtle.NewBuilder(defaulttheme.New())
+
+	series := []myrtle.VerticalBarChartSeries{
+		{Key: "new", Label: "New", Color: "#2563eb", Values: []float64{42, 36}},
+		{Key: "churn", Label: "Churn", Color: "#dc2626", Values: []float64{-11, -8}},
+	}
+
+	email := builder.
+		AddVerticalBarChart(
+			"MRR movement",
+			[]string{"Jan", "Feb"},
+			series,
+			myrtle.VerticalBarChartLegendPlacement(myrtle.VerticalBarChartLegendBottom),
+			myrtle.VerticalBarChartAxisShowYTicks(true),
+			myrtle.VerticalBarChartAxisTickCount(5),
+			myrtle.VerticalBarChartAxisShowBaseline(true),
+		).
+		Build()
+
+	html, err := email.HTML()
+	if err != nil {
+		t.Fatalf("html returned error: %v", err)
+	}
+
+	if !strings.Contains(html, `data-myrtle-vertical-bar-chart="1"`) {
+		t.Fatalf("expected vertical bar chart container marker")
+	}
+	if !strings.Contains(html, "Legend") && !strings.Contains(html, "New") {
+		t.Fatalf("expected legend labels to render")
+	}
+	if !strings.Contains(html, "border-right:1px solid") {
+		t.Fatalf("expected y-axis line to render beside the chart")
+	}
+	if !strings.Contains(html, ">42<") || !strings.Contains(html, ">0<") {
+		t.Fatalf("expected y-axis to show max and zero labels")
+	}
+	if !strings.Contains(html, "title=\"Churn: -11\"") {
+		t.Fatalf("expected negative segment title to render")
+	}
+	if !strings.Contains(html, "height:1px;line-height:1px") {
+		t.Fatalf("expected baseline row to render")
+	}
+}
+
+func TestVerticalBarChartCanHideCategoryLabels(t *testing.T) {
+	t.Parallel()
+	builder := myrtle.NewBuilder(defaulttheme.New())
+
+	email := builder.
+		AddVerticalBarChart(
+			"MRR movement",
+			[]string{"Jan"},
+			[]myrtle.VerticalBarChartSeries{{Key: "new", Label: "New", Values: []float64{20}}},
+			myrtle.VerticalBarChartAxisShowCategoryLabels(false),
+		).
+		Build()
+
+	html, err := email.HTML()
+	if err != nil {
+		t.Fatalf("html returned error: %v", err)
+	}
+
+	if strings.Contains(html, ">Jan<") {
+		t.Fatalf("expected category labels to be hidden when disabled")
+	}
+}
+
+func TestVerticalBarChartDefaultsToFullWidthAndAdaptiveGap(t *testing.T) {
+	t.Parallel()
+	builder := myrtle.NewBuilder(defaulttheme.New())
+
+	email := builder.
+		AddVerticalBarChart(
+			"MRR movement",
+			[]string{"Jan", "Feb"},
+			[]myrtle.VerticalBarChartSeries{{Key: "new", Label: "New", Values: []float64{20, 24}}},
+		).
+		Build()
+
+	html, err := email.HTML()
+	if err != nil {
+		t.Fatalf("html returned error: %v", err)
+	}
+
+	if !strings.Contains(html, "width:12px;padding:0;") {
+		t.Fatalf("expected adaptive default category gap for small dataset")
+	}
+	if !strings.Contains(html, "table-layout:fixed") {
+		t.Fatalf("expected vertical chart columns to use fixed full-width layout")
+	}
+}
+
+func TestVerticalBarChartDoesNotNormalizeByDefault(t *testing.T) {
+	t.Parallel()
+	builder := myrtle.NewBuilder(defaulttheme.New())
+
+	email := builder.
+		AddVerticalBarChart(
+			"MRR movement",
+			[]string{"Jan", "Feb"},
+			[]myrtle.VerticalBarChartSeries{{Key: "new", Label: "New", Values: []float64{100, 50}}},
+			myrtle.VerticalBarChartHeight(100),
+			myrtle.VerticalBarChartAxisMin(0),
+			myrtle.VerticalBarChartAxisMax(100),
+		).
+		Build()
+
+	html, err := email.HTML()
+	if err != nil {
+		t.Fatalf("html returned error: %v", err)
+	}
+
+	if !strings.Contains(html, "title=\"New: 50\"") {
+		t.Fatalf("expected second column segment to render")
+	}
+	if !strings.Contains(html, "title=\"New: 50\" valign=\"middle\" style=\"height:50px;") {
+		t.Fatalf("expected second column segment to keep proportional height without normalization")
+	}
+}
+
+func TestVerticalBarChartCanNormalizeHeights(t *testing.T) {
+	t.Parallel()
+	builder := myrtle.NewBuilder(defaulttheme.New())
+
+	email := builder.
+		AddVerticalBarChart(
+			"MRR movement",
+			[]string{"Jan", "Feb"},
+			[]myrtle.VerticalBarChartSeries{{Key: "new", Label: "New", Values: []float64{100, 50}}},
+			myrtle.VerticalBarChartHeight(100),
+			myrtle.VerticalBarChartAxisMin(0),
+			myrtle.VerticalBarChartAxisMax(100),
+			myrtle.VerticalBarChartNormalize(true),
+		).
+		Build()
+
+	html, err := email.HTML()
+	if err != nil {
+		t.Fatalf("html returned error: %v", err)
+	}
+
+	if !strings.Contains(html, "title=\"New: 50\" valign=\"middle\" style=\"height:100px;") {
+		t.Fatalf("expected normalized second column segment to fill the positive region")
+	}
+}
+
+func TestVerticalBarChartNormalizeFallsBackWhenNegativeValuesExist(t *testing.T) {
+	t.Parallel()
+	builder := myrtle.NewBuilder(defaulttheme.New())
+
+	email := builder.
+		AddVerticalBarChart(
+			"MRR movement",
+			[]string{"Jan", "Feb"},
+			[]myrtle.VerticalBarChartSeries{{Key: "new", Label: "New", Values: []float64{100, 50}}, {Key: "churn", Label: "Churn", Values: []float64{-20, -10}}},
+			myrtle.VerticalBarChartHeight(100),
+			myrtle.VerticalBarChartAxisMin(-30),
+			myrtle.VerticalBarChartAxisMax(100),
+			myrtle.VerticalBarChartNormalize(true),
+		).
+		Build()
+
+	html, err := email.HTML()
+	if err != nil {
+		t.Fatalf("html returned error: %v", err)
+	}
+
+	if !strings.Contains(html, "title=\"New: 50\" valign=\"middle\" style=\"height:") {
+		t.Fatalf("expected normalized mode to fall back to magnitude scaling for positive segments when negatives exist")
+	}
+	if !strings.Contains(html, "title=\"Churn: -10\" valign=\"middle\" style=\"height:") {
+		t.Fatalf("expected normalized mode to fall back to magnitude scaling for negative segments when negatives exist")
+	}
+	if strings.Contains(html, "title=\"New: 50\" valign=\"middle\" style=\"height:77px;") {
+		t.Fatalf("expected normalized fill behavior to be disabled when negative values are present")
+	}
+}
+
+func TestVerticalBarChartAxisMaxDoesNotClampBelowData(t *testing.T) {
+	t.Parallel()
+	builder := myrtle.NewBuilder(defaulttheme.New())
+
+	email := builder.
+		AddVerticalBarChart(
+			"MRR movement",
+			[]string{"Jan", "Feb"},
+			[]myrtle.VerticalBarChartSeries{{Key: "new", Label: "New", Values: []float64{100, 50}}},
+			myrtle.VerticalBarChartHeight(100),
+			myrtle.VerticalBarChartAxisMin(0),
+			myrtle.VerticalBarChartAxisMax(60),
+		).
+		Build()
+
+	html, err := email.HTML()
+	if err != nil {
+		t.Fatalf("html returned error: %v", err)
+	}
+
+	if !strings.Contains(html, "title=\"New: 50\" valign=\"middle\" style=\"height:50px;") {
+		t.Fatalf("expected axis max below observed values to be ignored for scaling")
+	}
+}
+
+func TestVerticalBarChartCanRenderValueLabels(t *testing.T) {
+	t.Parallel()
+	builder := myrtle.NewBuilder(defaulttheme.New())
+
+	email := builder.
+		AddVerticalBarChart(
+			"MRR movement",
+			[]string{"Jan", "Feb"},
+			[]myrtle.VerticalBarChartSeries{{Key: "new", Label: "New", Values: []float64{100, 50}}},
+			myrtle.VerticalBarChartHeight(100),
+			myrtle.VerticalBarChartAxisMin(0),
+			myrtle.VerticalBarChartAxisMax(100),
+			myrtle.VerticalBarChartValueLabelsOption(myrtle.VerticalBarChartValueLabels{Show: true, MinSegmentHeight: 12}),
+		).
+		Build()
+
+	html, err := email.HTML()
+	if err != nil {
+		t.Fatalf("html returned error: %v", err)
+	}
+
+	if !strings.Contains(html, ">50<") {
+		t.Fatalf("expected value label to render inside sufficiently tall segment")
+	}
+}
+
+func TestVerticalBarChartRendersValueLabelsAboveThinPositiveSegmentsWhenSpaceAllows(t *testing.T) {
+	t.Parallel()
+	builder := myrtle.NewBuilder(defaulttheme.New())
+
+	email := builder.
+		AddVerticalBarChart(
+			"MRR movement",
+			[]string{"Jan", "Feb"},
+			[]myrtle.VerticalBarChartSeries{{Key: "new", Label: "New", Values: []float64{100, 50}}},
+			myrtle.VerticalBarChartHeight(100),
+			myrtle.VerticalBarChartAxisMin(0),
+			myrtle.VerticalBarChartAxisMax(100),
+			myrtle.VerticalBarChartValueLabelsOption(myrtle.VerticalBarChartValueLabels{Show: true, MinSegmentHeight: 60}),
+		).
+		Build()
+
+	html, err := email.HTML()
+	if err != nil {
+		t.Fatalf("html returned error: %v", err)
+	}
+
+	if !strings.Contains(html, ">50<") {
+		t.Fatalf("expected thin positive value label to render above the segment when there is free space")
+	}
+}
+
+func TestVerticalBarChartDoesNotRenderAboveLabelWithoutFreeSpace(t *testing.T) {
+	t.Parallel()
+	builder := myrtle.NewBuilder(defaulttheme.New())
+
+	email := builder.
+		AddVerticalBarChart(
+			"MRR movement",
+			[]string{"Jan"},
+			[]myrtle.VerticalBarChartSeries{
+				{Key: "new", Label: "New", Values: []float64{5}},
+				{Key: "expansion", Label: "Expansion", Values: []float64{95}},
+			},
+			myrtle.VerticalBarChartHeight(100),
+			myrtle.VerticalBarChartAxisMin(0),
+			myrtle.VerticalBarChartAxisMax(100),
+			myrtle.VerticalBarChartValueLabelsOption(myrtle.VerticalBarChartValueLabels{Show: true, MinSegmentHeight: 60}),
+		).
+		Build()
+
+	html, err := email.HTML()
+	if err != nil {
+		t.Fatalf("html returned error: %v", err)
+	}
+
+	if strings.Contains(html, ">5<") {
+		t.Fatalf("expected thin positive label to remain hidden when no space exists above stack")
+	}
+}
+
+func TestVerticalBarChartDoesNotRenderAboveLabelForNegativeSegments(t *testing.T) {
+	t.Parallel()
+	builder := myrtle.NewBuilder(defaulttheme.New())
+
+	email := builder.
+		AddVerticalBarChart(
+			"MRR movement",
+			[]string{"Jan", "Feb"},
+			[]myrtle.VerticalBarChartSeries{{Key: "churn", Label: "Churn", Values: []float64{-5, -4}}},
+			myrtle.VerticalBarChartHeight(100),
+			myrtle.VerticalBarChartAxisMin(-100),
+			myrtle.VerticalBarChartAxisMax(0),
+			myrtle.VerticalBarChartValueLabelsOption(myrtle.VerticalBarChartValueLabels{Show: true, MinSegmentHeight: 60}),
+		).
+		Build()
+
+	html, err := email.HTML()
+	if err != nil {
+		t.Fatalf("html returned error: %v", err)
+	}
+
+	if strings.Contains(html, ">-5<") || strings.Contains(html, ">-4<") {
+		t.Fatalf("expected thin negative value labels to stay hidden")
+	}
+}
+
+func TestVerticalBarChartRendersAboveLabelForUpperThinNegativeSegmentWhenNoPositiveValues(t *testing.T) {
+	t.Parallel()
+	builder := myrtle.NewBuilder(defaulttheme.New())
+
+	email := builder.
+		AddVerticalBarChart(
+			"MRR movement",
+			[]string{"Jan", "Feb"},
+			[]myrtle.VerticalBarChartSeries{{Key: "churn", Label: "Churn", Values: []float64{-5, -80}}},
+			myrtle.VerticalBarChartHeight(100),
+			myrtle.VerticalBarChartAxisMin(-100),
+			myrtle.VerticalBarChartAxisMax(100),
+			myrtle.VerticalBarChartValueLabelsOption(myrtle.VerticalBarChartValueLabels{Show: true, MinSegmentHeight: 12}),
+		).
+		Build()
+
+	html, err := email.HTML()
+	if err != nil {
+		t.Fatalf("html returned error: %v", err)
+	}
+
+	if !strings.Contains(html, ">-5<") {
+		t.Fatalf("expected thin upper negative label to render above baseline when no positive values exist")
+	}
+}
+
+func TestVerticalBarChartSupportsStructConfigOptions(t *testing.T) {
+	t.Parallel()
+	builder := myrtle.NewBuilder(defaulttheme.New())
+
+	email := builder.
+		AddVerticalBarChart(
+			"MRR movement",
+			[]string{"Jan", "Feb"},
+			[]myrtle.VerticalBarChartSeries{
+				{Key: "new", Label: "New", Values: []float64{42, 36}},
+				{Key: "churn", Label: "Churn", Values: []float64{-11, -8}},
+			},
+			myrtle.VerticalBarChartAxisConfig(myrtle.VerticalBarChartAxis{ShowYTicks: true, ShowBaseline: true, LabelFormat: myrtle.VerticalBarChartAxisLabelFormatNumber}),
+			myrtle.VerticalBarChartLegendConfigOption(myrtle.VerticalBarChartLegendConfig{Placement: myrtle.VerticalBarChartLegendBottom}),
+			myrtle.VerticalBarChartValueLabelsOption(myrtle.VerticalBarChartValueLabels{Show: true, MinSegmentHeight: 10}),
+		).
+		Build()
+
+	html, err := email.HTML()
+	if err != nil {
+		t.Fatalf("html returned error: %v", err)
+	}
+
+	if !strings.Contains(html, ">42<") {
+		t.Fatalf("expected value labels to render with struct config option")
+	}
+	if !strings.Contains(html, "New") || !strings.Contains(html, "Churn") {
+		t.Fatalf("expected legend labels to render with struct config option")
+	}
+}
+
+func TestVerticalBarChartValueFormatterCanRenderEuro(t *testing.T) {
+	t.Parallel()
+	builder := myrtle.NewBuilder(defaulttheme.New())
+
+	email := builder.
+		AddVerticalBarChart(
+			"MRR movement",
+			[]string{"Jan", "Feb"},
+			[]myrtle.VerticalBarChartSeries{{Key: "new", Label: "New", Values: []float64{42, 36}}},
+			myrtle.VerticalBarChartAxisConfig(myrtle.VerticalBarChartAxis{ShowYTicks: true, LabelFormat: myrtle.VerticalBarChartAxisLabelFormatNumber}),
+			myrtle.VerticalBarChartValueFormatterOption(myrtle.VerticalBarChartValueFormatter{Prefix: "€"}),
+			myrtle.VerticalBarChartValueLabelsOption(myrtle.VerticalBarChartValueLabels{Show: true, MinSegmentHeight: 10}),
+		).
+		Build()
+
+	html, err := email.HTML()
+	if err != nil {
+		t.Fatalf("html returned error: %v", err)
+	}
+
+	if !strings.Contains(html, "€42") {
+		t.Fatalf("expected euro formatter to render value labels and/or axis labels with euro sign")
+	}
+}
+
+func TestVerticalBarChartValueFormatterCanRenderUSDAndGBP(t *testing.T) {
+	t.Parallel()
+	builder := myrtle.NewBuilder(defaulttheme.New())
+
+	emailUSD := builder.
+		AddVerticalBarChart(
+			"MRR movement",
+			[]string{"Jan", "Feb"},
+			[]myrtle.VerticalBarChartSeries{{Key: "new", Label: "New", Values: []float64{42, 36}}},
+			myrtle.VerticalBarChartAxisConfig(myrtle.VerticalBarChartAxis{ShowYTicks: true, LabelFormat: myrtle.VerticalBarChartAxisLabelFormatNumber}),
+			myrtle.VerticalBarChartValueFormatterOption(myrtle.VerticalBarChartValueFormatter{Prefix: "$"}),
+			myrtle.VerticalBarChartValueLabelsOption(myrtle.VerticalBarChartValueLabels{Show: true, MinSegmentHeight: 10}),
+		).
+		Build()
+
+	htmlUSD, err := emailUSD.HTML()
+	if err != nil {
+		t.Fatalf("html returned error: %v", err)
+	}
+	if !strings.Contains(htmlUSD, "$42") {
+		t.Fatalf("expected usd formatter to render dollar values")
+	}
+
+	emailGBP := builder.
+		AddVerticalBarChart(
+			"MRR movement",
+			[]string{"Jan", "Feb"},
+			[]myrtle.VerticalBarChartSeries{{Key: "new", Label: "New", Values: []float64{42, 36}}},
+			myrtle.VerticalBarChartAxisConfig(myrtle.VerticalBarChartAxis{ShowYTicks: true, LabelFormat: myrtle.VerticalBarChartAxisLabelFormatNumber}),
+			myrtle.VerticalBarChartValueFormatterOption(myrtle.VerticalBarChartValueFormatter{Prefix: "£"}),
+			myrtle.VerticalBarChartValueLabelsOption(myrtle.VerticalBarChartValueLabels{Show: true, MinSegmentHeight: 10}),
+		).
+		Build()
+
+	htmlGBP, err := emailGBP.HTML()
+	if err != nil {
+		t.Fatalf("html returned error: %v", err)
+	}
+	if !strings.Contains(htmlGBP, "£42") {
+		t.Fatalf("expected gbp formatter to render pound values")
+	}
+}
+
+func TestVerticalBarChartValueFormatterCanRenderCompact(t *testing.T) {
+	t.Parallel()
+	builder := myrtle.NewBuilder(defaulttheme.New())
+
+	emailK := builder.
+		AddVerticalBarChart(
+			"MRR movement",
+			[]string{"Jan", "Feb"},
+			[]myrtle.VerticalBarChartSeries{{Key: "new", Label: "New", Values: []float64{1200, 1500}}},
+			myrtle.VerticalBarChartAxisConfig(myrtle.VerticalBarChartAxis{ShowYTicks: true, LabelFormat: myrtle.VerticalBarChartAxisLabelFormatNumber}),
+			myrtle.VerticalBarChartValueFormatterOption(myrtle.VerticalBarChartValueFormatter{MagnitudeSuffix: myrtle.VerticalBarChartMagnitudeSuffixShort}),
+			myrtle.VerticalBarChartValueLabelsOption(myrtle.VerticalBarChartValueLabels{Show: true, MinSegmentHeight: 10}),
+		).
+		Build()
+
+	htmlK, err := emailK.HTML()
+	if err != nil {
+		t.Fatalf("html returned error: %v", err)
+	}
+	if !strings.Contains(htmlK, "1.2K") {
+		t.Fatalf("expected compact formatter to render K values")
+	}
+
+	emailM := builder.
+		AddVerticalBarChart(
+			"MRR movement",
+			[]string{"Jan", "Feb"},
+			[]myrtle.VerticalBarChartSeries{{Key: "new", Label: "New", Values: []float64{1200000, 1500000}}},
+			myrtle.VerticalBarChartAxisConfig(myrtle.VerticalBarChartAxis{ShowYTicks: true, LabelFormat: myrtle.VerticalBarChartAxisLabelFormatNumber}),
+			myrtle.VerticalBarChartValueFormatterOption(myrtle.VerticalBarChartValueFormatter{MagnitudeSuffix: myrtle.VerticalBarChartMagnitudeSuffixShort}),
+			myrtle.VerticalBarChartValueLabelsOption(myrtle.VerticalBarChartValueLabels{Show: true, MinSegmentHeight: 10}),
+		).
+		Build()
+
+	htmlM, err := emailM.HTML()
+	if err != nil {
+		t.Fatalf("html returned error: %v", err)
+	}
+	if !strings.Contains(htmlM, "1.5M") {
+		t.Fatalf("expected compact formatter to render M values")
+	}
+}
+
+func TestVerticalBarChartValueFormatterCanRenderNegativeParentheses(t *testing.T) {
+	t.Parallel()
+	builder := myrtle.NewBuilder(defaulttheme.New())
+
+	email := builder.
+		AddVerticalBarChart(
+			"MRR movement",
+			[]string{"Jan", "Feb"},
+			[]myrtle.VerticalBarChartSeries{{Key: "churn", Label: "Churn", Values: []float64{-40, -60}}},
+			myrtle.VerticalBarChartHeight(120),
+			myrtle.VerticalBarChartAxisMin(-100),
+			myrtle.VerticalBarChartAxisMax(0),
+			myrtle.VerticalBarChartValueFormatterOption(myrtle.VerticalBarChartValueFormatter{NegativeFormat: myrtle.VerticalBarChartNegativeFormatParentheses}),
+			myrtle.VerticalBarChartValueLabelsOption(myrtle.VerticalBarChartValueLabels{Show: true, MinSegmentHeight: 10}),
+		).
+		Build()
+
+	html, err := email.HTML()
+	if err != nil {
+		t.Fatalf("html returned error: %v", err)
+	}
+
+	if !strings.Contains(html, ">(40)<") {
+		t.Fatalf("expected negative labels to use parentheses format")
+	}
+	if strings.Contains(html, ">-40<") {
+		t.Fatalf("expected negative labels to avoid minus format when parentheses are configured")
+	}
+	if !strings.Contains(html, "title=\"Churn: (40)\"") {
+		t.Fatalf("expected negative title values to use parentheses format")
 	}
 }
 
@@ -849,7 +1790,7 @@ func TestTilesRenderOptionsAndVariants(t *testing.T) {
 	leftAlignedEmail := myrtle.NewBuilder(defaulttheme.New()).
 		AddTiles(
 			[]myrtle.TileEntry{{Content: "📦", Title: "Shipped"}},
-			myrtle.TilesAlign(myrtle.TileAlignmentLeft),
+			myrtle.TilesAlign(myrtle.TileAlignmentStart),
 		).
 		Build()
 
@@ -867,7 +1808,7 @@ func TestTilesRenderOptionsAndVariants(t *testing.T) {
 	rightAlignedEmail := myrtle.NewBuilder(defaulttheme.New()).
 		AddTiles(
 			[]myrtle.TileEntry{{Content: "🧾", Title: "Invoices"}},
-			myrtle.TilesAlign(myrtle.TileAlignmentRight),
+			myrtle.TilesAlign(myrtle.TileAlignmentEnd),
 		).
 		Build()
 
@@ -925,26 +1866,24 @@ func TestNewBuilderWithHeaderOverrideLater(t *testing.T) {
 	t.Parallel()
 	builder := myrtle.NewBuilder(
 		defaulttheme.New(),
-		myrtle.WithHeader(myrtle.BuildHeader(
-			myrtle.HeaderTitle("Initial"),
-		)),
+		myrtle.WithHeader(myrtle.HeadingBlock{Text: "Initial", Level: 1}),
 	)
 
-	email := builder.Preheader("Initial preheader").WithHeader(myrtle.HeaderTitle("Overridden")).AddText("Body").Build()
+	email := builder.WithPreheader("Initial preheader").WithHeader(myrtle.HeadingBlock{Text: "Overridden", Level: 1}).AddText("Body").Build()
 
 	html, err := email.HTML()
 	if err != nil {
 		t.Fatalf("html returned error: %v", err)
 	}
-	if !strings.Contains(html, "<title>Overridden</title>") {
-		t.Fatalf("expected chained HeaderTitle to override constructor header")
+	if !strings.Contains(html, "Overridden") || strings.Contains(html, "Initial</h1>") {
+		t.Fatalf("expected chained WithHeader to override constructor header block")
 	}
 }
 
 func TestBuilderCloneConcurrentUsage(t *testing.T) {
 	t.Parallel()
 	baseBuilder := myrtle.NewBuilder(defaulttheme.New()).
-		WithHeader(myrtle.HeaderTitle("Template")).
+		WithHeader(myrtle.HeadingBlock{Text: "Template", Level: 1}).
 		AddText("base")
 
 	baseEmail := baseBuilder.Build()
@@ -969,7 +1908,7 @@ func TestBuilderCloneConcurrentUsage(t *testing.T) {
 
 			email := baseBuilder.
 				Clone().
-				Preheader(fmt.Sprintf("preheader-%d", index)).
+				WithPreheader(fmt.Sprintf("preheader-%d", index)).
 				AddText(fmt.Sprintf("thread-line-%d", index)).
 				Build()
 
@@ -996,6 +1935,66 @@ func TestBuilderCloneConcurrentUsage(t *testing.T) {
 		if !strings.Contains(html, "thread-line-") {
 			t.Fatalf("expected cloned builder output to include thread-specific content")
 		}
+	}
+}
+
+func TestMessagePreviewMarkdownUsedForHTML(t *testing.T) {
+	t.Parallel()
+
+	email := myrtle.NewBuilder(defaulttheme.New()).
+		AddMessage(myrtle.MessageBlock{
+			Subject:         "Subject",
+			Preview:         "Plain preview text",
+			PreviewMarkdown: "Markdown preview with [docs](https://example.com/docs)",
+			URL:             "https://example.com/message",
+		}).
+		Build()
+
+	html, err := email.HTML()
+	if err != nil {
+		t.Fatalf("html returned error: %v", err)
+	}
+
+	if !strings.Contains(html, "Markdown preview with") || !strings.Contains(html, "https://example.com/docs") {
+		t.Fatalf("expected html to render PreviewMarkdown when provided")
+	}
+	if strings.Contains(html, "Plain preview text") {
+		t.Fatalf("expected html preview to prioritize PreviewMarkdown over Preview")
+	}
+}
+
+func TestMessagePreviewMarkdownTextFallback(t *testing.T) {
+	t.Parallel()
+
+	email := myrtle.NewBuilder(defaulttheme.New()).
+		AddMessageDigest([]myrtle.MessageBlock{
+			{
+				Subject:         "Only markdown preview",
+				PreviewMarkdown: "Can you check [the draft](https://example.com/draft)?",
+				URL:             "https://example.com/message/1",
+			},
+			{
+				Subject:         "Both preview forms",
+				Preview:         "Use plain preview here",
+				PreviewMarkdown: "Use [markdown](https://example.com/markdown) instead",
+				URL:             "https://example.com/message/2",
+			},
+		}).
+		Build()
+
+	text, err := email.Text()
+	if err != nil {
+		t.Fatalf("text returned error: %v", err)
+	}
+
+	if !strings.Contains(text, "Can you check the draft (https://example.com/draft)?") {
+		t.Fatalf("expected text fallback to normalize markdown links from PreviewMarkdown")
+	}
+	if !strings.Contains(text, "Use plain preview here") {
+		t.Fatalf("expected text fallback to prefer Preview over PreviewMarkdown when both are set")
+	}
+	if strings.Contains(text, "[the draft](https://example.com/draft)") {
+		t.Fatalf("expected text fallback not to include raw markdown link syntax")
 	}
 }
 

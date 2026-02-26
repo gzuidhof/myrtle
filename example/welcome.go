@@ -19,9 +19,8 @@ func WelcomeEmailWithTheme(selectedTheme theme.Theme) (*myrtle.Email, error) {
 		selectedTheme,
 		myrtle.WithStyles(theme.Styles{ColorPrimary: "#0ea5e9"}),
 	).
-		Preheader("Compose beautiful transactional emails").
-		Product("Myrtle", "https://github.com/gzuidhof/myrtle").
-		Logo("/assets/logo.png", "Myrtle Logo").
+		WithPreheader("Compose beautiful transactional emails").
+		WithHeader(commonHeaderGroupWithAlt("Myrtle", "Myrtle Logo"), myrtle.HeaderPlacement(myrtle.HeaderPlacementOutside)).
 		AddHeading("Welcome aboard", myrtle.HeadingLevel(1)).
 		AddText("Hi there,").
 		AddText("Thanks for joining us. You can now build composable email content in Go.").
@@ -30,7 +29,7 @@ func WelcomeEmailWithTheme(selectedTheme theme.Theme) (*myrtle.Email, error) {
 		AddText("Start with the quick-start docs:").
 		AddButton("Open docs", "https://github.com/gzuidhof/myrtle").
 		AddDivider().
-		AddLegal("Myrtle Inc.", "123 Market St, San Francisco, CA", "https://example.com/preferences", "https://example.com/unsubscribe").
 		AddFreeMarkdown("Need help? Reach out in **GitHub Discussions**.").
+		WithFooter(commonFooterGroup(), myrtle.FooterPlacement(myrtle.FooterPlacementOutside)).
 		Build(), nil
 }

@@ -19,14 +19,11 @@ func AccountDeletionConfirmationEmailWithTheme(selectedTheme theme.Theme) (*myrt
 		selectedTheme,
 		myrtle.WithStyles(theme.Styles{ColorPrimary: "#2563eb"}),
 	).
-		Preheader("Confirm account deletion within 30 minutes").
-		Product("Myrtle Security", "https://example.com/security").
-		Logo("/assets/logo.png", "Myrtle Security").
+		WithPreheader("Confirm account deletion within 30 minutes").
+		WithHeader(commonHeaderGroup("Myrtle Security")).
 		AddHeading("Confirm account deletion", myrtle.HeadingLevel(2)).
-		AddText(
-			"We received a request to permanently delete your account and all related data.",
-			"If you continue, this action cannot be undone.",
-		).
+		AddText("We received a request to permanently delete your account and all related data.").
+		AddText("If you continue, this action cannot be undone.").
 		AddCallout(myrtle.CalloutTypeCritical, "Permanent action", "All projects, API keys, and audit history will be removed.", myrtle.CalloutStyle(myrtle.CalloutVariantSolid)).
 		AddKeyValue("Request details", []myrtle.KeyValuePair{{Key: "Requested by", Value: "alex@example.com"}, {Key: "Requested at", Value: "2026-02-23 14:21 UTC"}, {Key: "IP", Value: "203.0.113.42"}}).
 		AddText("To continue, confirm your decision below:").

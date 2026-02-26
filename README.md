@@ -7,7 +7,7 @@
 Composable, strongly typed email content builder for Go.
 
 Myrtle focuses on building email content only: subject, preheader, and composable blocks.
-It renders both HTML and Markdown text output, and keeps delivery concerns (from/to/headers)
+It renders both HTML and plain text output, and keeps delivery concerns (from/to/headers)
 outside the library.
 
 ## Features
@@ -17,13 +17,12 @@ outside the library.
 - Optional generic registry for typed custom blocks.
 - Theme packages under `theme/<themename>`.
 - Embedded templates (`embed`) stored as separate files next to theme code.
-- High-level values available to wrappers and blocks (product name/link, logo URL/alt).
 - Shared style values available to all blocks (`ColorPrimary`, `ColorSecondary`, text/border/code colors).
 - Built-in advanced blocks: table, action, code, free markdown, bar chart.
 - High-impact blocks: timeline, stats row, badge, summary card, attachment.
 - Dual rendering APIs:
   - `HTML()` for final HTML output.
-  - `Text()` for Markdown fallback output.
+  - `Text()` for plain-text fallback output.
 
 ## Installation
 
@@ -50,10 +49,8 @@ func main() {
   _ = flat.New(flat.WithFallback(defaulttheme.New()))
 
   email := b.
-    Subject("Welcome to Myrtle").
-    Preheader("Composable email building blocks in Go").
-    Product("Myrtle", "https://github.com/gzuidhof/myrtle").
-    Logo("https://example.com/logo.png", "").
+    WithPreheader("Composable email building blocks in Go").
+    WithHeader(myrtle.HeadingBlock{Text: "Myrtle", Level: 1}).
     AddText("Hi there,").
     AddText("Thanks for trying Myrtle.").
     AddText("Start with the quick-start docs:").
@@ -87,28 +84,46 @@ type Promo struct {
 registry := myrtle.NewRegistry()
 
 _ = myrtle.Register(registry, "promo",
+  func(p Promo, values theme.Values) (string, error) {
+    return "<section><h2 style=\"color:" + values.Styles.ColorPrimary + "\">" + p.Title + "</h2><p>" + p.Body + "</p></section>", nil
+  },
   func(p Promo, context myrtle.RenderContext) (string, error) {
-    return "## " + p.Title + "\n\n" + p.Body + " at " + context.Values.ProductName, nil
+    return "## " + p.Title + "\n\n" + p.Body, nil
   },
 )
 
 b := myrtle.NewBuilder(
   defaulttheme.New(),
-  myrtle.WithRegistry(registry),
 )
-  b.ProductName("Myrtle")
 
-promoBlock, _ := myrtle.Create(registry, "promo", Promo{Title: "Launch", Body: "It works."})
-b.Add(promoBlock)
+b.Add(myrtle.NewCustomBlock("promo", Promo{Title: "Launch", Body: "It works."},
+  func(p Promo, values theme.Values) (string, error) {
+    return "<section><h2 style=\"color:" + values.Styles.ColorPrimary + "\">" + p.Title + "</h2><p>" + p.Body + "</p></section>", nil
+  },
+  func(p Promo, context myrtle.RenderContext) (string, error) {
+    return "## " + p.Title + "\n\n" + p.Body, nil
+  },
+))
 ```
 
 ## Notes
 
-- Markdown rendering is block-owned by default.
-- Themes fully own HTML rendering (base package does not generate HTML).
+- Custom blocks can be added directly with `myrtle.NewCustomBlock(...)` and `Add(...)`.
+- `Registry` remains available for registration/lookup workflows via `myrtle.Register` + `myrtle.CreateBlock`.
+- Direction can be set with `myrtle.WithDirection(theme.DirectionRTL)` (or `builder.WithDirection(...)`) and themes render `dir="rtl"` when enabled.
+- Alignment constants use logical values (`start`, `center`, `end`) and are mapped to physical left/right at render time for email-client compatibility.
 - A theme can delegate missing block renderers to another theme (for example `flat.WithFallback(defaulttheme.New())`).
-- Themes can optionally wrap Markdown output globally.
-- If logo alt is empty, Myrtle defaults it to product name (or `Logo` when product name is empty).
+- Themes can optionally wrap text output globally.
+
+### Direction example
+
+```go
+email := myrtle.NewBuilder(defaulttheme.New(), myrtle.WithDirection(theme.DirectionRTL)).
+  WithHeader(myrtle.HeadingBlock{Text: "Aligned to logical start", Level: 1}).
+  AddText("Aligned to logical start", myrtle.TextAlign(myrtle.TextAlignStart)).
+  AddButton("Open", "https://example.com", myrtle.ButtonAlign(myrtle.ButtonAlignmentEnd)).
+  Build()
+```
 
 ## Examples
 
@@ -136,6 +151,42 @@ Run it via the cmd entrypoint:
 ```bash
 go run ./example/server/cmd
 ```
+
+#### Send test emails via SMTP (optional)
+
+The example server can optionally show a **Send email** form above each example email preview.
+This is enabled only when an SMTP config file is present.
+
+1. Copy the example config:
+
+```bash
+cp example/server/smtp.config.example.json example/server/smtp.config.json
+```
+
+2. Fill in your SMTP settings and credentials in `example/server/smtp.config.json`.
+
+JSON fields:
+
+- `host`: SMTP host
+- `port`: SMTP port (for example `587`)
+- `username`: SMTP username (optional if your relay allows anonymous)
+- `password`: SMTP password
+- `from_name`: Display name for the sender
+- `from_address`: Sender email address
+- `default_to`: Default pre-filled recipient in the send form
+
+3. Start the server:
+
+```bash
+go run ./example/server/cmd
+```
+
+When the config file exists and is valid, each example card on the index page shows a recipient field + send button.
+
+Notes:
+
+- The credentials file `example/server/smtp.config.json` is ignored by Git.
+- You can override the config path with `MYRTLE_SMTP_CONFIG=/path/to/file.json`.
 
 ```go
 package main

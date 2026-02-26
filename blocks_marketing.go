@@ -24,19 +24,20 @@ func (block HeroBlock) TemplateData() any {
 	return block
 }
 
-func (block HeroBlock) RenderMarkdown(_ RenderContext) (string, error) {
+func (block HeroBlock) RenderText(_ RenderContext) (string, error) {
 	parts := make([]string, 0, 4)
 	if strings.TrimSpace(block.Eyebrow) != "" {
-		parts = append(parts, "_"+strings.TrimSpace(block.Eyebrow)+"_")
+		parts = append(parts, strings.TrimSpace(block.Eyebrow))
 	}
 	if strings.TrimSpace(block.Title) != "" {
-		parts = append(parts, "## "+strings.TrimSpace(block.Title))
+		title := strings.TrimSpace(block.Title)
+		parts = append(parts, title, strings.Repeat("-", min(48, max(8, len(title)))))
 	}
 	if strings.TrimSpace(block.Body) != "" {
 		parts = append(parts, strings.TrimSpace(block.Body))
 	}
 	if strings.TrimSpace(block.CTALabel) != "" && strings.TrimSpace(block.CTAURL) != "" {
-		parts = append(parts, "["+strings.TrimSpace(block.CTALabel)+"]("+strings.TrimSpace(block.CTAURL)+")")
+		parts = append(parts, strings.TrimSpace(block.CTALabel)+" ("+strings.TrimSpace(block.CTAURL)+")")
 	}
 
 	return strings.Join(parts, "\n\n"), nil
@@ -60,7 +61,7 @@ func (block FooterLinksBlock) TemplateData() any {
 	return block
 }
 
-func (block FooterLinksBlock) RenderMarkdown(_ RenderContext) (string, error) {
+func (block FooterLinksBlock) RenderText(_ RenderContext) (string, error) {
 	links := make([]string, 0, len(block.Links))
 	for _, link := range block.Links {
 		label := strings.TrimSpace(link.Label)
@@ -69,7 +70,7 @@ func (block FooterLinksBlock) RenderMarkdown(_ RenderContext) (string, error) {
 			continue
 		}
 
-		links = append(links, "["+label+"]("+url+")")
+		links = append(links, label+" ("+url+")")
 	}
 
 	parts := make([]string, 0, 2)

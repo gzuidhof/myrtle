@@ -1,10 +1,10 @@
-<div style="margin:0 0 16px;padding:14px 16px;border:1px solid {{ .Values.Styles.ColorBorder }};border-radius:12px;background:#ffffff;">
+<div style="margin:0 0 16px;padding:14px 16px;border:1px solid {{ .Values.Styles.ColorBorder }};border-radius:{{ .Values.Styles.RadiusElement }};background:{{ .Values.Styles.ColorSurface }};">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
     <tr>
       {{ if .Block.AvatarURL }}
-      <td valign="top" style="width:44px;padding:0 12px 0 0;">
+        <td valign="top" style="width:44px;{{ if isRTL .Values }}padding:0 0 0 12px;{{ else }}padding:0 12px 0 0;{{ end }}">
           {{ if .Block.LogoHref }}<a href="{{ .Block.LogoHref }}" style="display:block;text-decoration:none;">{{ end }}
-          <img src="{{ .Block.AvatarURL }}" alt="{{ .Block.LogoAlt }}" width="40" height="40" style="display:block;width:40px;height:40px;border-radius:12px;object-fit:cover;" />
+          <img src="{{ .Block.AvatarURL }}" alt="{{ .Block.LogoAlt }}" width="40" height="40" style="display:block;width:40px;height:40px;border-radius:{{ .Values.Styles.RadiusElement }};object-fit:cover;" />
           {{ if .Block.LogoHref }}</a>{{ end }}
       </td>
       {{ end }}

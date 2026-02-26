@@ -12,7 +12,7 @@
           <td>
             <table role="presentation" width="{{ .Percent }}%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
               <tr>
-                <td style="height:{{ $.Block.Thickness }}px;line-height:{{ $.Block.Thickness }}px;font-size:0;background:{{ $.Values.Styles.ColorPrimary }};">&nbsp;</td>
+                <td style="height:{{ $.Block.Thickness }}px;line-height:{{ $.Block.Thickness }}px;font-size:0;background:{{ if .Color }}{{ .Color }}{{ else if eq $.Block.Tone "muted" }}{{ $.Values.Styles.ColorTextMuted }}{{ else if eq $.Block.Tone "info" }}{{ $.Values.Styles.ColorInfo }}{{ else if eq $.Block.Tone "success" }}{{ $.Values.Styles.ColorSuccess }}{{ else if eq $.Block.Tone "warning" }}{{ $.Values.Styles.ColorWarning }}{{ else if eq $.Block.Tone "danger" }}{{ $.Values.Styles.ColorDanger }}{{ else }}{{ $.Values.Styles.ColorPrimary }}{{ end }};">&nbsp;</td>
               </tr>
             </table>
           </td>

@@ -1,6 +1,8 @@
 package myrtle
 
-func (builder *Builder) Preheader(value string) *Builder {
+import "github.com/gzuidhof/myrtle/theme"
+
+func (builder *Builder) WithPreheader(value string) *Builder {
 	builder.mu.Lock()
 	defer builder.mu.Unlock()
 
@@ -8,35 +10,58 @@ func (builder *Builder) Preheader(value string) *Builder {
 	return builder
 }
 
+func (builder *Builder) WithDirection(value theme.Direction) *Builder {
+	builder.mu.Lock()
+	defer builder.mu.Unlock()
+
+	if value == theme.DirectionRTL {
+		builder.values.Direction = theme.DirectionRTL
+		return builder
+	}
+
+	builder.values.Direction = theme.DirectionLTR
+	return builder
+}
+
 func (builder *Builder) Header(value HeaderSection) *Builder {
 	builder.mu.Lock()
 	defer builder.mu.Unlock()
 
+	if value.Block == nil {
+		builder.header = nil
+		builder.headerMode = HeaderModeDisabled
+		return builder
+	}
+
 	builder.headerMode = HeaderModeEnabled
 	builder.header = &HeaderSection{
-		Title:            value.Title,
-		ProductName:      value.ProductName,
-		ProductLink:      value.ProductLink,
-		LogoURL:          value.LogoURL,
-		LogoAlt:          value.LogoAlt,
-		RenderInMarkdown: value.RenderInMarkdown,
-		ShowTextWithLogo: value.ShowTextWithLogo,
-		LogoCentered:     value.LogoCentered,
-		Alignment:        value.Alignment,
+		Block:        value.Block,
+		RenderInText: value.RenderInText,
+		Placement:    normalizedHeaderPlacement(value.Placement),
 	}
-	builder.syncValuesFromHeader()
 	return builder
 }
 
-func (builder *Builder) WithHeader(options ...HeaderOption) *Builder {
+func (builder *Builder) WithHeader(block Block, options ...HeaderOption) *Builder {
 	builder.mu.Lock()
 	defer builder.mu.Unlock()
 
-	header := builder.ensureHeaderExplicit()
+	if block == nil {
+		builder.header = nil
+		builder.headerMode = HeaderModeDisabled
+		return builder
+	}
+
+	header := &HeaderSection{Block: block, Placement: HeaderPlacementInside}
 	for _, option := range options {
+		if option == nil {
+			continue
+		}
+
 		option(header)
 	}
-	builder.syncValuesFromHeader()
+	builder.headerMode = HeaderModeEnabled
+	builder.header = header
 	return builder
 }
 
@@ -51,88 +76,6 @@ func (builder *Builder) NoHeader() *Builder {
 
 func (builder *Builder) WithoutHeader() *Builder {
 	return builder.NoHeader()
-}
-
-func (builder *Builder) Product(name, link string) *Builder {
-	builder.mu.Lock()
-	defer builder.mu.Unlock()
-
-	builder.values.ProductName = name
-	builder.values.ProductLink = link
-	if header := builder.ensureHeaderImplicit(); header != nil {
-		header.ProductName = name
-		header.ProductLink = link
-	}
-	return builder
-}
-
-func (builder *Builder) ProductName(value string) *Builder {
-	builder.mu.Lock()
-	defer builder.mu.Unlock()
-
-	builder.values.ProductName = value
-	if header := builder.ensureHeaderImplicit(); header != nil {
-		header.ProductName = value
-	}
-	return builder
-}
-
-func (builder *Builder) ProductLink(value string) *Builder {
-	builder.mu.Lock()
-	defer builder.mu.Unlock()
-
-	builder.values.ProductLink = value
-	if header := builder.ensureHeaderImplicit(); header != nil {
-		header.ProductLink = value
-	}
-	return builder
-}
-
-func (builder *Builder) Logo(url, alt string) *Builder {
-	builder.mu.Lock()
-	defer builder.mu.Unlock()
-
-	builder.values.LogoURL = url
-	builder.values.LogoAlt = alt
-	if header := builder.ensureHeaderImplicit(); header != nil {
-		header.LogoURL = url
-		header.LogoAlt = alt
-	}
-	return builder
-}
-
-func (builder *Builder) ensureHeaderExplicit() *HeaderSection {
-	builder.headerMode = HeaderModeEnabled
-
-	if builder.header == nil {
-		builder.header = &HeaderSection{}
-	}
-
-	return builder.header
-}
-
-func (builder *Builder) ensureHeaderImplicit() *HeaderSection {
-	if builder.header != nil {
-		return builder.header
-	}
-
-	if builder.headerMode == HeaderModeDisabled {
-		return nil
-	}
-
-	builder.header = &HeaderSection{}
-	return builder.header
-}
-
-func (builder *Builder) syncValuesFromHeader() {
-	if builder.header == nil {
-		return
-	}
-
-	builder.values.ProductName = builder.header.ProductName
-	builder.values.ProductLink = builder.header.ProductLink
-	builder.values.LogoURL = builder.header.LogoURL
-	builder.values.LogoAlt = builder.header.LogoAlt
 }
 
 func cloneHeader(value *HeaderSection) *HeaderSection {

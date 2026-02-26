@@ -3,7 +3,7 @@
   <tr>
     {{ range . }}
     <td width="{{ $.ColumnWidth }}%" valign="top" style="padding:0;">
-      <div style="{{ if $.Block.Border }}border:1px solid {{ $.Values.Styles.ColorBorder }};{{ end }}border-radius:10px;padding:12px;">
+      <div style="{{ if $.Block.Border }}border:1px solid {{ $.Values.Styles.ColorBorder }};{{ end }}border-radius:{{ $.Values.Styles.RadiusElement }};padding:12px;">
         {{ if .Title }}<p style="margin:0 0 6px;font-weight:700;color:{{ $.Values.Styles.ColorText }};">{{ .Title }}</p>{{ end }}
         {{ if .Subtitle }}<p style="margin:0 0 8px;font-size:13px;color:{{ $.Values.Styles.ColorTextMuted }};">{{ .Subtitle }}</p>{{ end }}
         {{ if .Body }}<p style="margin:0 0 10px;line-height:1.5;color:{{ $.Values.Styles.ColorText }};">{{ .Body }}</p>{{ end }}

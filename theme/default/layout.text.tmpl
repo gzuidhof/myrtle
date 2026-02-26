@@ -1,11 +1,7 @@
-{{ if and .Header .Header.ShowTitle }}# {{ .Header.Title }}{{ end }}
+{{ if and .Header .Header.Text }}{{ .Header.Text }}{{ end }}
 
-{{ if .Preheader }}_{{ .Preheader }}_{{ end }}
-
-{{ if and .Header .Header.ShowProductName }}
-{{ if .Header.ProductLink }}[{{ .Header.ProductName }}]({{ .Header.ProductLink }}){{ else }}{{ .Header.ProductName }}{{ end }}
-{{ end }}
-
-{{ if and .Header .Header.LogoURL }}![{{ .Header.LogoAlt }}]({{ .Header.LogoURL }}){{ end }}
+{{ if .Preheader }}{{ .Preheader }}{{ end }}
 
 {{ .Body }}
+
+{{ if and .Footer .Footer.Text }}{{ .Footer.Text }}{{ end }}

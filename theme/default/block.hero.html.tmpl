@@ -1,15 +1,15 @@
-<section style="margin:0 0 18px;padding:16px;border:1px solid {{ .Values.Styles.ColorBorder }};border-radius:10px;background:#ffffff;">
+<section style="margin:0 0 18px;padding:16px;border:1px solid {{ .Values.Styles.ColorBorder }};border-radius:{{ .Values.Styles.RadiusElement }};background:{{ .Values.Styles.ColorSurface }};">
   {{ if .Block.Eyebrow }}<p style="margin:0 0 8px;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:{{ .Values.Styles.ColorTextMuted }};">{{ .Block.Eyebrow }}</p>{{ end }}
   {{ if .Block.Title }}<h2 style="margin:0 0 8px;font-size:24px;line-height:1.25;color:{{ .Values.Styles.ColorText }};">{{ .Block.Title }}</h2>{{ end }}
   {{ if .Block.Body }}<p style="margin:0 0 12px;line-height:1.6;color:{{ .Values.Styles.ColorText }};">{{ .Block.Body }}</p>{{ end }}
   {{ if and .Block.CTALabel .Block.CTAURL }}
   <p style="margin:0 0 12px;">
-    <a href="{{ .Block.CTAURL }}" style="display:inline-block;padding:10px 18px;border-radius:8px;background:{{ .Values.Styles.ColorPrimary }};color:#ffffff;text-decoration:none;font-weight:600;">{{ .Block.CTALabel }}</a>
+    <a href="{{ .Block.CTAURL }}" style="display:inline-block;padding:10px 18px;border-radius:{{ .Values.Styles.RadiusButton }};background:{{ .Values.Styles.ColorPrimary }};color:{{ .Values.Styles.ColorTextOnSolid }};text-decoration:none;font-weight:600;">{{ .Block.CTALabel }}</a>
   </p>
   {{ end }}
   {{ if .Block.ImageURL }}
   <p style="margin:0;">
-    <img src="{{ .Block.ImageURL }}" alt="{{ .Block.ImageAlt }}" style="width:100%;max-width:560px;height:auto;border-radius:8px;display:block;" />
+    <img src="{{ .Block.ImageURL }}" alt="{{ .Block.ImageAlt }}" style="width:100%;max-width:100%;height:auto;border-radius:{{ .Values.Styles.RadiusElement }};display:block;" />
   </p>
   {{ end }}
 </section>

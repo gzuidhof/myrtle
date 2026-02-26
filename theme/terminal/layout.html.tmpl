@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en" dir="{{ .Values.Direction }}">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Email</title>
+</head>
+<!--[if !mso]><!-->
+<style type="text/css">
+  @media only screen and (max-width: 600px) {
+    body {
+      padding: 8px !important;
+    }
+    div[data-myrtle-bounded='1'] {
+      max-width: 100% !important;
+    }
+    img {
+      max-width: 100% !important;
+      height: auto !important;
+    }
+    p, td {
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+    }
+  }
+</style>
+<!--<![endif]-->
+</head>
+<body dir="{{ .Values.Direction }}" style="margin:0;background:{{ .Values.Styles.ColorPageBackground }};padding:{{ .Values.Styles.OuterPadding }};font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
+  {{ if .Preheader }}
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;">{{ .Preheader }}</div>
+  {{ end }}
+  {{ if and .Header .Header.HTML (eq .Header.Placement "outside") }}
+  <div data-myrtle-bounded="1" style="width:{{ .Values.Styles.WidthMain }};max-width:{{ .Values.Styles.MaxWidthMain }};margin:0 auto 12px;overflow-wrap:anywhere;word-break:break-word;word-wrap:break-word;padding:0 {{ .Values.Styles.OutsideContentInset }};font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
+    {{ safe .Header.HTML }}
+  </div>
+  {{ end }}
+  <div data-myrtle-bounded="1" style="width:{{ .Values.Styles.WidthMain }};max-width:{{ .Values.Styles.MaxWidthMain }};margin:0 auto;overflow-wrap:anywhere;word-break:break-word;word-wrap:break-word;background:{{ .Values.Styles.ColorMainBackground }};border:{{ .Values.Styles.BorderMain }};border-radius:{{ .Values.Styles.RadiusMain }};padding:20px;font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
+    {{ if and .Header .Header.HTML (ne .Header.Placement "outside") }}
+      {{ safe .Header.HTML }}
+    {{ end }}
+    {{ range .Blocks }}
+      {{ safe . }}
+    {{ end }}
+    {{ if and .Footer .Footer.HTML (ne .Footer.Placement "outside") }}
+      {{ safe .Footer.HTML }}
+    {{ end }}
+  </div>
+  {{ if and .Footer .Footer.HTML (eq .Footer.Placement "outside") }}
+  <div data-myrtle-bounded="1" style="width:{{ .Values.Styles.WidthMain }};max-width:{{ .Values.Styles.MaxWidthMain }};margin:12px auto 0;overflow-wrap:anywhere;word-break:break-word;word-wrap:break-word;padding:0 {{ .Values.Styles.OutsideContentInset }};font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
+    {{ safe .Footer.HTML }}
+  </div>
+  {{ end }}
+</body>
+</html>

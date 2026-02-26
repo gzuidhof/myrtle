@@ -18,14 +18,9 @@ func HighImpactEmailWithTheme(selectedTheme theme.Theme) (*myrtle.Email, error) 
 	return myrtle.NewBuilder(
 		selectedTheme,
 		myrtle.WithStyles(theme.Styles{ColorPrimary: "#2563eb"}),
-		myrtle.WithHeaderOptions(
-			myrtle.HeaderTitle("Weekly operations brief"),
-			myrtle.HeaderProduct("Myrtle Ops", "https://example.com/ops"),
-			myrtle.HeaderLogo("/assets/logo.png", "Myrtle Ops"),
-			myrtle.HeaderLogoCentered(true),
-		),
+		myrtle.WithHeader(myrtle.HeadingBlock{Text: "Weekly operations brief", Level: 1}),
 	).
-		Preheader("High-impact summary with status, metrics, and next actions").
+		WithPreheader("High-impact summary with status, metrics, and next actions").
 		AddBadge(myrtle.BadgeToneSuccess, "Operational").
 		AddSummaryCard("Status summary", "Queue latency is back within SLA after this morning's mitigation.", "Updated 6 minutes ago").
 		AddStatsRow("Core metrics", []myrtle.StatItem{

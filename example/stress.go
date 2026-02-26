@@ -13,9 +13,10 @@ func StressTestEmailWithTheme(selectedTheme theme.Theme) (*myrtle.Email, error) 
 	}
 	return myrtle.NewBuilder(selectedTheme).
 		WithoutHeader().
-		Preheader("Stress/overflow test cases for legacy and modern clients").
+		WithPreheader("Stress/overflow test cases for legacy and modern clients").
 		AddHeading("Stress/Overflow Test Cases", myrtle.HeadingLevel(1)).
-		AddText("Long unbroken token:", "AVeryLongUnbrokenIdentifierThatShouldTriggerWordWrappingBehaviorChecksInLegacyEmailClients_ABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789").
+		AddText("Long unbroken token:").
+		AddText("AVeryLongUnbrokenIdentifierThatShouldTriggerWordWrappingBehaviorChecksInLegacyEmailClients_ABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789", myrtle.TextSize(myrtle.TextSizeSmall)).
 		AddTable(
 			"Overflow table rows",
 			[]string{"Type", "Payload", "Status"},

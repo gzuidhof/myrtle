@@ -24,9 +24,8 @@ func ContainerStylesEmailWithTheme(selectedTheme theme.Theme) (*myrtle.Email, er
 			RadiusMain:          "20px",
 		}),
 	).
-		Preheader("Container style override demo").
-		Product("Myrtle", "https://github.com/gzuidhof/myrtle").
-		Logo("/assets/logo.png", "Myrtle").
+		WithPreheader("Container style override demo").
+		WithHeader(commonHeaderGroup("Myrtle")).
 		AddHeading("Container style overrides", myrtle.HeadingLevel(2)).
 		AddText("This example customizes only the outer shell/container styling.").
 		AddList([]string{"Background comes from ColorPageBackground", "Card surface comes from ColorMainBackground", "Card border comes from BorderMain", "Card corner radius comes from RadiusMain"}, false).

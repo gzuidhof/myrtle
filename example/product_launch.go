@@ -18,14 +18,9 @@ func ProductLaunchEmailWithTheme(selectedTheme theme.Theme) (*myrtle.Email, erro
 	return myrtle.NewBuilder(
 		selectedTheme,
 		myrtle.WithStyles(theme.Styles{ColorPrimary: "#7c3aed"}),
-		myrtle.WithHeaderOptions(
-			myrtle.HeaderTitle("Product launch"),
-			myrtle.HeaderProduct("Myrtle", "https://github.com/gzuidhof/myrtle"),
-			myrtle.HeaderLogo("/assets/logo.png", "Myrtle"),
-			myrtle.HeaderShowTextWithLogo(true),
-		),
+		myrtle.WithHeader(myrtle.HeadingBlock{Text: "Product launch", Level: 1}),
 	).
-		Preheader("Meet the new onboarding flows").
+		WithPreheader("Meet the new onboarding flows").
 		Add(myrtle.HeroBlock{
 			Eyebrow:  "New release",
 			Title:    "Launch your emails faster",

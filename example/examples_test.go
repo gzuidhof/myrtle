@@ -7,16 +7,16 @@ import (
 )
 
 type sender interface {
-	Send(subject, htmlBody, markdownBody string) error
+	Send(subject, htmlBody, textBody string) error
 }
 
 type mockSender struct {
 	count int
 }
 
-func (mock *mockSender) Send(htmlBody, markdownBody string) error {
+func (mock *mockSender) Send(htmlBody, textBody string) error {
 	mock.count++
-	if htmlBody == "" || markdownBody == "" {
+	if htmlBody == "" || textBody == "" {
 		return errInvalidEmail
 	}
 	return nil
@@ -49,13 +49,16 @@ func TestRenderAndSendExamples(t *testing.T) {
 		{name: "feature-digest", build: func() (*myrtle.Email, error) { return FeatureDigestEmail() }},
 		{name: "high-impact", build: func() (*myrtle.Email, error) { return HighImpactEmail() }},
 		{name: "columns-complex", build: func() (*myrtle.Email, error) { return ColumnsComplexEmail() }},
-		{name: "bar-chart", build: func() (*myrtle.Email, error) { return BarChartEmail() }},
+		{name: "bar-chart", build: func() (*myrtle.Email, error) { return HorizontalBarChartEmail() }},
+		{name: "vertical-bar-chart", build: func() (*myrtle.Email, error) { return VerticalBarChartEmail() }},
 		{name: "product-launch", build: func() (*myrtle.Email, error) { return ProductLaunchEmail() }},
 		{name: "invoice-summary", build: func() (*myrtle.Email, error) { return InvoiceSummaryEmail() }},
 		{name: "activity-empty-state", build: func() (*myrtle.Email, error) { return ActivityEmptyStateEmail() }},
 		{name: "container-styles", build: func() (*myrtle.Email, error) { return ContainerStylesEmail() }},
 		{name: "dark-mode-styles", build: func() (*myrtle.Email, error) { return DarkModeStylesEmail() }},
 		{name: "monster", build: func() (*myrtle.Email, error) { return MonsterEmail() }},
+		{name: "monster-dark-mode", build: func() (*myrtle.Email, error) { return MonsterDarkModeEmail() }},
+		{name: "monster-rtl", build: func() (*myrtle.Email, error) { return MonsterRTLEmail() }},
 	}
 
 	mock := &mockSender{}
@@ -71,12 +74,12 @@ func TestRenderAndSendExamples(t *testing.T) {
 			t.Fatalf("%s html render failed: %v", constructor.name, err)
 		}
 
-		markdownBody, err := email.Text()
+		textBody, err := email.Text()
 		if err != nil {
-			t.Fatalf("%s markdown render failed: %v", constructor.name, err)
+			t.Fatalf("%s text render failed: %v", constructor.name, err)
 		}
 
-		if err := mock.Send(htmlBody, markdownBody); err != nil {
+		if err := mock.Send(htmlBody, textBody); err != nil {
 			t.Fatalf("%s send failed: %v", constructor.name, err)
 		}
 	}

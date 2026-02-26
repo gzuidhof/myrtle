@@ -20,9 +20,8 @@ func SecurityCodeEmailWithTheme(selectedTheme theme.Theme) (*myrtle.Email, error
 		myrtle.WithStyles(myrtleStyles()),
 	).
 		AddHeading("Your verification code").
-		Preheader("Use this one-time code to sign in").
-		Product("Myrtle Security", "https://example.com/security").
-		Logo("/assets/logo.png", "").
+		WithPreheader("Use this one-time code to sign in").
+		WithHeader(commonHeaderGroup("Myrtle Security")).
 		AddCallout(myrtle.CalloutTypeWarning, "Security notice", "Never share this code with anyone.").
 		AddText("Use the code below to complete your sign-in. This code expires in 10 minutes.").
 		AddSpacer(myrtle.SpacerSize(10)).

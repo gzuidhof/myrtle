@@ -9,8 +9,6 @@ type Group struct {
 	blocks []Block
 }
 
-type ColumnBuilder = Group
-
 func NewGroup() *Group {
 	return &Group{}
 }
@@ -73,11 +71,12 @@ func (group *Group) Add(block Block) *Group {
 	return group
 }
 
-func (group *Group) AddText(first string, more ...string) *Group {
-	group.Add(TextBlock{Text: first})
-	for _, value := range more {
-		group.Add(TextBlock{Text: value})
+func (group *Group) AddText(text string, options ...TextOption) *Group {
+	block := TextBlock{Text: text}
+	for _, option := range options {
+		option(&block)
 	}
+	group.Add(block)
 
 	return group
 }
@@ -107,8 +106,21 @@ func (group *Group) AddKeyValue(header string, pairs []KeyValuePair) *Group {
 	return group.Add(KeyValueBlock{Header: header, Pairs: pairs})
 }
 
-func (group *Group) AddBarChart(header string, items []BarChartItem, options ...BarChartOption) *Group {
-	block := BarChartBlock{Header: header, Items: append([]BarChartItem(nil), items...)}
+func (group *Group) AddHorizontalBarChart(header string, items []HorizontalBarChartItem, options ...HorizontalBarChartOption) *Group {
+	block := HorizontalBarChartBlock{Header: header, Items: append([]HorizontalBarChartItem(nil), items...)}
+	for _, option := range options {
+		option(&block)
+	}
+
+	return group.Add(block)
+}
+
+func (group *Group) AddVerticalBarChart(header string, axisLabels []string, series []VerticalBarChartSeries, options ...VerticalBarChartOption) *Group {
+	block := VerticalBarChartBlock{
+		Header:     header,
+		AxisLabels: append([]string(nil), axisLabels...),
+		Series:     append([]VerticalBarChartSeries(nil), series...),
+	}
 	for _, option := range options {
 		option(&block)
 	}
@@ -193,12 +205,22 @@ func (group *Group) AddDividerStyled(options ...DividerOption) *Group {
 	return group.Add(block)
 }
 
-func (group *Group) AddImage(src, alt string) *Group {
-	return group.Add(ImageBlock{Src: src, Alt: alt})
+func (group *Group) AddImage(src, alt string, opts ...ImageOption) *Group {
+	ib := ImageBlock{Src: src, Alt: alt}
+	for _, opt := range opts {
+		opt(&ib)
+	}
+
+	return group.Add(ib)
 }
 
-func (group *Group) AddTable(header string, columns []string, rows [][]string) *Group {
-	return group.Add(TableBlock{Header: header, Columns: columns, Rows: rows})
+func (group *Group) AddTable(header string, columns []string, rows [][]string, options ...TableOption) *Group {
+	block := TableBlock{Header: header, Columns: columns, Rows: rows}
+	for _, option := range options {
+		option(&block)
+	}
+
+	return group.Add(block)
 }
 
 func (group *Group) AddVerificationCode(label, code string) *Group {
@@ -209,39 +231,7 @@ func (group *Group) AddFreeMarkdown(markdown string) *Group {
 	return group.Add(FreeMarkdownBlock{Markdown: markdown})
 }
 
-func (builder *Builder) AddColumns(left func(*ColumnBuilder), right func(*ColumnBuilder), options ...ColumnsOption) *Builder {
-	leftColumn := &Group{}
-	rightColumn := &Group{}
-
-	if left != nil {
-		left(leftColumn)
-	}
-	if right != nil {
-		right(rightColumn)
-	}
-
-	block := ColumnsBlock{
-		Left:          leftColumn.Blocks(),
-		Right:         rightColumn.Blocks(),
-		LeftWidth:     50,
-		RightWidth:    50,
-		Gap:           16,
-		VerticalAlign: ColumnsVerticalAlignTop,
-	}
-
-	for _, option := range options {
-		option(&block)
-	}
-
-	if block.LeftWidth <= 0 || block.RightWidth <= 0 || block.LeftWidth+block.RightWidth != 100 {
-		block.LeftWidth = 50
-		block.RightWidth = 50
-	}
-
-	return builder.Add(block)
-}
-
-func (builder *Builder) AddColumnsGroups(leftGroup, rightGroup *Group, options ...ColumnsOption) *Builder {
+func (builder *Builder) AddColumns(leftGroup, rightGroup *Group, options ...ColumnsOption) *Builder {
 	leftBlocks := []Block(nil)
 	rightBlocks := []Block(nil)
 	if leftGroup != nil {

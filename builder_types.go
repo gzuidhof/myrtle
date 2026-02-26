@@ -9,12 +9,13 @@ import (
 type Builder struct {
 	mu         sync.Mutex
 	header     *HeaderSection
+	footer     *FooterSection
 	preheader  string
 	headerMode HeaderMode
+	footerMode FooterMode
 	values     theme.Values
 	blocks     []Block
 	theme      theme.Theme
-	registry   *Registry
 }
 
 type HeaderMode int
@@ -25,6 +26,14 @@ const (
 	HeaderModeDisabled
 )
 
+type FooterMode int
+
+const (
+	FooterModeAuto FooterMode = iota
+	FooterModeEnabled
+	FooterModeDisabled
+)
+
 type BuilderOption func(*Builder)
 
 func WithStyles(value theme.Styles) BuilderOption {
@@ -33,11 +42,14 @@ func WithStyles(value theme.Styles) BuilderOption {
 	}
 }
 
-func WithRegistry(value *Registry) BuilderOption {
+func WithDirection(value theme.Direction) BuilderOption {
 	return func(builder *Builder) {
-		if value != nil {
-			builder.registry = value
+		if value == theme.DirectionRTL {
+			builder.values.Direction = theme.DirectionRTL
+			return
 		}
+
+		builder.values.Direction = theme.DirectionLTR
 	}
 }
 
@@ -55,23 +67,70 @@ func WithHeaderMode(mode HeaderMode) BuilderOption {
 	}
 }
 
-func WithHeader(value HeaderSection) BuilderOption {
+func WithFooterMode(mode FooterMode) BuilderOption {
 	return func(builder *Builder) {
-		builder.headerMode = HeaderModeEnabled
-		headerCopy := value
-		builder.header = &headerCopy
-		builder.syncValuesFromHeader()
+		switch mode {
+		case FooterModeEnabled:
+			builder.footerMode = FooterModeEnabled
+		case FooterModeDisabled:
+			builder.footerMode = FooterModeDisabled
+			builder.footer = nil
+		default:
+			builder.footerMode = FooterModeAuto
+		}
 	}
 }
 
-func WithHeaderOptions(options ...HeaderOption) BuilderOption {
+func WithHeader(block Block, options ...HeaderOption) BuilderOption {
 	return func(builder *Builder) {
-		header := builder.ensureHeaderExplicit()
+		if block == nil {
+			builder.header = nil
+			builder.headerMode = HeaderModeDisabled
+			return
+		}
+
+		header := &HeaderSection{Block: block}
 		for _, option := range options {
+			if option == nil {
+				continue
+			}
+
 			option(header)
 		}
-		builder.syncValuesFromHeader()
+
+		builder.headerMode = HeaderModeEnabled
+		builder.header = header
 	}
+}
+
+func WithFooter(block Block, options ...FooterOption) BuilderOption {
+	return func(builder *Builder) {
+		if block == nil {
+			builder.footer = nil
+			builder.footerMode = FooterModeDisabled
+			return
+		}
+
+		footer := &FooterSection{Block: block, Placement: FooterPlacementInside}
+		for _, option := range options {
+			if option == nil {
+				continue
+			}
+
+			option(footer)
+		}
+
+		builder.footerMode = FooterModeEnabled
+		builder.footer = footer
+	}
+}
+
+func WithFooterOptions(block Block, options ...FooterOption) BuilderOption {
+	return WithFooter(block, options...)
+}
+
+func WithHeaderOptions(block Block, options ...HeaderOption) BuilderOption {
+	return WithHeader(block, options...)
 }
 
 func NewBuilder(themeImpl theme.Theme, options ...BuilderOption) *Builder {
@@ -81,8 +140,8 @@ func NewBuilder(themeImpl theme.Theme, options ...BuilderOption) *Builder {
 
 	builder := &Builder{
 		headerMode: HeaderModeAuto,
+		footerMode: FooterModeAuto,
 		theme:      themeImpl,
-		registry:   NewRegistry(),
 	}
 
 	for _, option := range options {
@@ -102,11 +161,12 @@ func (builder *Builder) Clone() *Builder {
 
 	return &Builder{
 		header:     cloneHeader(builder.header),
+		footer:     cloneFooter(builder.footer),
 		preheader:  builder.preheader,
 		headerMode: builder.headerMode,
+		footerMode: builder.footerMode,
 		values:     builder.values,
 		blocks:     append([]Block(nil), builder.blocks...),
 		theme:      builder.theme,
-		registry:   builder.registry,
 	}
 }

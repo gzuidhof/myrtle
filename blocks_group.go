@@ -10,10 +10,10 @@ func (group *Group) TemplateData() any {
 	return group
 }
 
-func (group *Group) RenderMarkdown(context RenderContext) (string, error) {
+func (group *Group) RenderText(context RenderContext) (string, error) {
 	if group == nil {
 		return "", nil
 	}
 
-	return renderColumnMarkdown(group.Blocks(), context)
+	return renderColumnText(group.Blocks(), context)
 }
