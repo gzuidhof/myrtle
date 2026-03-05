@@ -1,0 +1,18 @@
+# Ignore generated screenshots by default
+*.png
+
+# Keep requested example previews tracked
+!default--weekly-operations-brief.png
+!flat--weekly-operations-brief.png
+!terminal--weekly-operations-brief.png
+!editorial--weekly-operations-brief.png
+!default--account-deletion-confirmation.png
+!flat--account-deletion-confirmation.png
+!terminal--account-deletion-confirmation.png
+!editorial--account-deletion-confirmation.png
+!default--security.png
+!flat--security.png
+!terminal--security.png
+!editorial--security.png
+!default--monster.png
+!example-server.png

@@ -1,4 +1,19 @@
-<div style="margin:0 0 14px;padding:10px 12px;border:1px solid {{ if or (eq .Block.Type "error") (eq .Block.Type "critical") }}{{ .Values.Styles.ColorDangerBorder }}{{ else if eq .Block.Type "success" }}{{ .Values.Styles.ColorSuccessBorder }}{{ else if eq .Block.Type "warning" }}{{ .Values.Styles.ColorWarningBorder }}{{ else }}{{ .Values.Styles.ColorInfoBorder }}{{ end }};{{ if eq .Block.Variant "solid" }}{{ if or (eq .Block.Type "error") (eq .Block.Type "critical") }}background:{{ .Values.Styles.ColorDanger }};color:{{ .Values.Styles.ColorTextOnSolid }};{{ else if eq .Block.Type "success" }}background:{{ .Values.Styles.ColorSuccess }};color:{{ .Values.Styles.ColorTextOnSolid }};{{ else if eq .Block.Type "warning" }}background:{{ .Values.Styles.ColorWarning }};color:{{ .Values.Styles.ColorTextOnSolid }};{{ else }}background:{{ .Values.Styles.ColorInfo }};color:{{ .Values.Styles.ColorTextOnSolid }};{{ end }}{{ else if eq .Block.Variant "soft" }}background:{{ if or (eq .Block.Type "error") (eq .Block.Type "critical") }}{{ .Values.Styles.ColorDangerBackground }}{{ else if eq .Block.Type "success" }}{{ .Values.Styles.ColorSuccessBackground }}{{ else if eq .Block.Type "warning" }}{{ .Values.Styles.ColorWarningBackground }}{{ else }}{{ .Values.Styles.ColorInfoBackground }}{{ end }};{{ end }}">
-  {{ if .Block.Title }}<p style="margin:0 0 6px;font-weight:700;color:{{ if eq .Block.Variant "solid" }}{{ .Values.Styles.ColorTextOnSolid }}{{ else }}{{ .Values.Styles.ColorText }}{{ end }};">{{ .Block.Title }}</p>{{ end }}
-  {{ if .Block.Body }}<p style="margin:0;color:{{ if eq .Block.Variant "solid" }}{{ .Values.Styles.ColorTextOnSolid }}{{ else }}{{ .Values.Styles.ColorText }}{{ end }};line-height:1.45;">{{ .Block.Body }}</p>{{ end }}
-</div>
+{{ $calloutBackground := "transparent" }}
+{{ if eq .Block.Variant "solid" }}{{ $calloutBackground = toneColor .Block.Tone .Values "strong" }}{{ else if eq .Block.Variant "soft" }}{{ $calloutBackground = toneColor .Block.Tone .Values "background" }}{{ end }}
+{{ $calloutBorder := toneColor .Block.Tone .Values "border" }}
+{{ if eq .Block.Variant "solid" }}{{ $calloutBorder = toneColor .Block.Tone .Values "strong" }}{{ end }}
+{{ $isSolidDark := and (eq .Block.Variant "solid") (eq .Block.Tone "dark") }}
+{{ if $isSolidDark }}{{ $calloutBackground = .Values.Styles.ColorMainBackground }}{{ $calloutBorder = .Values.Styles.ColorBorder }}{{ end }}
+{{ $solidTextColor := .Values.Styles.ColorTextOnSolid }}
+{{ if $isSolidDark }}{{ $solidTextColor = .Values.Styles.ColorText }}{{ end }}
+{{ $solidLinkColor := $solidTextColor }}
+{{ if $isSolidDark }}{{ $solidLinkColor = .Values.Styles.ColorPrimary }}{{ end }}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate;border-spacing:0;margin:0 0 14px;">
+  <tr>
+    <td bgcolor="{{ $calloutBackground }}" style="padding:10px 12px;border:1px solid {{ $calloutBorder }};{{ if eq .Block.InsetMode "none" }}border-left:0;border-right:0;{{ end }}background:{{ $calloutBackground }};">
+      {{ if .Block.Title }}<p style="margin:0 0 6px;font-weight:700;color:{{ if eq .Block.Variant "solid" }}{{ $solidTextColor }}{{ else }}{{ .Values.Styles.ColorText }}{{ end }};">{{ .Block.Title }}</p>{{ end }}
+      {{ if .Block.Body }}<p style="margin:0;color:{{ if eq .Block.Variant "solid" }}{{ $solidTextColor }}{{ else }}{{ .Values.Styles.ColorText }}{{ end }};line-height:1.45;">{{ .Block.Body }}</p>{{ end }}
+      {{ if and .Block.LinkLabel .Block.LinkURL }}<p style="margin:8px 0 0;"><a href="{{ .Block.LinkURL }}" style="text-decoration:underline;font-weight:600;color:{{ if eq .Block.Variant "solid" }}{{ $solidLinkColor }}{{ else }}{{ toneColor .Block.Tone .Values "link" }}{{ end }};">{{ .Block.LinkLabel }}</a></p>{{ end }}
+    </td>
+  </tr>
+</table>

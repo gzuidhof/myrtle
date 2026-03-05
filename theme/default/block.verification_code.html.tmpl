@@ -1,4 +1,25 @@
-<div style="margin:18px 0;padding:14px 16px;border:1px solid {{ .Values.Styles.ColorPrimary }};background:{{ .Values.Styles.ColorCodeBackground }};border-radius:{{ .Values.Styles.RadiusElement }};">
-  {{ if .Block.Label }}<p style="margin:0 0 8px;font-size:12px;color:{{ .Values.Styles.ColorTextMuted }};text-transform:uppercase;letter-spacing:.06em;">{{ .Block.Label }}</p>{{ end }}
-  <p style="margin:0;font-size:28px;line-height:1.2;font-weight:700;letter-spacing:0.16em;color:{{ .Values.Styles.ColorText }};font-family:{{ safeCSS .Values.Styles.FontFamilyMono }};">{{ .Block.Value }}</p>
-</div>
+{{ $frameColor := .Values.Styles.ColorPrimary }}
+{{ $valueColor := .Values.Styles.ColorText }}
+{{ $labelColor := .Values.Styles.ColorTextMuted }}
+{{ if ne .Block.Tone "default" }}
+  {{ $frameColor = toneColor .Block.Tone .Values "border" }}
+  {{ $valueColor = toneColor .Block.Tone .Values "text" }}
+  {{ $labelColor = toneColor .Block.Tone .Values "muted-text" }}
+{{ end }}
+{{ $letterSpacing := printf "%.2fem" .Block.CharacterSpacingEm }}
+{{ $valueFontFamily := safeCSS .Values.Styles.FontFamilyBase }}
+{{ if .Block.UseMonospace }}{{ $valueFontFamily = safeCSS .Values.Styles.FontFamilyMono }}{{ end }}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate;border-spacing:0;margin:18px 0;">
+  <tr>
+    <td bgcolor="{{ .Values.Styles.ColorCodeBackground }}" style="padding:14px 16px;mso-padding-alt:14px 16px;border:1px solid {{ $frameColor }};background:{{ .Values.Styles.ColorCodeBackground }};border-radius:{{ if eq .Block.InsetMode "none" }}0{{ else }}{{ .Values.Styles.RadiusElement }}{{ end }};{{ if eq .Block.InsetMode "none" }}border-left:0;border-right:0;{{ end }}">
+      {{ if .Block.Label }}<p style="margin:0 0 8px;font-size:12px;color:{{ $labelColor }};text-transform:uppercase;letter-spacing:.06em;">{{ .Block.Label }}</p>{{ end }}
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;">
+        <tr>
+          <td align="left" style="padding:0;font-size:28px;line-height:1.2;font-weight:700;letter-spacing:{{ $letterSpacing }};color:{{ $valueColor }};font-family:{{ $valueFontFamily }};mso-line-height-rule:exactly;">
+            <span style="font-size:28px;line-height:1.2;font-weight:700;letter-spacing:{{ $letterSpacing }};color:{{ $valueColor }};font-family:{{ $valueFontFamily }};mso-line-height-rule:exactly;">{{ .Block.Value }}</span>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>

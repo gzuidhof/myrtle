@@ -15,12 +15,13 @@ type htmlBlock interface {
 
 // Email is an immutable rendered message composed from header metadata, values, and blocks.
 type Email struct {
-	header    *HeaderSection
-	footer    *FooterSection
-	preheader string
-	values    theme.Values
-	blocks    []Block
-	theme     theme.Theme
+	header                 *HeaderSection
+	footer                 *FooterSection
+	preheader              string
+	preheaderPaddingRepeat int
+	values                 theme.Values
+	blocks                 []Block
+	theme                  theme.Theme
 }
 
 // Preheader returns the preheader text.
@@ -45,6 +46,7 @@ func (email *Email) HTML() (string, error) {
 	}
 
 	fragments := make([]string, 0, len(email.blocks))
+	blockViews := make([]theme.EmailBlockView, 0, len(email.blocks))
 
 	for _, block := range email.blocks {
 		if block == nil {
@@ -57,7 +59,14 @@ func (email *Email) HTML() (string, error) {
 		}
 
 		if ok {
+			spec := normalizedLayoutSpec(block.LayoutSpec())
 			fragments = append(fragments, customHTML)
+			blockViews = append(blockViews, theme.EmailBlockView{
+				Kind:        block.Kind(),
+				HTML:        customHTML,
+				InsetMode:   string(spec.InsetMode),
+				CustomInset: spec.CustomInset,
+			})
 			continue
 		}
 
@@ -65,11 +74,13 @@ func (email *Email) HTML() (string, error) {
 	}
 
 	return email.theme.RenderHTML(theme.EmailView{
-		Header:    header,
-		Footer:    footer,
-		Preheader: email.preheader,
-		Values:    email.values,
-		Blocks:    fragments,
+		Header:                 header,
+		Footer:                 footer,
+		Preheader:              email.preheader,
+		PreheaderPaddingRepeat: email.preheaderPaddingRepeat,
+		Values:                 email.values,
+		Blocks:                 fragments,
+		BlockViews:             blockViews,
 	})
 }
 
@@ -191,8 +202,14 @@ func (email *Email) headerHTMLView() (*theme.HeaderView, error) {
 	if !ok {
 		return nil, errors.Join(ErrThemeCannotRenderBlock, errors.New(string(email.header.Block.Kind())))
 	}
+	spec := normalizedLayoutSpec(email.header.Block.LayoutSpec())
 
-	return &theme.HeaderView{HTML: headerHTML, Placement: string(normalizedHeaderPlacement(email.header.Placement))}, nil
+	return &theme.HeaderView{
+		HTML:        headerHTML,
+		Placement:   string(normalizedHeaderPlacement(email.header.Placement)),
+		InsetMode:   string(spec.InsetMode),
+		CustomInset: spec.CustomInset,
+	}, nil
 }
 
 func (email *Email) textFooterView() (*theme.FooterView, error) {
@@ -236,6 +253,12 @@ func (email *Email) footerHTMLView() (*theme.FooterView, error) {
 	if !ok {
 		return nil, errors.Join(ErrThemeCannotRenderBlock, errors.New(string(email.footer.Block.Kind())))
 	}
+	spec := normalizedLayoutSpec(email.footer.Block.LayoutSpec())
 
-	return &theme.FooterView{HTML: footerHTML, Placement: string(normalizedFooterPlacement(email.footer.Placement))}, nil
+	return &theme.FooterView{
+		HTML:        footerHTML,
+		Placement:   string(normalizedFooterPlacement(email.footer.Placement)),
+		InsetMode:   string(spec.InsetMode),
+		CustomInset: spec.CustomInset,
+	}, nil
 }

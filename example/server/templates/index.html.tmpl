@@ -14,11 +14,14 @@
     </select>
 
     <h3 style="margin-top:1rem;">Example Emails</h3>
+    {{ range .EmailGroups }}
+    <h4 style="margin:.75rem 0 .35rem;">{{ .Name }}</h4>
     <ul class="nav-list">
-      {{ range .EmailItems }}
+      {{ range .Items }}
       <li><a href="#email-{{ .Key }}">{{ .Name }}</a></li>
       {{ end }}
     </ul>
+    {{ end }}
 
     <h3 style="margin-top:1rem;">Blocks</h3>
     {{ range .BlockGroups }}
@@ -34,8 +37,10 @@
   <main class="main">
     <section id="emails" class="section-anchor">
       <h2>Example Emails</h2>
+      {{ range .EmailGroups }}
+      <h3>{{ .Name }}</h3>
       <div class="list">
-        {{ range .EmailItems }}
+        {{ range .Items }}
         <article id="email-{{ .Key }}" class="item section-anchor">
           <h3>{{ .Name }}</h3>
           {{ if $.SMTPEnabled }}
@@ -58,6 +63,7 @@
         </article>
         {{ end }}
       </div>
+      {{ end }}
     </section>
 
     <section id="blocks" class="section-anchor">

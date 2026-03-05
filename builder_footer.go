@@ -1,5 +1,7 @@
 package myrtle
 
+// Footer replaces the current footer configuration.
+// It accepts a fully configured FooterSection value.
 func (builder *Builder) Footer(value FooterSection) *Builder {
 	builder.mu.Lock()
 	defer builder.mu.Unlock()
@@ -19,6 +21,8 @@ func (builder *Builder) Footer(value FooterSection) *Builder {
 	return builder
 }
 
+// WithFooter enables a footer block and applies optional footer settings.
+// This is a convenience helper when starting from a plain block.
 func (builder *Builder) WithFooter(block Block, options ...FooterOption) *Builder {
 	builder.mu.Lock()
 	defer builder.mu.Unlock()
@@ -42,6 +46,8 @@ func (builder *Builder) WithFooter(block Block, options ...FooterOption) *Builde
 	return builder
 }
 
+// NoFooter disables the footer section.
+// The rendered email will omit any footer content.
 func (builder *Builder) NoFooter() *Builder {
 	builder.mu.Lock()
 	defer builder.mu.Unlock()
@@ -51,6 +57,8 @@ func (builder *Builder) NoFooter() *Builder {
 	return builder
 }
 
+// WithoutFooter is an alias for NoFooter.
+// It provides a fluent alternative naming style.
 func (builder *Builder) WithoutFooter() *Builder {
 	return builder.NoFooter()
 }

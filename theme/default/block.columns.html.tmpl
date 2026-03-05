@@ -1,17 +1,19 @@
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0 0 16px;">
+  {{ $gapStart := halfFloor .Block.Gap }}
+  {{ $gapEnd := halfCeil .Block.Gap }}
   <tr>
     {{ if isRTL .Values }}
-    <td width="{{ .Block.RightWidth }}%" valign="{{ if eq .Block.VerticalAlign "middle" }}middle{{ else if eq .Block.VerticalAlign "bottom" }}bottom{{ else }}top{{ end }}" style="padding:0;padding-{{ physicalSide "end" .Values }}:{{ .Block.Gap }}px;">
+    <td width="{{ .Block.RightWidth }}%" valign="{{ if eq .Block.VerticalAlign "middle" }}middle{{ else if eq .Block.VerticalAlign "bottom" }}bottom{{ else }}top{{ end }}" style="padding:0;padding-{{ physicalSide "end" .Values }}:{{ $gapEnd }}px;">
       {{ safe .RightHTML }}
     </td>
-    <td width="{{ .Block.LeftWidth }}%" valign="{{ if eq .Block.VerticalAlign "middle" }}middle{{ else if eq .Block.VerticalAlign "bottom" }}bottom{{ else }}top{{ end }}" style="padding:0;">
+    <td width="{{ .Block.LeftWidth }}%" valign="{{ if eq .Block.VerticalAlign "middle" }}middle{{ else if eq .Block.VerticalAlign "bottom" }}bottom{{ else }}top{{ end }}" style="padding:0;padding-{{ physicalSide "start" .Values }}:{{ $gapStart }}px;">
       {{ safe .LeftHTML }}
     </td>
     {{ else }}
-    <td width="{{ .Block.LeftWidth }}%" valign="{{ if eq .Block.VerticalAlign "middle" }}middle{{ else if eq .Block.VerticalAlign "bottom" }}bottom{{ else }}top{{ end }}" style="padding:0;padding-{{ physicalSide "end" .Values }}:{{ .Block.Gap }}px;">
+    <td width="{{ .Block.LeftWidth }}%" valign="{{ if eq .Block.VerticalAlign "middle" }}middle{{ else if eq .Block.VerticalAlign "bottom" }}bottom{{ else }}top{{ end }}" style="padding:0;padding-{{ physicalSide "end" .Values }}:{{ $gapEnd }}px;">
       {{ safe .LeftHTML }}
     </td>
-    <td width="{{ .Block.RightWidth }}%" valign="{{ if eq .Block.VerticalAlign "middle" }}middle{{ else if eq .Block.VerticalAlign "bottom" }}bottom{{ else }}top{{ end }}" style="padding:0;">
+    <td width="{{ .Block.RightWidth }}%" valign="{{ if eq .Block.VerticalAlign "middle" }}middle{{ else if eq .Block.VerticalAlign "bottom" }}bottom{{ else }}top{{ end }}" style="padding:0;padding-{{ physicalSide "start" .Values }}:{{ $gapStart }}px;">
       {{ safe .RightHTML }}
     </td>
     {{ end }}

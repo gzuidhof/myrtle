@@ -6,10 +6,13 @@ import (
 	"github.com/gzuidhof/myrtle/theme"
 )
 
+// TableBlock renders tabular data with configurable density and styling.
 type TableBlock struct {
 	Header                   string
 	Columns                  []string
 	Rows                     [][]string
+	LegendSwatches           []string
+	HasLegendSwatches        bool
 	ZebraRows                bool
 	Compact                  bool
 	Density                  TableDensityValue
@@ -18,14 +21,19 @@ type TableBlock struct {
 	RightAlignNumericColumns bool
 	EmphasizeTotalRow        bool
 	ColumnAlignments         map[int]TableColumnAlignmentValue
+	InsetMode                InsetMode
 }
 
+// TableColumnAlignmentValue defines horizontal alignment for a table column.
 type TableColumnAlignmentValue string
 
+// TableDensityValue defines compactness for table row spacing.
 type TableDensityValue string
 
+// TableHeaderToneValue defines the visual tone used by the table header row.
 type TableHeaderToneValue string
 
+// TableBorderStyleValue defines the border line style used by table separators.
 type TableBorderStyleValue string
 
 const (
@@ -52,6 +60,15 @@ func (block TableBlock) Kind() theme.BlockKind {
 
 func (block TableBlock) TemplateData() any {
 	normalized := block
+	normalized.Header = strings.TrimSpace(normalized.Header)
+	normalized.HasLegendSwatches = normalized.HasLegendSwatches || len(normalized.LegendSwatches) > 0
+	if normalized.HasLegendSwatches {
+		swatches := make([]string, 0, len(normalized.LegendSwatches))
+		for _, color := range normalized.LegendSwatches {
+			swatches = append(swatches, strings.TrimSpace(color))
+		}
+		normalized.LegendSwatches = swatches
+	}
 	if normalized.Density == "" {
 		if normalized.Compact {
 			normalized.Density = TableDensityCompact
@@ -74,9 +91,10 @@ func (block TableBlock) TemplateData() any {
 }
 
 func (block TableBlock) RenderText(_ RenderContext) (string, error) {
+	header := strings.TrimSpace(block.Header)
+
 	var parts []string
-	if strings.TrimSpace(block.Header) != "" {
-		header := strings.TrimSpace(block.Header)
+	if header != "" {
 		parts = append(parts, "[ "+header+" ]")
 		parts = append(parts, strings.Repeat("-", max(8, min(48, len(header)+4))))
 	}
@@ -94,9 +112,21 @@ func (block TableBlock) RenderText(_ RenderContext) (string, error) {
 	return strings.Join(parts, "\n"), nil
 }
 
+func (block TableBlock) LayoutSpec() LayoutSpec {
+	return normalizedLayoutSpec(LayoutSpec{InsetMode: block.InsetMode})
+}
+
+// VerificationCodeBlock renders a labeled one-time verification code.
 type VerificationCodeBlock struct {
-	Value string
-	Label string
+	Value              string
+	Label              string
+	Tone               Tone
+	UseMonospace       bool
+	CharacterSpacingEm float64
+	InsetMode          InsetMode
+
+	useMonospaceSet       bool
+	characterSpacingEmSet bool
 }
 
 func (block VerificationCodeBlock) Kind() theme.BlockKind {
@@ -104,7 +134,19 @@ func (block VerificationCodeBlock) Kind() theme.BlockKind {
 }
 
 func (block VerificationCodeBlock) TemplateData() any {
-	return block
+	normalized := block
+	normalized.Tone = normalizedTone(normalized.Tone)
+	if !normalized.useMonospaceSet {
+		normalized.UseMonospace = true
+	}
+	if !normalized.characterSpacingEmSet {
+		normalized.CharacterSpacingEm = 0.16
+	}
+	if normalized.CharacterSpacingEm < 0 {
+		normalized.CharacterSpacingEm = 0
+	}
+
+	return normalized
 }
 
 func (block VerificationCodeBlock) RenderText(_ RenderContext) (string, error) {
@@ -112,14 +154,20 @@ func (block VerificationCodeBlock) RenderText(_ RenderContext) (string, error) {
 	if value == "" {
 		return "", nil
 	}
+	label := strings.TrimSpace(block.Label)
 
-	if strings.TrimSpace(block.Label) == "" {
+	if label == "" {
 		return value, nil
 	}
 
-	return strings.TrimSpace(block.Label) + "\n\n" + value, nil
+	return label + "\n\n" + value, nil
 }
 
+func (block VerificationCodeBlock) LayoutSpec() LayoutSpec {
+	return normalizedLayoutSpec(LayoutSpec{InsetMode: block.InsetMode})
+}
+
+// FreeMarkdownBlock renders raw markdown content.
 type FreeMarkdownBlock struct {
 	Markdown string
 }
@@ -135,6 +183,8 @@ func (block FreeMarkdownBlock) TemplateData() any {
 func (block FreeMarkdownBlock) RenderText(_ RenderContext) (string, error) {
 	return strings.TrimSpace(block.Markdown), nil
 }
+
+func (block FreeMarkdownBlock) LayoutSpec() LayoutSpec { return defaultLayoutSpec() }
 
 func normalizedTableColumnAlignment(value TableColumnAlignmentValue) TableColumnAlignmentValue {
 	switch value {

@@ -2,30 +2,22 @@ package myrtle
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/gzuidhof/myrtle/theme"
 )
 
-type ChartToneValue string
-
-const (
-	ChartTonePrimary ChartToneValue = "primary"
-	ChartToneMuted   ChartToneValue = "muted"
-	ChartToneInfo    ChartToneValue = "info"
-	ChartToneSuccess ChartToneValue = "success"
-	ChartToneWarning ChartToneValue = "warning"
-	ChartToneDanger  ChartToneValue = "danger"
-)
-
+// SparklineBlock renders a compact inline trend chart with summary values.
 type SparklineBlock struct {
 	Header        string
 	Label         string
 	Value         string
 	Delta         string
 	DeltaSemantic StatDeltaSemantic
-	Tone          ChartToneValue
+	Tone          Tone
 	Points        []int
+	InsetMode     InsetMode
 }
 
 func (block SparklineBlock) Kind() theme.BlockKind {
@@ -81,12 +73,13 @@ type StackedBarRow struct {
 	Segments []StackedBarSegment
 }
 
+// StackedBarBlock renders stacked proportional bars for part-to-whole data.
 type StackedBarBlock struct {
 	Header     string
 	TotalLabel string
 	TotalValue string
-	Tone       ChartToneValue
 	Rows       []StackedBarRow
+	InsetMode  InsetMode
 }
 
 func (block StackedBarBlock) Kind() theme.BlockKind {
@@ -95,7 +88,6 @@ func (block StackedBarBlock) Kind() theme.BlockKind {
 
 func (block StackedBarBlock) TemplateData() any {
 	normalized := block
-	normalized.Tone = normalizedChartTone(block.Tone)
 	normalized.Rows = make([]StackedBarRow, 0, len(block.Rows))
 	for _, row := range block.Rows {
 		segments := make([]StackedBarSegment, 0, len(row.Segments))
@@ -125,12 +117,12 @@ func (block StackedBarBlock) TemplateData() any {
 	return normalized
 }
 
-func normalizedChartTone(value ChartToneValue) ChartToneValue {
+func normalizedChartTone(value Tone) Tone {
 	switch value {
-	case ChartToneMuted, ChartToneInfo, ChartToneSuccess, ChartToneWarning, ChartToneDanger:
+	case ToneMuted, ToneInfo, ToneSuccess, ToneWarning, ToneDanger, ToneDark:
 		return value
 	default:
-		return ChartTonePrimary
+		return TonePrimary
 	}
 }
 
@@ -184,9 +176,11 @@ type ProgressItem struct {
 	Color   string
 }
 
+// ProgressBlock renders one or more progress indicators.
 type ProgressBlock struct {
-	Header string
-	Items  []ProgressItem
+	Header    string
+	Items     []ProgressItem
+	InsetMode InsetMode
 }
 
 func (block ProgressBlock) Kind() theme.BlockKind {
@@ -254,9 +248,12 @@ type DistributionBucket struct {
 	Color        string
 }
 
+// DistributionBlock renders bucketed value distributions.
 type DistributionBlock struct {
-	Header  string
-	Buckets []DistributionBucket
+	Header             string
+	Buckets            []DistributionBucket
+	CountColumnWidthCh int
+	InsetMode          InsetMode
 }
 
 func (block DistributionBlock) Kind() theme.BlockKind {
@@ -285,6 +282,12 @@ func (block DistributionBlock) TemplateData() any {
 	if maxCount <= 0 {
 		maxCount = 1
 	}
+
+	countWidthCh := len(strconv.Itoa(maxCount))
+	if countWidthCh < 2 {
+		countWidthCh = 2
+	}
+	normalized.CountColumnWidthCh = countWidthCh
 
 	for index := range normalized.Buckets {
 		width := int(float64(normalized.Buckets[index].Count) / float64(maxCount) * 100)
@@ -382,4 +385,20 @@ func sparklineGlyphs(points []int) string {
 	}
 
 	return output.String()
+}
+
+func (block SparklineBlock) LayoutSpec() LayoutSpec {
+	return normalizedLayoutSpec(LayoutSpec{InsetMode: block.InsetMode})
+}
+
+func (block StackedBarBlock) LayoutSpec() LayoutSpec {
+	return normalizedLayoutSpec(LayoutSpec{InsetMode: block.InsetMode})
+}
+
+func (block ProgressBlock) LayoutSpec() LayoutSpec {
+	return normalizedLayoutSpec(LayoutSpec{InsetMode: block.InsetMode})
+}
+
+func (block DistributionBlock) LayoutSpec() LayoutSpec {
+	return normalizedLayoutSpec(LayoutSpec{InsetMode: block.InsetMode})
 }

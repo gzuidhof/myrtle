@@ -12,6 +12,7 @@ type KeyValuePair struct {
 	Value string
 }
 
+// KeyValueBlock renders labeled key-value pairs.
 type KeyValueBlock struct {
 	Header string
 	Pairs  []KeyValuePair
@@ -26,9 +27,10 @@ func (block KeyValueBlock) TemplateData() any {
 }
 
 func (block KeyValueBlock) RenderText(_ RenderContext) (string, error) {
+	header := strings.TrimSpace(block.Header)
+
 	parts := make([]string, 0, len(block.Pairs)+1)
-	if strings.TrimSpace(block.Header) != "" {
-		header := strings.TrimSpace(block.Header)
+	if header != "" {
 		parts = append(parts, header, strings.Repeat("-", min(48, max(8, len(header)))))
 	}
 	for _, pair := range block.Pairs {
@@ -53,12 +55,15 @@ type HorizontalBarChartItem struct {
 	Color   string
 }
 
+// HorizontalBarChartBlock renders a horizontal category comparison chart.
 type HorizontalBarChartBlock struct {
 	Header                string
 	Items                 []HorizontalBarChartItem
 	Thickness             int
+	ShowLabelsInsideBars  bool
 	TransparentBackground bool
-	Tone                  ChartToneValue
+	Tone                  Tone
+	InsetMode             InsetMode
 }
 
 func (block HorizontalBarChartBlock) Kind() theme.BlockKind {
@@ -74,9 +79,10 @@ func (block HorizontalBarChartBlock) TemplateData() any {
 }
 
 func (block HorizontalBarChartBlock) RenderText(_ RenderContext) (string, error) {
+	header := strings.TrimSpace(block.Header)
+
 	parts := make([]string, 0, len(block.Items)+1)
-	if strings.TrimSpace(block.Header) != "" {
-		header := strings.TrimSpace(block.Header)
+	if header != "" {
 		parts = append(parts, header, strings.Repeat("-", min(48, max(8, len(header)))))
 	}
 
@@ -129,11 +135,25 @@ func (block HorizontalBarChartBlock) normalizedItems() []HorizontalBarChartItem 
 }
 
 func (block HorizontalBarChartBlock) normalizedThickness() int {
+	minThickness := 8
+	if block.ShowLabelsInsideBars {
+		minThickness = 18
+	}
+
 	if block.Thickness <= 0 {
-		return 8
+		return minThickness
 	}
 	if block.Thickness > 24 {
 		return 24
 	}
+	if block.Thickness < minThickness {
+		return minThickness
+	}
 	return block.Thickness
+}
+
+func (block KeyValueBlock) LayoutSpec() LayoutSpec { return defaultLayoutSpec() }
+
+func (block HorizontalBarChartBlock) LayoutSpec() LayoutSpec {
+	return normalizedLayoutSpec(LayoutSpec{InsetMode: block.InsetMode})
 }

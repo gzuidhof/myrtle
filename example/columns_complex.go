@@ -19,7 +19,7 @@ func ColumnsComplexEmailWithTheme(selectedTheme theme.Theme) (*myrtle.Email, err
 		selectedTheme,
 	).
 		WithoutHeader().
-		WithPreheader("A multi-column layout with actionable sections").
+		WithPreheader("A multi-column layout with actionable panels").
 		WithHeader(myrtle.HeadingBlock{Text: "Product updates and account insights", Level: 1}).
 		AddHeading("Your weekly digest", myrtle.HeadingLevel(1)).
 		AddText("A concise operational digest with one metrics column and one actions column.").
@@ -27,7 +27,7 @@ func ColumnsComplexEmailWithTheme(selectedTheme theme.Theme) (*myrtle.Email, err
 			myrtle.NewGroup().
 				AddHeading("Team activity", myrtle.HeadingLevel(3)).
 				AddKeyValue("Highlights", []myrtle.KeyValuePair{{Key: "New users", Value: "184"}, {Key: "Delivery", Value: "99.8%"}}).
-				AddCallout(myrtle.CalloutTypeSuccess, "Great performance", "Delivery rate improved by 0.4% week over week."),
+				AddCallout(myrtle.ToneSuccess, "Great performance", "Delivery rate improved by 0.4% week over week."),
 			myrtle.NewGroup().
 				AddHeading("Next actions", myrtle.HeadingLevel(3)).
 				AddList([]string{"Review failed webhooks", "Confirm SLA report"}, false).
@@ -40,10 +40,10 @@ func ColumnsComplexEmailWithTheme(selectedTheme theme.Theme) (*myrtle.Email, err
 			myrtle.NewGroup().
 				AddQuote("This structure made our transactional templates cleaner and easier to maintain.", "Platform Team"),
 			myrtle.NewGroup().
-				AddCallout(myrtle.CalloutTypeInfo, "Next step", "Audit one of your old templates and migrate it to block composition."),
+				AddCallout(myrtle.ToneInfo, "Next step", "Audit one of your old templates and migrate it to block composition."),
 			myrtle.ColumnsWidths(50, 50),
 		).
 		AddDivider().
-		AddLegal("Myrtle Inc.", "123 Market St, San Francisco, CA", "https://example.com/preferences", "https://example.com/unsubscribe").
+		AddLegal("Myrtle Inc.", "Dam Square 1, 1012 JS Amsterdam, Netherlands", "https://example.com/preferences", "https://example.com/unsubscribe").
 		Build(), nil
 }

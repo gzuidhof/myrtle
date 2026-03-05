@@ -19,19 +19,19 @@ func DarkModeStylesEmailWithTheme(selectedTheme theme.Theme) (*myrtle.Email, err
 		selectedTheme,
 		myrtle.WithStyles(darkModeStylesOverrides()),
 	).
-		WithPreheader("Dark mode style override demo").
-		WithHeader(commonHeaderGroup("Myrtle")).
-		AddHeading("Dark mode via style overrides", myrtle.HeadingLevel(2)).
-		AddText("This example uses style overrides only, without a dedicated dark theme implementation.").
-		AddCallout(myrtle.CalloutTypeSuccess, "Looks good", "For many use cases, color and shell tokens are enough to produce a dark mode look.").
-		AddVerificationCode("Verification code", "582941").
+		WithPreheader("Confirm it was you").
+		WithHeader(commonHeaderGroupWithLogo("Myrtle", "Myrtle", commonHeaderLogoLightSrc)).
+		AddHeading("New sign-in detected", myrtle.HeadingLevel(2)).
+		AddText("We noticed a sign-in attempt from a new browser on macOS.").
+		AddCallout(myrtle.ToneInfo, "If this was you", "Use the code below to finish signing in.").
+		AddVerificationCode("Security code", "582941").
 		AddMessage(myrtle.MessageBlock{
-			Subject: "Deployment complete",
-			Preview: "Production rollout succeeded with no alerts.",
+			Subject: "Sign-in request",
+			Preview: "Chrome on macOS · Amsterdam, NL",
 			SentAt:  "5 minutes ago",
-			URL:     "https://example.com/deployments/123",
+			URL:     "https://example.com/security/activity",
 		}).
-		AddButton("Open dashboard", "https://example.com/dashboard").
+		AddButton("Review activity", "https://example.com/security/activity").
 		Build(), nil
 }
 

@@ -7,6 +7,7 @@ import (
 	"github.com/gzuidhof/myrtle/theme"
 )
 
+// QuoteBlock renders quoted text with optional attribution.
 type QuoteBlock struct {
 	Text   string
 	Author string
@@ -25,25 +26,17 @@ func (block QuoteBlock) RenderText(_ RenderContext) (string, error) {
 	if text == "" {
 		return "", nil
 	}
+	author := strings.TrimSpace(block.Author)
 
 	parts := []string{"\"" + text + "\""}
-	if strings.TrimSpace(block.Author) != "" {
-		parts = append(parts, "- "+strings.TrimSpace(block.Author))
+	if author != "" {
+		parts = append(parts, "- "+author)
 	}
 
 	return strings.Join(parts, "\n"), nil
 }
 
-type CalloutType string
-
-const (
-	CalloutTypeInfo     CalloutType = "info"
-	CalloutTypeSuccess  CalloutType = "success"
-	CalloutTypeWarning  CalloutType = "warning"
-	CalloutTypeError    CalloutType = "error"
-	CalloutTypeCritical CalloutType = "critical"
-)
-
+// CalloutVariant defines the visual treatment used for a callout block.
 type CalloutVariant string
 
 const (
@@ -52,15 +45,18 @@ const (
 	CalloutVariantSolid   CalloutVariant = "solid"
 )
 
+// CalloutBlock renders an emphasized informational or alert callout.
 type CalloutBlock struct {
-	Type      CalloutType
+	Tone      Tone
 	Variant   CalloutVariant
 	Title     string
 	Body      string
 	LinkLabel string
 	LinkURL   string
+	InsetMode InsetMode
 }
 
+// MessageBlock renders one message item in a conversational digest format.
 type MessageBlock struct {
 	SenderName      string
 	SenderHandle    string
@@ -75,8 +71,10 @@ type MessageBlock struct {
 	URL             string
 	ActionLabel     string
 	ActionURL       string
+	InsetMode       InsetMode
 }
 
+// MessageDigestBlock renders a grouped list of message items.
 type MessageDigestBlock struct {
 	Title     string
 	Subtitle  string
@@ -84,6 +82,7 @@ type MessageDigestBlock struct {
 	EmptyText string
 	Footer    string
 	MaxItems  int
+	InsetMode InsetMode
 }
 
 func (block CalloutBlock) Kind() theme.BlockKind {
@@ -100,7 +99,7 @@ func (block MessageDigestBlock) Kind() theme.BlockKind {
 
 func (block CalloutBlock) TemplateData() any {
 	normalized := block
-	normalized.Type = normalizedCalloutType(block.Type)
+	normalized.Tone = normalizedCalloutTone(block.Tone)
 	normalized.Variant = normalizedCalloutVariant(block.Variant)
 	return normalized
 }
@@ -117,6 +116,7 @@ func (block MessageDigestBlock) TemplateData() any {
 		EmptyText: strings.TrimSpace(block.EmptyText),
 		Footer:    strings.TrimSpace(block.Footer),
 		MaxItems:  block.MaxItems,
+		InsetMode: normalizedLayoutSpec(LayoutSpec{InsetMode: block.InsetMode}).InsetMode,
 	}
 
 	for _, message := range block.Messages {
@@ -149,25 +149,31 @@ func normalizeMessageBlock(block MessageBlock) MessageBlock {
 		URL:             strings.TrimSpace(block.URL),
 		ActionLabel:     strings.TrimSpace(block.ActionLabel),
 		ActionURL:       strings.TrimSpace(block.ActionURL),
+		InsetMode:       normalizedLayoutSpec(LayoutSpec{InsetMode: block.InsetMode}).InsetMode,
 	}
 }
 
 func (block CalloutBlock) RenderText(_ RenderContext) (string, error) {
+	title := strings.TrimSpace(block.Title)
+	body := strings.TrimSpace(block.Body)
+	linkLabel := strings.TrimSpace(block.LinkLabel)
+	linkURL := strings.TrimSpace(block.LinkURL)
+
 	parts := make([]string, 0, 3)
-	if strings.TrimSpace(block.Title) != "" {
-		parts = append(parts, "**"+strings.TrimSpace(block.Title)+"**")
+	if title != "" {
+		parts = append(parts, "**"+title+"**")
 	}
-	if strings.TrimSpace(block.Body) != "" {
-		parts = append(parts, strings.TrimSpace(block.Body))
+	if body != "" {
+		parts = append(parts, body)
 	}
-	if strings.TrimSpace(block.LinkLabel) != "" && strings.TrimSpace(block.LinkURL) != "" {
-		parts = append(parts, strings.TrimSpace(block.LinkLabel)+" ("+strings.TrimSpace(block.LinkURL)+")")
+	if linkLabel != "" && linkURL != "" {
+		parts = append(parts, linkLabel+" ("+linkURL+")")
 	}
 	if len(parts) == 0 {
 		return "", nil
 	}
 
-	label := strings.ToUpper(string(normalizedCalloutType(block.Type)))
+	label := strings.ToUpper(string(normalizedCalloutTone(block.Tone)))
 	return "[ " + label + " ]\n--------------------\n" + strings.Join(parts, "\n\n"), nil
 }
 
@@ -319,12 +325,12 @@ func messagePreviewText(block MessageBlock) string {
 	return result
 }
 
-func normalizedCalloutType(value CalloutType) CalloutType {
+func normalizedCalloutTone(value Tone) Tone {
 	switch value {
-	case CalloutTypeSuccess, CalloutTypeWarning, CalloutTypeError, CalloutTypeCritical:
+	case ToneSuccess, ToneWarning, ToneDanger, ToneDark:
 		return value
 	default:
-		return CalloutTypeInfo
+		return ToneInfo
 	}
 }
 
@@ -335,4 +341,18 @@ func normalizedCalloutVariant(value CalloutVariant) CalloutVariant {
 	default:
 		return CalloutVariantSoft
 	}
+}
+
+func (block QuoteBlock) LayoutSpec() LayoutSpec { return defaultLayoutSpec() }
+
+func (block CalloutBlock) LayoutSpec() LayoutSpec {
+	return normalizedLayoutSpec(LayoutSpec{InsetMode: block.InsetMode})
+}
+
+func (block MessageBlock) LayoutSpec() LayoutSpec {
+	return normalizedLayoutSpec(LayoutSpec{InsetMode: block.InsetMode})
+}
+
+func (block MessageDigestBlock) LayoutSpec() LayoutSpec {
+	return normalizedLayoutSpec(LayoutSpec{InsetMode: block.InsetMode})
 }

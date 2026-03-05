@@ -18,46 +18,51 @@ func normalizeValues(values theme.Values, defaultStyles theme.Styles) theme.Valu
 
 func defaultStylesStruct() theme.Styles {
 	return theme.Styles{
-		ColorPrimary:           "#265cff",
-		ColorSecondary:         "#10b981",
-		ColorText:              "#111827",
-		ColorTextMuted:         "#6b7280",
-		ColorBorder:            "#e5e7eb",
-		ColorCodeBackground:    "#f8fafc",
-		ColorPageBackground:    "#f3f4f6",
-		ColorMainBackground:    "#ffffff",
-		ColorSurface:           "#ffffff",
-		ColorSurfaceMuted:      "#f8fafc",
-		ColorTextOnSolid:       "#ffffff",
-		ColorInfo:              "#2563eb",
-		ColorInfoBorder:        "#93c5fd",
-		ColorInfoBackground:    "#eff6ff",
-		ColorInfoText:          "#1d4ed8",
-		ColorSuccess:           "#16a34a",
-		ColorSuccessBorder:     "#86efac",
-		ColorSuccessBackground: "#f0fdf4",
-		ColorSuccessText:       "#15803d",
-		ColorWarning:           "#ca8a04",
-		ColorWarningBorder:     "#fcd34d",
-		ColorWarningBackground: "#fffbeb",
-		ColorWarningText:       "#92400e",
-		ColorDanger:            "#dc2626",
-		ColorDangerBorder:      "#fca5a5",
-		ColorDangerBackground:  "#fef2f2",
-		ColorDangerText:        "#b91c1c",
-		WidthMain:              "100%",
-		MaxWidthMain:           "640px",
-		OuterPadding:           "24px",
-		OutsideContentInset:    "24px",
-		RadiusMain:             "12px",
-		RadiusElement:          "10px",
-		RadiusButton:           "8px",
-		RadiusPill:             "999px",
-		FontFamilyBase:         "system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif",
-		FontFamilyMono:         "ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace",
-		FontSizeBase:           "14px",
-		LineHeightBase:         "1.6",
-		FontWeightHeading:      "700",
+		ColorPrimary:              "#265cff",
+		ColorSecondary:            "#10b981",
+		ColorText:                 "#111827",
+		ColorTextMuted:            "#6b7280",
+		ColorBorder:               "#e5e7eb",
+		ColorCodeBackground:       "#f8fafc",
+		ColorPageBackground:       "#f3f4f6",
+		ColorMainBackground:       "#ffffff",
+		ColorSurface:              "#ffffff",
+		ColorSurfaceMuted:         "#f8fafc",
+		ColorTextOnSolid:          "#ffffff",
+		ColorInfo:                 "#2563eb",
+		ColorInfoBorder:           "#93c5fd",
+		ColorInfoBackground:       "#eff6ff",
+		ColorInfoText:             "#1d4ed8",
+		ColorSuccess:              "#16a34a",
+		ColorSuccessBorder:        "#86efac",
+		ColorSuccessBackground:    "#f0fdf4",
+		ColorSuccessText:          "#15803d",
+		ColorWarning:              "#ca8a04",
+		ColorWarningBorder:        "#fcd34d",
+		ColorWarningBackground:    "#fffbeb",
+		ColorWarningText:          "#92400e",
+		ColorDanger:               "#dc2626",
+		ColorDangerBorder:         "#fca5a5",
+		ColorDangerBackground:     "#fef2f2",
+		ColorDangerText:           "#b91c1c",
+		WidthMain:                 "100%",
+		MaxWidthMain:              "640px",
+		OuterPadding:              "24px",
+		OutsideContentInset:       "24px",
+		MainContentBodyTopSpacing: "24px",
+		MSOCompatibility:          theme.MSOCompatibilityModeOn,
+		RadiusMain:                "12px",
+		RadiusElement:             "10px",
+		RadiusButton:              "8px",
+		RadiusPill:                "999px",
+		TableLegendSwatchSize:     "12px",
+		TableLegendSwatchRadius:   "4px",
+		TableLegendSwatchBorder:   "",
+		FontFamilyBase:            "system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif",
+		FontFamilyMono:            "ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace",
+		FontSizeBase:              "14px",
+		LineHeightBase:            "1.6",
+		FontWeightHeading:         "700",
 	}
 }
 
@@ -160,6 +165,12 @@ func mergeStyles(defaults, overrides theme.Styles) theme.Styles {
 	if overrides.OutsideContentInset != "" {
 		merged.OutsideContentInset = overrides.OutsideContentInset
 	}
+	if overrides.MainContentBodyTopSpacing != "" {
+		merged.MainContentBodyTopSpacing = overrides.MainContentBodyTopSpacing
+	}
+	if overrides.MSOCompatibility != "" {
+		merged.MSOCompatibility = overrides.MSOCompatibility
+	}
 	if overrides.RadiusMain != "" {
 		merged.RadiusMain = overrides.RadiusMain
 	}
@@ -171,6 +182,15 @@ func mergeStyles(defaults, overrides theme.Styles) theme.Styles {
 	}
 	if overrides.RadiusPill != "" {
 		merged.RadiusPill = overrides.RadiusPill
+	}
+	if overrides.TableLegendSwatchSize != "" {
+		merged.TableLegendSwatchSize = overrides.TableLegendSwatchSize
+	}
+	if overrides.TableLegendSwatchRadius != "" {
+		merged.TableLegendSwatchRadius = overrides.TableLegendSwatchRadius
+	}
+	if overrides.TableLegendSwatchBorder != "" {
+		merged.TableLegendSwatchBorder = overrides.TableLegendSwatchBorder
 	}
 	if overrides.FontFamilyBase != "" {
 		merged.FontFamilyBase = overrides.FontFamilyBase

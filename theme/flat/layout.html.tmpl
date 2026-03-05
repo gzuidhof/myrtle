@@ -4,9 +4,11 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Email</title>
-</head>
 <!--[if !mso]><!-->
 <style type="text/css">
+  body, table, td, div, p, span, a {
+    font-family:{{ safeCSS .Values.Styles.FontFamilyBase }} !important;
+  }
   @media only screen and (max-width: 600px) {
     body {
       padding: 8px !important;
@@ -18,7 +20,7 @@
       max-width: 100% !important;
       height: auto !important;
     }
-    p, td {
+    div[data-myrtle-bounded='1'] > p {
       padding-left: 0 !important;
       padding-right: 0 !important;
     }
@@ -26,30 +28,118 @@
 </style>
 <!--<![endif]-->
 </head>
-<body dir="{{ .Values.Direction }}" style="margin:0;background:{{ .Values.Styles.ColorPageBackground }};padding:{{ .Values.Styles.OuterPadding }};font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
+<body dir="{{ .Values.Direction }}" bgcolor="{{ .Values.Styles.ColorPageBackground }}" style="margin:0;background:{{ .Values.Styles.ColorPageBackground }};font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
   {{ if .Preheader }}
-  <div style="display:none;max-height:0;overflow:hidden;opacity:0;">{{ .Preheader }}</div>
+  <div style="display:none;max-height:0;max-width:0;overflow:hidden;opacity:0;mso-hide:all;font-size:1px;line-height:1px;color:transparent;width:0;">{{ .Preheader }}<span style="display:none!important;max-height:0;max-width:0;opacity:0;overflow:hidden;mso-hide:all;color:transparent;">{{ preheaderFiller .PreheaderPaddingRepeat }}</span></div>
   {{ end }}
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="{{ .Values.Styles.ColorPageBackground }}" style="width:100%;background:{{ .Values.Styles.ColorPageBackground }};mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;">
+    <tr>
+      <td style="padding:{{ .Values.Styles.OuterPadding }};">
   {{ if and .Header .Header.HTML (eq .Header.Placement "outside") }}
-  <div data-myrtle-bounded="1" style="width:{{ .Values.Styles.WidthMain }};max-width:{{ .Values.Styles.MaxWidthMain }};margin:0 auto 12px;overflow-wrap:anywhere;word-break:break-word;word-wrap:break-word;padding:0 {{ .Values.Styles.OutsideContentInset }};font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
+  <!--[if mso]><table role="presentation" cellpadding="0" cellspacing="0" border="0" style="width:{{ .Values.Styles.MaxWidthMain }};mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;"><tr><td><![endif]-->
+  {{ if eq .Header.InsetMode "none" }}
+  <div data-myrtle-bounded="1" style="width:{{ .Values.Styles.WidthMain }};max-width:{{ .Values.Styles.MaxWidthMain }};margin:0 auto;word-break:break-word;word-wrap:break-word;padding:0;font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
+    {{ safe .Header.HTML }}
+  </div>
+  {{ else if and (eq .Header.InsetMode "custom") .Header.CustomInset }}
+  <div data-myrtle-bounded="1" style="width:{{ .Values.Styles.WidthMain }};max-width:{{ .Values.Styles.MaxWidthMain }};margin:0 auto;word-break:break-word;word-wrap:break-word;padding:0 {{ .Header.CustomInset }};font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
+    {{ safe .Header.HTML }}
+  </div>
+  {{ else }}
+  <div data-myrtle-bounded="1" style="width:{{ .Values.Styles.WidthMain }};max-width:{{ .Values.Styles.MaxWidthMain }};margin:0 auto;word-break:break-word;word-wrap:break-word;padding:0 {{ .Values.Styles.OutsideContentInset }};font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
     {{ safe .Header.HTML }}
   </div>
   {{ end }}
-  <div data-myrtle-bounded="1" style="width:{{ .Values.Styles.WidthMain }};max-width:{{ .Values.Styles.MaxWidthMain }};margin:0 auto;overflow-wrap:anywhere;word-break:break-word;word-wrap:break-word;background:{{ .Values.Styles.ColorMainBackground }};border:{{ .Values.Styles.BorderMain }};border-radius:{{ .Values.Styles.RadiusMain }};padding:20px;font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
+  <!--[if mso]></td></tr></table><![endif]-->
+  {{ end }}
+  <!--[if mso]><table role="presentation" align="center" cellpadding="0" cellspacing="0" border="0" style="width:{{ .Values.Styles.MaxWidthMain }};mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;"><tr><td><![endif]-->
+  {{ $hasInsideHeader := and .Header .Header.HTML (ne .Header.Placement "outside") }}
+  <div data-myrtle-bounded="1" style="width:{{ .Values.Styles.WidthMain }};max-width:{{ .Values.Styles.MaxWidthMain }};margin:0 auto;word-break:break-word;word-wrap:break-word;background:{{ .Values.Styles.ColorMainBackground }};border:{{ .Values.Styles.BorderMain }};border-radius:{{ .Values.Styles.RadiusMain }};font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
     {{ if and .Header .Header.HTML (ne .Header.Placement "outside") }}
+    {{ if eq .Header.InsetMode "none" }}
+    <div style="padding:{{ .Values.Styles.MainContentBodyTopSpacing }} 0 0;box-sizing:border-box;word-break:break-word;word-wrap:break-word;font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
       {{ safe .Header.HTML }}
+    </div>
+    {{ else if and (eq .Header.InsetMode "custom") .Header.CustomInset }}
+    <div style="padding:{{ .Values.Styles.MainContentBodyTopSpacing }} {{ .Header.CustomInset }} 0;box-sizing:border-box;word-break:break-word;word-wrap:break-word;font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
+      {{ safe .Header.HTML }}
+    </div>
+    {{ else }}
+    <div style="padding:{{ .Values.Styles.MainContentBodyTopSpacing }} 20px 0;box-sizing:border-box;word-break:break-word;word-wrap:break-word;font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
+      {{ safe .Header.HTML }}
+    </div>
     {{ end }}
-    {{ range .Blocks }}
-      {{ safe . }}
     {{ end }}
+
+    {{ if .BlockViews }}
+      {{ range $index, $blockView := .BlockViews }}
+      {{ if eq $blockView.InsetMode "none" }}
+      <div style="padding:{{ if and (eq $index 0) (not $hasInsideHeader) }}{{ $.Values.Styles.MainContentBodyTopSpacing }}{{ else }}0{{ end }} 0 0;mso-padding-alt:{{ if and (eq $index 0) (not $hasInsideHeader) }}{{ $.Values.Styles.MainContentBodyTopSpacing }}{{ else }}0{{ end }} 0 0 0;box-sizing:border-box;word-break:break-word;word-wrap:break-word;font-family:{{ safeCSS $.Values.Styles.FontFamilyBase }};font-size:{{ $.Values.Styles.FontSizeBase }};line-height:{{ $.Values.Styles.LineHeightBase }};color:{{ $.Values.Styles.ColorText }};">
+        {{ safe $blockView.HTML }}
+      </div>
+      {{ else if and (eq $blockView.InsetMode "custom") $blockView.CustomInset }}
+      <div style="padding:{{ if and (eq $index 0) (not $hasInsideHeader) }}{{ $.Values.Styles.MainContentBodyTopSpacing }}{{ else }}0{{ end }} {{ $blockView.CustomInset }} 0;mso-padding-alt:{{ if and (eq $index 0) (not $hasInsideHeader) }}{{ $.Values.Styles.MainContentBodyTopSpacing }}{{ else }}0{{ end }} {{ $blockView.CustomInset }} 0 {{ $blockView.CustomInset }};box-sizing:border-box;word-break:break-word;word-wrap:break-word;font-family:{{ safeCSS $.Values.Styles.FontFamilyBase }};font-size:{{ $.Values.Styles.FontSizeBase }};line-height:{{ $.Values.Styles.LineHeightBase }};color:{{ $.Values.Styles.ColorText }};">
+        {{ safe $blockView.HTML }}
+      </div>
+      {{ else }}
+      <div style="padding:{{ if and (eq $index 0) (not $hasInsideHeader) }}{{ $.Values.Styles.MainContentBodyTopSpacing }}{{ else }}0{{ end }} 12px 0 12px;mso-padding-alt:{{ if and (eq $index 0) (not $hasInsideHeader) }}{{ $.Values.Styles.MainContentBodyTopSpacing }}{{ else }}0{{ end }} 12px 0 12px;box-sizing:border-box;word-break:break-word;word-wrap:break-word;font-family:{{ safeCSS $.Values.Styles.FontFamilyBase }};font-size:{{ $.Values.Styles.FontSizeBase }};line-height:{{ $.Values.Styles.LineHeightBase }};color:{{ $.Values.Styles.ColorText }};">
+        {{ safe $blockView.HTML }}
+      </div>
+      {{ end }}
+      {{ if ne $.Values.Styles.MSOCompatibility "off" }}
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;">
+        <tr aria-hidden="true">
+          <td style="padding:0;mso-padding-alt:14px 0 0 0;line-height:0;font-size:0;height:0;mso-line-height-rule:exactly;">
+            <div style="line-height:0;font-size:0;height:0;overflow:hidden;">&zwnj;</div>
+          </td>
+        </tr>
+      </table>
+      {{ end }}
+      {{ end }}
+    {{ else }}
+      <div style="padding:20px;box-sizing:border-box;word-break:break-word;word-wrap:break-word;font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
+        {{ range .Blocks }}
+          {{ safe . }}
+        {{ end }}
+      </div>
+    {{ end }}
+
     {{ if and .Footer .Footer.HTML (ne .Footer.Placement "outside") }}
+    {{ if eq .Footer.InsetMode "none" }}
+    <div style="padding:20px 0;box-sizing:border-box;word-break:break-word;word-wrap:break-word;font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
       {{ safe .Footer.HTML }}
+    </div>
+    {{ else if and (eq .Footer.InsetMode "custom") .Footer.CustomInset }}
+    <div style="padding:20px {{ .Footer.CustomInset }};box-sizing:border-box;word-break:break-word;word-wrap:break-word;font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
+      {{ safe .Footer.HTML }}
+    </div>
+    {{ else }}
+    <div style="padding:20px;box-sizing:border-box;word-break:break-word;word-wrap:break-word;font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
+      {{ safe .Footer.HTML }}
+    </div>
+    {{ end }}
     {{ end }}
   </div>
+  <!--[if mso]></td></tr></table><![endif]-->
   {{ if and .Footer .Footer.HTML (eq .Footer.Placement "outside") }}
-  <div data-myrtle-bounded="1" style="width:{{ .Values.Styles.WidthMain }};max-width:{{ .Values.Styles.MaxWidthMain }};margin:12px auto 0;overflow-wrap:anywhere;word-break:break-word;word-wrap:break-word;padding:0 {{ .Values.Styles.OutsideContentInset }};font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
+  <!--[if mso]><table role="presentation" align="center" cellpadding="0" cellspacing="0" border="0" style="width:{{ .Values.Styles.MaxWidthMain }};mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;"><tr><td><![endif]-->
+  {{ if eq .Footer.InsetMode "none" }}
+  <div data-myrtle-bounded="1" style="width:{{ .Values.Styles.WidthMain }};max-width:{{ .Values.Styles.MaxWidthMain }};margin:12px auto 0;word-break:break-word;word-wrap:break-word;padding:0;font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
+    {{ safe .Footer.HTML }}
+  </div>
+  {{ else if and (eq .Footer.InsetMode "custom") .Footer.CustomInset }}
+  <div data-myrtle-bounded="1" style="width:{{ .Values.Styles.WidthMain }};max-width:{{ .Values.Styles.MaxWidthMain }};margin:12px auto 0;word-break:break-word;word-wrap:break-word;padding:0 {{ .Footer.CustomInset }};font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
+    {{ safe .Footer.HTML }}
+  </div>
+  {{ else }}
+  <div data-myrtle-bounded="1" style="width:{{ .Values.Styles.WidthMain }};max-width:{{ .Values.Styles.MaxWidthMain }};margin:12px auto 0;word-break:break-word;word-wrap:break-word;padding:0 {{ .Values.Styles.OutsideContentInset }};font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
     {{ safe .Footer.HTML }}
   </div>
   {{ end }}
+  <!--[if mso]></td></tr></table><![endif]-->
+  {{ end }}
+      </td>
+    </tr>
+  </table>
 </body>
 </html>

@@ -11,11 +11,13 @@ type PriceLine struct {
 	Value string
 }
 
+// PriceSummaryBlock renders a line-item pricing summary with totals.
 type PriceSummaryBlock struct {
 	Header     string
 	Items      []PriceLine
 	TotalLabel string
 	TotalValue string
+	InsetMode  InsetMode
 }
 
 func (block PriceSummaryBlock) Kind() theme.BlockKind {
@@ -50,11 +52,14 @@ func (block PriceSummaryBlock) RenderText(_ RenderContext) (string, error) {
 	return strings.Join(parts, "\n"), nil
 }
 
+// EmptyStateBlock renders placeholder content when data is unavailable.
 type EmptyStateBlock struct {
 	Title       string
 	Body        string
 	ActionLabel string
 	ActionURL   string
+	Tone        Tone
+	InsetMode   InsetMode
 }
 
 func (block EmptyStateBlock) Kind() theme.BlockKind {
@@ -62,7 +67,10 @@ func (block EmptyStateBlock) Kind() theme.BlockKind {
 }
 
 func (block EmptyStateBlock) TemplateData() any {
-	return block
+	normalized := block
+	normalized.Tone = normalizedEmptyStateTone(block.Tone)
+
+	return normalized
 }
 
 func (block EmptyStateBlock) RenderText(_ RenderContext) (string, error) {
@@ -79,4 +87,16 @@ func (block EmptyStateBlock) RenderText(_ RenderContext) (string, error) {
 	}
 
 	return strings.Join(parts, "\n\n"), nil
+}
+
+func (block PriceSummaryBlock) LayoutSpec() LayoutSpec {
+	return normalizedLayoutSpec(LayoutSpec{InsetMode: block.InsetMode})
+}
+
+func (block EmptyStateBlock) LayoutSpec() LayoutSpec {
+	return normalizedLayoutSpec(LayoutSpec{InsetMode: block.InsetMode})
+}
+
+func normalizedEmptyStateTone(value Tone) Tone {
+	return normalizedTone(value)
 }

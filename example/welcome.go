@@ -17,15 +17,22 @@ func WelcomeEmailWithTheme(selectedTheme theme.Theme) (*myrtle.Email, error) {
 
 	return myrtle.NewBuilder(
 		selectedTheme,
-		myrtle.WithStyles(theme.Styles{ColorPrimary: "#0ea5e9"}),
+		myrtle.WithStyles(theme.Styles{ColorPrimary: "#6d28d9", MainContentBodyTopSpacing: "0"}),
 	).
 		WithPreheader("Compose beautiful transactional emails").
-		WithHeader(commonHeaderGroupWithAlt("Myrtle", "Myrtle Logo"), myrtle.HeaderPlacement(myrtle.HeaderPlacementOutside)).
+		AddImage(
+			"/assets/dark-gradient-hero.png",
+			"Dark gradient hero",
+			myrtle.ImageFullWidth(),
+			myrtle.ImageInsetMode(myrtle.InsetModeNone),
+			myrtle.ImageTopSpacing(0),
+			myrtle.ImageTopCorners(),
+		).
 		AddHeading("Welcome aboard", myrtle.HeadingLevel(1)).
 		AddText("Hi there,").
 		AddText("Thanks for joining us. You can now build composable email content in Go.").
 		AddList([]string{"Choose a theme", "Compose with blocks", "Render HTML and Markdown"}, false).
-		AddCallout(myrtle.CalloutTypeInfo, "Tip", "You can preview all built-in blocks in the example server.").
+		AddCallout(myrtle.ToneInfo, "Tip", "You can preview all built-in blocks in the example server.").
 		AddText("Start with the quick-start docs:").
 		AddButton("Open docs", "https://github.com/gzuidhof/myrtle").
 		AddDivider().

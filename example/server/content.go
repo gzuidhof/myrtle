@@ -8,6 +8,7 @@ import (
 	"github.com/gzuidhof/myrtle"
 	"github.com/gzuidhof/myrtle/theme"
 	defaulttheme "github.com/gzuidhof/myrtle/theme/default"
+	editorialtheme "github.com/gzuidhof/myrtle/theme/editorial"
 	"github.com/gzuidhof/myrtle/theme/flat"
 	"github.com/gzuidhof/myrtle/theme/terminal"
 )
@@ -31,12 +32,13 @@ func buildBlockEmail(name string, selectedTheme theme.Theme) (*myrtle.Email, err
 		builder.AddText("This is a text block.")
 
 		builder.AddHeading("Tone variants", myrtle.HeadingLevel(3))
-		builder.AddText("Tone default", myrtle.TextTone(myrtle.TextToneDefault))
-		builder.AddText("Tone muted", myrtle.TextTone(myrtle.TextToneMuted))
-		builder.AddText("Tone info", myrtle.TextTone(myrtle.TextToneInfo))
-		builder.AddText("Tone success", myrtle.TextTone(myrtle.TextToneSuccess))
-		builder.AddText("Tone warning", myrtle.TextTone(myrtle.TextToneWarning))
-		builder.AddText("Tone danger", myrtle.TextTone(myrtle.TextToneDanger))
+		builder.AddText("Tone default", myrtle.TextTone(myrtle.ToneDefault))
+		builder.AddText("Tone muted", myrtle.TextTone(myrtle.ToneMuted))
+		builder.AddText("Tone info", myrtle.TextTone(myrtle.ToneInfo))
+		builder.AddText("Tone success", myrtle.TextTone(myrtle.ToneSuccess))
+		builder.AddText("Tone warning", myrtle.TextTone(myrtle.ToneWarning))
+		builder.AddText("Tone danger", myrtle.TextTone(myrtle.ToneDanger))
+		builder.AddText("Tone dark", myrtle.TextTone(myrtle.ToneDark))
 
 		builder.AddHeading("Size variants", myrtle.HeadingLevel(3))
 		builder.AddText("Size small", myrtle.TextSize(myrtle.TextSizeSmall))
@@ -70,9 +72,9 @@ func buildBlockEmail(name string, selectedTheme theme.Theme) (*myrtle.Email, err
 		builder.AddText("This line has default spacing after it.")
 
 		builder.AddHeading("Combined styles", myrtle.HeadingLevel(3))
-		builder.AddText("Centered semibold info", myrtle.TextTone(myrtle.TextToneInfo), myrtle.TextAlign(myrtle.TextAlignCenter), myrtle.TextWeight(myrtle.TextWeightSemibold))
-		builder.AddText("Compact uppercase warning", myrtle.TextTone(myrtle.TextToneWarning), myrtle.TextSize(myrtle.TextSizeSmall), myrtle.TextSpacing(myrtle.TextSpacingCompact), myrtle.TextTransform(myrtle.TextTransformUppercase), myrtle.TextNoMargin(true))
-		builder.AddText("Relaxed large success", myrtle.TextTone(myrtle.TextToneSuccess), myrtle.TextSize(myrtle.TextSizeLarge), myrtle.TextSpacing(myrtle.TextSpacingRelaxed))
+		builder.AddText("Centered semibold info", myrtle.TextTone(myrtle.ToneInfo), myrtle.TextAlign(myrtle.TextAlignCenter), myrtle.TextWeight(myrtle.TextWeightSemibold))
+		builder.AddText("Compact uppercase warning", myrtle.TextTone(myrtle.ToneWarning), myrtle.TextSize(myrtle.TextSizeSmall), myrtle.TextSpacing(myrtle.TextSpacingCompact), myrtle.TextTransform(myrtle.TextTransformUppercase), myrtle.TextNoMargin(true))
+		builder.AddText("Relaxed large success", myrtle.TextTone(myrtle.ToneSuccess), myrtle.TextSize(myrtle.TextSizeLarge), myrtle.TextSpacing(myrtle.TextSpacingRelaxed))
 	case "heading":
 		builder.AddHeading("This is a heading", myrtle.HeadingLevel(2))
 	case "spacer":
@@ -94,6 +96,12 @@ func buildBlockEmail(name string, selectedTheme theme.Theme) (*myrtle.Email, err
 			{Label: "EMEA", Value: "31%", Percent: 31},
 			{Label: "APAC", Value: "17%", Percent: 17},
 		})
+		builder.AddHeading("Inset mode: none", myrtle.HeadingLevel(3))
+		builder.AddHorizontalBarChart("Delivery by region", []myrtle.HorizontalBarChartItem{
+			{Label: "US", Value: "52%", Percent: 52},
+			{Label: "EMEA", Value: "31%", Percent: 31},
+			{Label: "APAC", Value: "17%", Percent: 17},
+		}, myrtle.HorizontalBarChartInsetMode(myrtle.InsetModeNone))
 		builder.AddHeading("Thicker bars", myrtle.HeadingLevel(3))
 		builder.AddHorizontalBarChart("Delivery by region", []myrtle.HorizontalBarChartItem{
 			{Label: "US", Value: "52%", Percent: 52},
@@ -106,18 +114,32 @@ func buildBlockEmail(name string, selectedTheme theme.Theme) (*myrtle.Email, err
 			{Label: "EMEA", Value: "31%", Percent: 31},
 			{Label: "APAC", Value: "17%", Percent: 17},
 		}, myrtle.HorizontalBarChartTransparentBackground(true))
+		builder.AddHeading("Labels inside bars", myrtle.HeadingLevel(3))
+		builder.AddHorizontalBarChart("Delivery by region", []myrtle.HorizontalBarChartItem{
+			{Label: "US", Value: "52%", Percent: 52},
+			{Label: "EMEA", Value: "31%", Percent: 31},
+			{Label: "APAC", Value: "17%", Percent: 17},
+			{Label: "Long label + value (tight)", Value: "11%", Percent: 11},
+			{Label: "Tiny", Value: "3%", Percent: 3},
+		}, myrtle.HorizontalBarChartLabelsInsideBars(true))
 		builder.AddHeading("Tone: success", myrtle.HeadingLevel(3))
 		builder.AddHorizontalBarChart("Delivery by region", []myrtle.HorizontalBarChartItem{
 			{Label: "US", Value: "52%", Percent: 52},
 			{Label: "EMEA", Value: "31%", Percent: 31},
 			{Label: "APAC", Value: "17%", Percent: 17},
-		}, myrtle.HorizontalBarChartTone(myrtle.ChartToneSuccess))
+		}, myrtle.HorizontalBarChartTone(myrtle.ToneSuccess))
 		builder.AddHeading("Tone: warning", myrtle.HeadingLevel(3))
 		builder.AddHorizontalBarChart("Delivery by region", []myrtle.HorizontalBarChartItem{
 			{Label: "US", Value: "52%", Percent: 52},
 			{Label: "EMEA", Value: "31%", Percent: 31},
 			{Label: "APAC", Value: "17%", Percent: 17},
-		}, myrtle.HorizontalBarChartTone(myrtle.ChartToneWarning))
+		}, myrtle.HorizontalBarChartTone(myrtle.ToneWarning))
+		builder.AddHeading("Tone: dark", myrtle.HeadingLevel(3))
+		builder.AddHorizontalBarChart("Delivery by region", []myrtle.HorizontalBarChartItem{
+			{Label: "US", Value: "52%", Percent: 52},
+			{Label: "EMEA", Value: "31%", Percent: 31},
+			{Label: "APAC", Value: "17%", Percent: 17},
+		}, myrtle.HorizontalBarChartTone(myrtle.ToneDark))
 	case "vertical-bar-chart":
 		axisLabels := []string{"Jan", "Feb", "Mar", "Apr"}
 		series := []myrtle.VerticalBarChartSeries{
@@ -167,25 +189,24 @@ func buildBlockEmail(name string, selectedTheme theme.Theme) (*myrtle.Email, err
 		}
 
 		builder.AddHeading("Default mixed values", myrtle.HeadingLevel(3))
-		builder.AddVerticalBarChart("MRR movement", axisLabels, series)
+		builder.AddVerticalBarChart(axisLabels, series, myrtle.VerticalBarChartTitle("MRR movement"))
 
 		builder.AddHeading("Legend + ticks + baseline", myrtle.HeadingLevel(3))
 		builder.AddVerticalBarChart(
-			"MRR movement",
 			axisLabels,
 			series,
+			myrtle.VerticalBarChartTitle("MRR movement"),
 			myrtle.VerticalBarChartHeight(190),
 			myrtle.VerticalBarChartLegendPlacement(myrtle.VerticalBarChartLegendBottom),
 			myrtle.VerticalBarChartAxisShowYTicks(true),
-			myrtle.VerticalBarChartAxisTickCount(5),
 			myrtle.VerticalBarChartAxisShowBaseline(true),
 		)
 
 		builder.AddHeading("Fixed axis range + no category labels", myrtle.HeadingLevel(3))
 		builder.AddVerticalBarChart(
-			"MRR movement",
 			axisLabels,
 			series,
+			myrtle.VerticalBarChartTitle("MRR movement"),
 			myrtle.VerticalBarChartAxisMin(-30),
 			myrtle.VerticalBarChartAxisMax(90),
 			myrtle.VerticalBarChartAxisShowYTicks(true),
@@ -197,27 +218,18 @@ func buildBlockEmail(name string, selectedTheme theme.Theme) (*myrtle.Email, err
 		builder.AddHeading("Column gap comparison (0, 4, 12)", myrtle.HeadingLevel(3))
 		builder.AddGrid(
 			[]myrtle.GridItem{
-				myrtle.GridItemGroup(myrtle.NewGroup().AddVerticalBarChart("Gap 0", axisLabels, series, myrtle.VerticalBarChartColumnGap(0))),
-				myrtle.GridItemGroup(myrtle.NewGroup().AddVerticalBarChart("Gap 4", axisLabels, series, myrtle.VerticalBarChartColumnGap(4))),
-				myrtle.GridItemGroup(myrtle.NewGroup().AddVerticalBarChart("Gap 12", axisLabels, series, myrtle.VerticalBarChartColumnGap(12))),
+				myrtle.GridItemGroup(myrtle.NewGroup().AddVerticalBarChart(axisLabels, series, myrtle.VerticalBarChartTitle("Gap 0"), myrtle.VerticalBarChartColumnGap(0))),
+				myrtle.GridItemGroup(myrtle.NewGroup().AddVerticalBarChart(axisLabels, series, myrtle.VerticalBarChartTitle("Gap 4"), myrtle.VerticalBarChartColumnGap(4))),
+				myrtle.GridItemGroup(myrtle.NewGroup().AddVerticalBarChart(axisLabels, series, myrtle.VerticalBarChartTitle("Gap 12"), myrtle.VerticalBarChartColumnGap(12))),
 			},
 			myrtle.GridColumns(3),
 		)
 
-		builder.AddHeading("1px spacing between columns", myrtle.HeadingLevel(3))
-		builder.AddVerticalBarChart(
-			"MRR movement",
-			axisLabels,
-			series,
-			myrtle.VerticalBarChartColumnGap(1),
-			myrtle.VerticalBarChartLegendPlacement(myrtle.VerticalBarChartLegendBottom),
-		)
-
 		builder.AddHeading("Normalized columns (positive-only series)", myrtle.HeadingLevel(3))
 		builder.AddVerticalBarChart(
-			"MRR composition",
 			axisLabels,
 			normalizedSeries,
+			myrtle.VerticalBarChartTitle("MRR composition"),
 			myrtle.VerticalBarChartColumnGap(1),
 			myrtle.VerticalBarChartNormalize(true),
 			myrtle.VerticalBarChartLegendPlacement(myrtle.VerticalBarChartLegendBottom),
@@ -225,9 +237,9 @@ func buildBlockEmail(name string, selectedTheme theme.Theme) (*myrtle.Email, err
 
 		builder.AddHeading("Normalized with 0%-100% axis", myrtle.HeadingLevel(3))
 		builder.AddVerticalBarChart(
-			"Composition share",
 			axisLabels,
 			normalizedPercentSeries,
+			myrtle.VerticalBarChartTitle("Composition share"),
 			myrtle.VerticalBarChartNormalize(true),
 			myrtle.VerticalBarChartColumnGap(1),
 			myrtle.VerticalBarChartAxisConfig(myrtle.VerticalBarChartAxis{ShowYTicks: true, LabelFormat: myrtle.VerticalBarChartAxisLabelFormatPercent, HasMin: true, Min: 0, HasMax: true, Max: 100}),
@@ -237,21 +249,20 @@ func buildBlockEmail(name string, selectedTheme theme.Theme) (*myrtle.Email, err
 
 		builder.AddHeading("24 months (full width default)", myrtle.HeadingLevel(3))
 		builder.AddVerticalBarChart(
-			"MRR movement",
 			axisLabels24Months,
 			series24Months,
+			myrtle.VerticalBarChartTitle("MRR movement"),
 			myrtle.VerticalBarChartHeight(170),
 			myrtle.VerticalBarChartColumnGap(1),
 			myrtle.VerticalBarChartAxisShowCategoryLabels(false),
 			myrtle.VerticalBarChartAxisShowYTicks(true),
-			myrtle.VerticalBarChartAxisTickCount(4),
 		)
 
 		builder.AddHeading("Struct config + in-bar value labels", myrtle.HeadingLevel(3))
 		builder.AddVerticalBarChart(
-			"MRR movement",
 			axisLabels,
 			series,
+			myrtle.VerticalBarChartTitle("MRR movement"),
 			myrtle.VerticalBarChartValueFormatterOption(myrtle.VerticalBarChartValueFormatter{Prefix: "€"}),
 			myrtle.VerticalBarChartAxisConfig(myrtle.VerticalBarChartAxis{ShowYTicks: true, ShowBaseline: true, LabelFormat: myrtle.VerticalBarChartAxisLabelFormatNumber}),
 			myrtle.VerticalBarChartLegendConfigOption(myrtle.VerticalBarChartLegendConfig{Placement: myrtle.VerticalBarChartLegendBottom}),
@@ -260,9 +271,9 @@ func buildBlockEmail(name string, selectedTheme theme.Theme) (*myrtle.Email, err
 
 		builder.AddHeading("Tiny segment label fallback (single series)", myrtle.HeadingLevel(3))
 		builder.AddVerticalBarChart(
-			"Small values above the bar",
 			axisLabels,
 			tooSmallSingleSeries,
+			myrtle.VerticalBarChartTitle("Small values above the bar"),
 			myrtle.VerticalBarChartHeight(180),
 			myrtle.VerticalBarChartAxisConfig(myrtle.VerticalBarChartAxis{ShowYTicks: true, ShowBaseline: true, LabelFormat: myrtle.VerticalBarChartAxisLabelFormatNumber, HasMin: true, Min: 0, HasMax: true, Max: 100}),
 			myrtle.VerticalBarChartValueLabelsOption(myrtle.VerticalBarChartValueLabels{Show: true, MinSegmentHeight: 12, Color: "#ffffff"}),
@@ -270,9 +281,9 @@ func buildBlockEmail(name string, selectedTheme theme.Theme) (*myrtle.Email, err
 
 		builder.AddHeading("Tiny segment label fallback (multiple series)", myrtle.HeadingLevel(3))
 		builder.AddVerticalBarChart(
-			"Small top positive + small upper negative",
 			axisLabels,
 			tooSmallMultiSeries,
+			myrtle.VerticalBarChartTitle("Small top positive + small upper negative"),
 			myrtle.VerticalBarChartHeight(190),
 			myrtle.VerticalBarChartLegendPlacement(myrtle.VerticalBarChartLegendBottom),
 			myrtle.VerticalBarChartAxisConfig(myrtle.VerticalBarChartAxis{ShowYTicks: true, ShowBaseline: true, LabelFormat: myrtle.VerticalBarChartAxisLabelFormatNumber, HasMin: true, Min: -100, HasMax: true, Max: 140}),
@@ -281,60 +292,78 @@ func buildBlockEmail(name string, selectedTheme theme.Theme) (*myrtle.Email, err
 
 		builder.AddHeading("Tiny segment fallback boundary (no free space)", myrtle.HeadingLevel(3))
 		builder.AddVerticalBarChart(
-			"Small values stay hidden",
 			axisLabels,
 			tooSmallNoSpaceSeries,
+			myrtle.VerticalBarChartTitle("Small values stay hidden"),
 			myrtle.VerticalBarChartHeight(180),
 			myrtle.VerticalBarChartAxisConfig(myrtle.VerticalBarChartAxis{ShowYTicks: true, ShowBaseline: true, LabelFormat: myrtle.VerticalBarChartAxisLabelFormatNumber, HasMin: true, Min: 0, HasMax: true, Max: 100}),
 			myrtle.VerticalBarChartValueLabelsOption(myrtle.VerticalBarChartValueLabels{Show: true, MinSegmentHeight: 12, Color: "#ffffff"}),
 		)
-		builder.AddText("Expected: tiny labels remain hidden when the stack reaches the top and no above-label space is available.", myrtle.TextTone(myrtle.TextToneMuted), myrtle.TextSize(myrtle.TextSizeSmall))
+		builder.AddText("Expected: tiny labels remain hidden when the stack reaches the top and no above-label space is available.", myrtle.TextTone(myrtle.ToneMuted), myrtle.TextSize(myrtle.TextSizeSmall))
 
 		builder.AddHeading("Large values with compact formatter", myrtle.HeadingLevel(3))
 		builder.AddVerticalBarChart(
-			"Volume by quarter",
 			[]string{"Q1", "Q2", "Q3", "Q4"},
 			[]myrtle.VerticalBarChartSeries{{Key: "volume", Label: "Volume", Values: []float64{100000, 1300000, 10200, -1000}}},
+			myrtle.VerticalBarChartTitle("Volume by quarter"),
 			myrtle.VerticalBarChartAxisConfig(myrtle.VerticalBarChartAxis{ShowYTicks: true, ShowBaseline: true, LabelFormat: myrtle.VerticalBarChartAxisLabelFormatNumber, HasMin: true, Min: -1000, HasMax: true, Max: 1300000}),
 			myrtle.VerticalBarChartValueFormatterOption(myrtle.VerticalBarChartValueFormatter{MagnitudeSuffix: myrtle.VerticalBarChartMagnitudeSuffixShort}),
 			myrtle.VerticalBarChartValueLabelsOption(myrtle.VerticalBarChartValueLabels{Show: true, MinSegmentHeight: 10, Color: "#ffffff"}),
 		)
+
+		builder.AddHeading("Inset mode: none", myrtle.HeadingLevel(3))
+		builder.AddVerticalBarChart(
+			axisLabels,
+			series,
+			myrtle.VerticalBarChartTitle("MRR movement"),
+			myrtle.VerticalBarChartLegendPlacement(myrtle.VerticalBarChartLegendBottom),
+			myrtle.VerticalBarChartInsetMode(myrtle.InsetModeNone),
+		)
 	case "sparkline":
 		builder.AddHeading("Signups", myrtle.HeadingLevel(3))
 		builder.AddSparkline("Weekly trend", "Signups", "1,204", []int{8, 12, 9, 14, 18, 16, 20}, myrtle.SparklineDelta("+8%"), myrtle.SparklineDeltaSemantic(myrtle.StatDeltaSemanticPositive))
+		builder.AddHeading("Inset mode: none", myrtle.HeadingLevel(3))
+		builder.AddSparkline("Weekly trend", "Signups", "1,204", []int{8, 12, 9, 14, 18, 16, 20}, myrtle.SparklineDelta("+8%"), myrtle.SparklineDeltaSemantic(myrtle.StatDeltaSemanticPositive), myrtle.SparklineInsetMode(myrtle.InsetModeNone))
 		builder.AddHeading("Revenue", myrtle.HeadingLevel(3))
 		builder.AddSparkline("Weekly trend", "Revenue", "$18.2k", []int{15, 14, 17, 16, 19, 21, 20})
 		builder.AddHeading("Incidents", myrtle.HeadingLevel(3))
 		builder.AddSparkline("Weekly trend", "Incidents", "12", []int{20, 18, 16, 15, 13, 12, 10}, myrtle.SparklineDelta("-2"), myrtle.SparklineDeltaSemantic(myrtle.StatDeltaSemanticNegative))
 		builder.AddHeading("Tone: info", myrtle.HeadingLevel(3))
-		builder.AddSparkline("Weekly trend", "Queue depth", "312", []int{10, 11, 13, 12, 14, 16, 15}, myrtle.SparklineTone(myrtle.ChartToneInfo))
+		builder.AddSparkline("Weekly trend", "Queue depth", "312", []int{10, 11, 13, 12, 14, 16, 15}, myrtle.SparklineTone(myrtle.ToneInfo))
 		builder.AddHeading("Tone: danger", myrtle.HeadingLevel(3))
-		builder.AddSparkline("Weekly trend", "Error rate", "2.1%", []int{8, 9, 10, 12, 15, 17, 16}, myrtle.SparklineTone(myrtle.ChartToneDanger))
+		builder.AddSparkline("Weekly trend", "Error rate", "2.1%", []int{8, 9, 10, 12, 15, 17, 16}, myrtle.SparklineTone(myrtle.ToneDanger))
+		builder.AddHeading("Tone: dark", myrtle.HeadingLevel(3))
+		builder.AddSparkline("Weekly trend", "Downtime budget", "98.7%", []int{19, 18, 20, 19, 21, 22, 21}, myrtle.SparklineTone(myrtle.ToneDark))
 	case "stacked-bar":
 		builder.AddStackedBar("Channel mix", []myrtle.StackedBarRow{
 			{Label: "Acquisition", Segments: []myrtle.StackedBarSegment{{Label: "Email", Percent: 58, Value: "58%"}, {Label: "SMS", Percent: 24, Value: "24%"}, {Label: "Push", Percent: 18, Value: "18%"}}},
 			{Label: "Activation", Segments: []myrtle.StackedBarSegment{{Label: "Email", Percent: 42, Value: "42%"}, {Label: "SMS", Percent: 33, Value: "33%"}, {Label: "Push", Percent: 25, Value: "25%"}}},
 		}, myrtle.StackedBarTotal("Total", "120k"))
-		builder.AddHeading("Tone: info", myrtle.HeadingLevel(3))
+		builder.AddHeading("Inset mode: none", myrtle.HeadingLevel(3))
 		builder.AddStackedBar("Channel mix", []myrtle.StackedBarRow{
 			{Label: "Acquisition", Segments: []myrtle.StackedBarSegment{{Label: "Email", Percent: 58, Value: "58%"}, {Label: "SMS", Percent: 24, Value: "24%"}, {Label: "Push", Percent: 18, Value: "18%"}}},
 			{Label: "Activation", Segments: []myrtle.StackedBarSegment{{Label: "Email", Percent: 42, Value: "42%"}, {Label: "SMS", Percent: 33, Value: "33%"}, {Label: "Push", Percent: 25, Value: "25%"}}},
-		}, myrtle.StackedBarTotal("Total", "120k"), myrtle.StackedBarTone(myrtle.ChartToneInfo))
-		builder.AddHeading("Tone: muted", myrtle.HeadingLevel(3))
-		builder.AddStackedBar("Channel mix", []myrtle.StackedBarRow{
-			{Label: "Acquisition", Segments: []myrtle.StackedBarSegment{{Label: "Email", Percent: 58, Value: "58%"}, {Label: "SMS", Percent: 24, Value: "24%"}, {Label: "Push", Percent: 18, Value: "18%"}}},
-			{Label: "Activation", Segments: []myrtle.StackedBarSegment{{Label: "Email", Percent: 42, Value: "42%"}, {Label: "SMS", Percent: 33, Value: "33%"}, {Label: "Push", Percent: 25, Value: "25%"}}},
-		}, myrtle.StackedBarTotal("Total", "120k"), myrtle.StackedBarTone(myrtle.ChartToneMuted))
+		}, myrtle.StackedBarTotal("Total", "120k"), myrtle.StackedBarInsetMode(myrtle.InsetModeNone))
 	case "progress":
 		builder.AddProgress("Rollout progress", []myrtle.ProgressItem{{Label: "Schema migration", Percent: 100}, {Label: "API deploy", Percent: 76}, {Label: "Client rollout", Percent: 48}})
+		builder.AddHeading("Inset mode: none", myrtle.HeadingLevel(3))
+		builder.AddProgress("Rollout progress", []myrtle.ProgressItem{{Label: "Schema migration", Percent: 100}, {Label: "API deploy", Percent: 76}, {Label: "Client rollout", Percent: 48}}, myrtle.ProgressInsetMode(myrtle.InsetModeNone))
 	case "distribution":
 		builder.AddDistribution("Latency distribution (ms)", []myrtle.DistributionBucket{{Label: "0-50", Count: 62}, {Label: "51-100", Count: 44}, {Label: "101-200", Count: 21}, {Label: "200+", Count: 8}})
+		builder.AddHeading("Inset mode: none", myrtle.HeadingLevel(3))
+		builder.AddDistribution("Latency distribution (ms)", []myrtle.DistributionBucket{{Label: "0-50", Count: 62}, {Label: "51-100", Count: 44}, {Label: "101-200", Count: 21}, {Label: "200+", Count: 8}}, myrtle.DistributionInsetMode(myrtle.InsetModeNone))
 	case "timeline":
 		builder.AddTimeline("Incident timeline", []myrtle.TimelineItem{
 			{Time: "09:07", Title: "Detected", Detail: "Elevated webhook latency"},
 			{Time: "09:18", Title: "Mitigation", Detail: "Queue workers scaled to 2x"},
 			{Time: "09:42", Title: "Resolved", Detail: "Latency returned to baseline"},
 		}, myrtle.TimelineAggregateHeader("3 events · currently mitigating"), myrtle.TimelineCurrentIndex(1))
+		builder.AddHeading("Inset mode: none", myrtle.HeadingLevel(3))
+		builder.AddTimeline("Incident timeline", []myrtle.TimelineItem{
+			{Time: "09:07", Title: "Detected", Detail: "Elevated webhook latency"},
+			{Time: "09:18", Title: "Mitigation", Detail: "Queue workers scaled to 2x"},
+			{Time: "09:42", Title: "Resolved", Detail: "Latency returned to baseline"},
+		}, myrtle.TimelineAggregateHeader("3 events · currently mitigating"), myrtle.TimelineCurrentIndex(1), myrtle.TimelineInsetMode(myrtle.InsetModeNone))
 	case "stats-row":
 		builder.AddStatsRow("Weekly KPIs", []myrtle.StatItem{
 			{Label: "Delivery", Value: "99.8%", Delta: "+0.3%", DeltaSemantic: myrtle.StatDeltaSemanticPositive},
@@ -343,15 +372,21 @@ func buildBlockEmail(name string, selectedTheme theme.Theme) (*myrtle.Email, err
 		})
 	case "badge":
 		builder.AddHeading("Info", myrtle.HeadingLevel(3))
-		builder.AddBadge(myrtle.BadgeToneInfo, "Informational")
+		builder.AddBadge(myrtle.ToneInfo, "Informational")
 		builder.AddHeading("Success", myrtle.HeadingLevel(3))
-		builder.AddBadge(myrtle.BadgeToneSuccess, "Operational")
+		builder.AddBadge(myrtle.ToneSuccess, "Operational")
 		builder.AddHeading("Warning", myrtle.HeadingLevel(3))
-		builder.AddBadge(myrtle.BadgeToneWarning, "Needs review")
+		builder.AddBadge(myrtle.ToneWarning, "Needs review")
 		builder.AddHeading("Error", myrtle.HeadingLevel(3))
-		builder.AddBadge(myrtle.BadgeToneError, "Action required")
+		builder.AddBadge(myrtle.ToneDanger, "Action required")
+		builder.AddHeading("Dark", myrtle.HeadingLevel(3))
+		builder.AddBadge(myrtle.ToneDark, "High contrast")
 	case "summary-card":
 		builder.AddSummaryCard("Deployment complete", "The rollout to production finished successfully with no customer-facing impact.", "Updated 5 minutes ago")
+		builder.AddHeading("Tone: primary", myrtle.HeadingLevel(3))
+		builder.AddSummaryCard("Deployment complete", "The rollout to production finished successfully with no customer-facing impact.", "Updated 5 minutes ago", myrtle.SummaryCardTone(myrtle.TonePrimary))
+		builder.AddHeading("Tone: dark", myrtle.HeadingLevel(3))
+		builder.AddSummaryCard("Deployment complete", "The rollout to production finished successfully with no customer-facing impact.", "Updated 5 minutes ago", myrtle.SummaryCardTone(myrtle.ToneDark))
 	case "attachment":
 		builder.AddAttachment("invoice-Feb-2026.pdf", "PDF · 284 KB", "https://example.com/invoices/feb-2026.pdf", "Download")
 	case "hero":
@@ -363,6 +398,14 @@ func buildBlockEmail(name string, selectedTheme theme.Theme) (*myrtle.Email, err
 			CTALabel: "Read docs",
 			CTAURL:   "https://github.com/gzuidhof/myrtle",
 		})
+		builder.AddHeading("Inset mode: none", myrtle.HeadingLevel(3))
+		builder.AddHero(
+			"Faster sends with Myrtle",
+			"Compose transactional emails with reusable blocks and themeable output.",
+			"Read docs",
+			"https://github.com/gzuidhof/myrtle",
+			myrtle.HeroInsetMode(myrtle.InsetModeNone),
+		)
 		builder.AddHeading("With image", myrtle.HeadingLevel(3))
 		builder.Add(myrtle.HeroBlock{
 			Eyebrow:  "New",
@@ -370,9 +413,57 @@ func buildBlockEmail(name string, selectedTheme theme.Theme) (*myrtle.Email, err
 			Body:     "Compose transactional emails with reusable blocks and themeable output.",
 			CTALabel: "Read docs",
 			CTAURL:   "https://github.com/gzuidhof/myrtle",
-			ImageURL: "/assets/hero.svg",
+			ImageURL: "/assets/hero.png",
 			ImageAlt: "Hero image",
 		})
+		builder.AddHeading("Tone: primary", myrtle.HeadingLevel(3))
+		builder.AddHero(
+			"Faster sends with Myrtle",
+			"Compose transactional emails with reusable blocks and themeable output.",
+			"Read docs",
+			"https://github.com/gzuidhof/myrtle",
+			myrtle.HeroTone(myrtle.TonePrimary),
+		)
+		builder.AddHeading("Tone: info", myrtle.HeadingLevel(3))
+		builder.AddHero(
+			"Faster sends with Myrtle",
+			"Compose transactional emails with reusable blocks and themeable output.",
+			"Read docs",
+			"https://github.com/gzuidhof/myrtle",
+			myrtle.HeroTone(myrtle.ToneInfo),
+		)
+		builder.AddHeading("Tone: success", myrtle.HeadingLevel(3))
+		builder.AddHero(
+			"Faster sends with Myrtle",
+			"Compose transactional emails with reusable blocks and themeable output.",
+			"Read docs",
+			"https://github.com/gzuidhof/myrtle",
+			myrtle.HeroTone(myrtle.ToneSuccess),
+		)
+		builder.AddHeading("Tone: warning", myrtle.HeadingLevel(3))
+		builder.AddHero(
+			"Faster sends with Myrtle",
+			"Compose transactional emails with reusable blocks and themeable output.",
+			"Read docs",
+			"https://github.com/gzuidhof/myrtle",
+			myrtle.HeroTone(myrtle.ToneWarning),
+		)
+		builder.AddHeading("Tone: danger", myrtle.HeadingLevel(3))
+		builder.AddHero(
+			"Faster sends with Myrtle",
+			"Compose transactional emails with reusable blocks and themeable output.",
+			"Read docs",
+			"https://github.com/gzuidhof/myrtle",
+			myrtle.HeroTone(myrtle.ToneDanger),
+		)
+		builder.AddHeading("Tone: dark", myrtle.HeadingLevel(3))
+		builder.AddHero(
+			"Faster sends with Myrtle",
+			"Compose transactional emails with reusable blocks and themeable output.",
+			"Read docs",
+			"https://github.com/gzuidhof/myrtle",
+			myrtle.HeroTone(myrtle.ToneDark),
+		)
 		builder.AddHeading("Minimal", myrtle.HeadingLevel(3))
 		builder.Add(myrtle.HeroBlock{
 			Title: "A compact hero",
@@ -396,6 +487,12 @@ func buildBlockEmail(name string, selectedTheme theme.Theme) (*myrtle.Email, err
 			{Label: "Tax", Value: "$7.12"},
 			{Label: "Discount", Value: "-$5.00"},
 		}, "Total", "$91.12")
+		builder.AddHeading("Inset mode: none", myrtle.HeadingLevel(3))
+		builder.AddPriceSummary("Order summary", []myrtle.PriceLine{
+			{Label: "Subtotal", Value: "$89.00"},
+			{Label: "Tax", Value: "$7.12"},
+			{Label: "Discount", Value: "-$5.00"},
+		}, "Total", "$91.12", myrtle.PriceSummaryInsetMode(myrtle.InsetModeNone))
 		builder.AddHeading("Minimal", myrtle.HeadingLevel(3))
 		builder.AddPriceSummary("Order summary", []myrtle.PriceLine{{Label: "Subtotal", Value: "$89.00"}}, "", "")
 		builder.AddHeading("With discount", myrtle.HeadingLevel(3))
@@ -403,6 +500,12 @@ func buildBlockEmail(name string, selectedTheme theme.Theme) (*myrtle.Email, err
 	case "empty-state":
 		builder.AddHeading("Default", myrtle.HeadingLevel(3))
 		builder.AddEmptyState("No incidents", "Everything looks healthy right now.", "", "")
+		builder.AddHeading("Tone: primary", myrtle.HeadingLevel(3))
+		builder.AddEmptyState("No incidents", "Everything looks healthy right now.", "View dashboard", "https://example.com/dashboard", myrtle.EmptyStateTone(myrtle.TonePrimary))
+		builder.AddHeading("Tone: dark", myrtle.HeadingLevel(3))
+		builder.AddEmptyState("No incidents", "Everything looks healthy right now.", "View dashboard", "https://example.com/dashboard", myrtle.EmptyStateTone(myrtle.ToneDark))
+		builder.AddHeading("Inset mode: none", myrtle.HeadingLevel(3))
+		builder.AddEmptyState("No incidents", "Everything looks healthy right now.", "", "", myrtle.EmptyStateInsetMode(myrtle.InsetModeNone))
 		builder.AddHeading("With action", myrtle.HeadingLevel(3))
 		builder.AddEmptyState("No incidents", "Everything looks healthy right now.", "View dashboard", "https://example.com/dashboard")
 		builder.AddHeading("Long copy", myrtle.HeadingLevel(3))
@@ -411,17 +514,21 @@ func buildBlockEmail(name string, selectedTheme theme.Theme) (*myrtle.Email, err
 		builder.AddQuote("Myrtle made our transactional emails easy to maintain.", "Engineering Team")
 	case "callout":
 		builder.AddHeading("Info · soft", myrtle.HeadingLevel(3))
-		builder.AddCallout(myrtle.CalloutTypeInfo, "FYI", "Routine update with no action required.", myrtle.CalloutStyle(myrtle.CalloutVariantSoft))
+		builder.AddCallout(myrtle.ToneInfo, "FYI", "Routine update with no action required.", myrtle.CalloutStyle(myrtle.CalloutVariantSoft))
+		builder.AddHeading("Info · soft · inset none", myrtle.HeadingLevel(3))
+		builder.AddCallout(myrtle.ToneInfo, "FYI", "Routine update with no action required.", myrtle.CalloutStyle(myrtle.CalloutVariantSoft), myrtle.CalloutInsetMode(myrtle.InsetModeNone))
 		builder.AddHeading("Info · with link", myrtle.HeadingLevel(3))
-		builder.AddCallout(myrtle.CalloutTypeInfo, "FYI", "Routine update with no action required.", myrtle.CalloutStyle(myrtle.CalloutVariantSoft), myrtle.CalloutLink("View details", "https://example.com/details"))
+		builder.AddCallout(myrtle.ToneInfo, "FYI", "Routine update with no action required.", myrtle.CalloutStyle(myrtle.CalloutVariantSoft), myrtle.CalloutLink("View details", "https://example.com/details"))
 		builder.AddHeading("Success · soft", myrtle.HeadingLevel(3))
-		builder.AddCallout(myrtle.CalloutTypeSuccess, "Done", "Deployment completed successfully.", myrtle.CalloutStyle(myrtle.CalloutVariantSoft))
+		builder.AddCallout(myrtle.ToneSuccess, "Done", "Deployment completed successfully.", myrtle.CalloutStyle(myrtle.CalloutVariantSoft))
 		builder.AddHeading("Warning · outline", myrtle.HeadingLevel(3))
-		builder.AddCallout(myrtle.CalloutTypeWarning, "Action needed", "Please verify your billing details before March 1.", myrtle.CalloutStyle(myrtle.CalloutVariantOutline))
+		builder.AddCallout(myrtle.ToneWarning, "Action needed", "Please verify your billing details before March 1.", myrtle.CalloutStyle(myrtle.CalloutVariantOutline))
 		builder.AddHeading("Critical · solid", myrtle.HeadingLevel(3))
-		builder.AddCallout(myrtle.CalloutTypeCritical, "Action needed", "Please verify your billing details before March 1.", myrtle.CalloutStyle(myrtle.CalloutVariantSolid))
+		builder.AddCallout(myrtle.ToneDanger, "Action needed", "Please verify your billing details before March 1.", myrtle.CalloutStyle(myrtle.CalloutVariantSolid))
+		builder.AddHeading("Dark · solid", myrtle.HeadingLevel(3))
+		builder.AddCallout(myrtle.ToneDark, "Maintenance", "A scheduled maintenance window starts at 02:00 UTC.", myrtle.CalloutStyle(myrtle.CalloutVariantSolid))
 	case "legal":
-		builder.AddLegal("Myrtle Inc.", "123 Market St, SF, CA", "https://example.com/preferences", "https://example.com/unsubscribe")
+		builder.AddLegal("Myrtle Inc.", "Dam Square 1, 1012 JS Amsterdam, Netherlands", "https://example.com/preferences", "https://example.com/unsubscribe")
 	case "columns":
 		builder.AddHeading("Custom widths + gap + middle align", myrtle.HeadingLevel(3))
 		builder.AddColumns(
@@ -436,71 +543,108 @@ func buildBlockEmail(name string, selectedTheme theme.Theme) (*myrtle.Email, err
 			myrtle.ColumnsGap(24),
 			myrtle.ColumnsAlign(myrtle.ColumnsVerticalAlignMiddle),
 		)
+		builder.AddHeading("Inset mode: none", myrtle.HeadingLevel(3))
+		builder.AddColumns(
+			myrtle.NewGroup().
+				AddHeading("Start column", myrtle.HeadingLevel(3)).
+				AddText("Summary and quick context.").
+				AddText("Additional details to make this column taller."),
+			myrtle.NewGroup().
+				AddHeading("End column", myrtle.HeadingLevel(3)).
+				AddList([]string{"Point one", "Point two"}, false),
+			myrtle.ColumnsWidths(60, 40),
+			myrtle.ColumnsGap(24),
+			myrtle.ColumnsAlign(myrtle.ColumnsVerticalAlignMiddle),
+			myrtle.ColumnsInsetMode(myrtle.InsetModeNone),
+		)
 	case "button":
 		builder.AddHeading("Primary", myrtle.HeadingLevel(3))
-		builder.AddButton("Open docs", "https://github.com/gzuidhof/myrtle", myrtle.ButtonTone(myrtle.ButtonTonePrimary))
+		builder.AddButton("Open docs", "https://github.com/gzuidhof/myrtle", myrtle.ButtonTone(myrtle.TonePrimary))
 		builder.AddHeading("Primary · centered", myrtle.HeadingLevel(3))
-		builder.AddButton("Open docs", "https://github.com/gzuidhof/myrtle", myrtle.ButtonTone(myrtle.ButtonTonePrimary), myrtle.ButtonAlign(myrtle.ButtonAlignmentCenter))
+		builder.AddButton("Open docs", "https://github.com/gzuidhof/myrtle", myrtle.ButtonTone(myrtle.TonePrimary), myrtle.ButtonAlign(myrtle.ButtonAlignmentCenter))
 		builder.AddHeading("Primary · end", myrtle.HeadingLevel(3))
-		builder.AddButton("Open docs", "https://github.com/gzuidhof/myrtle", myrtle.ButtonTone(myrtle.ButtonTonePrimary), myrtle.ButtonAlign(myrtle.ButtonAlignmentEnd))
+		builder.AddButton("Open docs", "https://github.com/gzuidhof/myrtle", myrtle.ButtonTone(myrtle.TonePrimary), myrtle.ButtonAlign(myrtle.ButtonAlignmentEnd))
 		builder.AddHeading("Secondary", myrtle.HeadingLevel(3))
-		builder.AddButton("Open docs", "https://github.com/gzuidhof/myrtle", myrtle.ButtonTone(myrtle.ButtonToneSecondary))
+		builder.AddButton("Open docs", "https://github.com/gzuidhof/myrtle", myrtle.ButtonTone(myrtle.ToneSecondary))
 		builder.AddHeading("Danger", myrtle.HeadingLevel(3))
-		builder.AddButton("Delete workspace", "https://github.com/gzuidhof/myrtle", myrtle.ButtonTone(myrtle.ButtonToneDanger))
+		builder.AddButton("Delete workspace", "https://github.com/gzuidhof/myrtle", myrtle.ButtonTone(myrtle.ToneDanger))
+		builder.AddHeading("Dark", myrtle.HeadingLevel(3))
+		builder.AddButton("Open docs", "https://github.com/gzuidhof/myrtle", myrtle.ButtonTone(myrtle.ToneDark))
 		builder.AddHeading("Outline", myrtle.HeadingLevel(3))
 		builder.AddButton("Open docs", "https://github.com/gzuidhof/myrtle", myrtle.ButtonStyle(myrtle.ButtonStyleOutline))
 		builder.AddHeading("Ghost", myrtle.HeadingLevel(3))
 		builder.AddButton("Open docs", "https://github.com/gzuidhof/myrtle", myrtle.ButtonStyle(myrtle.ButtonStyleGhost))
 		builder.AddHeading("Danger · ghost", myrtle.HeadingLevel(3))
-		builder.AddButton("Delete workspace", "https://github.com/gzuidhof/myrtle", myrtle.ButtonTone(myrtle.ButtonToneDanger), myrtle.ButtonStyle(myrtle.ButtonStyleGhost))
+		builder.AddButton("Delete workspace", "https://github.com/gzuidhof/myrtle", myrtle.ButtonTone(myrtle.ToneDanger), myrtle.ButtonStyle(myrtle.ButtonStyleGhost))
 		builder.AddHeading("Primary · full width", myrtle.HeadingLevel(3))
-		builder.AddButton("Open docs", "https://github.com/gzuidhof/myrtle", myrtle.ButtonTone(myrtle.ButtonTonePrimary), myrtle.ButtonFullWidth(true))
+		builder.AddButton("Open docs", "https://github.com/gzuidhof/myrtle", myrtle.ButtonTone(myrtle.TonePrimary), myrtle.ButtonFullWidth(true))
 		builder.AddHeading("Secondary · full width", myrtle.HeadingLevel(3))
-		builder.AddButton("Open docs", "https://github.com/gzuidhof/myrtle", myrtle.ButtonTone(myrtle.ButtonToneSecondary), myrtle.ButtonFullWidth(true))
+		builder.AddButton("Open docs", "https://github.com/gzuidhof/myrtle", myrtle.ButtonTone(myrtle.ToneSecondary), myrtle.ButtonFullWidth(true))
 		builder.AddHeading("Outline · small · no-wrap", myrtle.HeadingLevel(3))
 		builder.AddButton("A longer CTA label", "https://github.com/gzuidhof/myrtle", myrtle.ButtonStyle(myrtle.ButtonStyleOutline), myrtle.ButtonSize(myrtle.ButtonSizeSmall), myrtle.ButtonNoWrap(true))
 	case "button-group":
 		builder.AddHeading("Centered", myrtle.HeadingLevel(3))
-		builder.AddButtonGroup([]myrtle.ButtonGroupButton{{Label: "Approve", URL: "https://example.com/approve", Tone: myrtle.ButtonTonePrimary}, {Label: "Review", URL: "https://example.com/review", Tone: myrtle.ButtonToneSecondary}, {Label: "Delete", URL: "https://example.com/delete", Tone: myrtle.ButtonToneDanger}}, myrtle.ButtonGroupAlign(myrtle.ButtonAlignmentCenter))
+		builder.AddButtonGroup([]myrtle.ButtonGroupButton{{Label: "Approve", URL: "https://example.com/approve", Tone: myrtle.TonePrimary}, {Label: "Review", URL: "https://example.com/review", Tone: myrtle.ToneSecondary}, {Label: "Delete", URL: "https://example.com/delete", Tone: myrtle.ToneDanger}}, myrtle.ButtonGroupAlign(myrtle.ButtonAlignmentCenter))
 		builder.AddHeading("Centered · joined", myrtle.HeadingLevel(3))
-		builder.AddButtonGroup([]myrtle.ButtonGroupButton{{Label: "Approve", URL: "https://example.com/approve", Tone: myrtle.ButtonTonePrimary}, {Label: "Review", URL: "https://example.com/review", Tone: myrtle.ButtonToneSecondary}, {Label: "Delete", URL: "https://example.com/delete", Tone: myrtle.ButtonToneDanger}}, myrtle.ButtonGroupAlign(myrtle.ButtonAlignmentCenter), myrtle.ButtonGroupJoined(true))
+		builder.AddButtonGroup([]myrtle.ButtonGroupButton{{Label: "Approve", URL: "https://example.com/approve", Tone: myrtle.TonePrimary}, {Label: "Review", URL: "https://example.com/review", Tone: myrtle.ToneSecondary}, {Label: "Delete", URL: "https://example.com/delete", Tone: myrtle.ToneDanger}}, myrtle.ButtonGroupAlign(myrtle.ButtonAlignmentCenter), myrtle.ButtonGroupJoined(true))
 		builder.AddHeading("End", myrtle.HeadingLevel(3))
-		builder.AddButtonGroup([]myrtle.ButtonGroupButton{{Label: "Retry", URL: "https://example.com/retry", Tone: myrtle.ButtonTonePrimary}, {Label: "Details", URL: "https://example.com/details", Tone: myrtle.ButtonToneSecondary}, {Label: "Delete", URL: "https://example.com/delete", Tone: myrtle.ButtonToneDanger}}, myrtle.ButtonGroupAlign(myrtle.ButtonAlignmentEnd))
+		builder.AddButtonGroup([]myrtle.ButtonGroupButton{{Label: "Retry", URL: "https://example.com/retry", Tone: myrtle.TonePrimary}, {Label: "Details", URL: "https://example.com/details", Tone: myrtle.ToneSecondary}, {Label: "Delete", URL: "https://example.com/delete", Tone: myrtle.ToneDanger}}, myrtle.ButtonGroupAlign(myrtle.ButtonAlignmentEnd))
 		builder.AddHeading("Full width on mobile", myrtle.HeadingLevel(3))
-		builder.AddButtonGroup([]myrtle.ButtonGroupButton{{Label: "Approve", URL: "https://example.com/approve", Tone: myrtle.ButtonTonePrimary}, {Label: "Review", URL: "https://example.com/review", Tone: myrtle.ButtonToneSecondary}}, myrtle.ButtonGroupFullWidthOnMobile(true))
+		builder.AddButtonGroup([]myrtle.ButtonGroupButton{{Label: "Approve", URL: "https://example.com/approve", Tone: myrtle.TonePrimary}, {Label: "Review", URL: "https://example.com/review", Tone: myrtle.ToneSecondary}}, myrtle.ButtonGroupFullWidthOnMobile(true))
 		builder.AddHeading("Stack on mobile · custom gap", myrtle.HeadingLevel(3))
-		builder.AddButtonGroup([]myrtle.ButtonGroupButton{{Label: "Approve", URL: "https://example.com/approve", Tone: myrtle.ButtonTonePrimary}, {Label: "Review", URL: "https://example.com/review", Style: myrtle.ButtonStyleOutline}, {Label: "Delete", URL: "https://example.com/delete", Tone: myrtle.ButtonToneDanger, Style: myrtle.ButtonStyleGhost}}, myrtle.ButtonGroupGap(14), myrtle.ButtonGroupStackOnMobile(true))
+		builder.AddButtonGroup([]myrtle.ButtonGroupButton{{Label: "Approve", URL: "https://example.com/approve", Tone: myrtle.TonePrimary}, {Label: "Review", URL: "https://example.com/review", Style: myrtle.ButtonStyleOutline}, {Label: "Delete", URL: "https://example.com/delete", Tone: myrtle.ToneDanger, Style: myrtle.ButtonStyleGhost}}, myrtle.ButtonGroupGap(14), myrtle.ButtonGroupStackOnMobile(true))
 	case "divider":
 		builder.AddHeading("Default", myrtle.HeadingLevel(3))
 		builder.AddDivider()
+		builder.AddHeading("Inset mode: none (full width)", myrtle.HeadingLevel(3))
+		builder.AddDivider(myrtle.DividerInsetMode(myrtle.InsetModeNone))
 		builder.AddHeading("Dashed", myrtle.HeadingLevel(3))
-		builder.AddDividerStyled(myrtle.DividerStyle(myrtle.DividerVariantDashed), myrtle.DividerThickness(2))
+		builder.AddDivider(myrtle.DividerStyle(myrtle.DividerVariantDashed), myrtle.DividerThickness(2))
 		builder.AddHeading("Dotted + inset", myrtle.HeadingLevel(3))
-		builder.AddDividerStyled(myrtle.DividerStyle(myrtle.DividerVariantDotted), myrtle.DividerThickness(2), myrtle.DividerInset(32))
+		builder.AddDivider(myrtle.DividerStyle(myrtle.DividerVariantDotted), myrtle.DividerThickness(2), myrtle.DividerInset(32))
 		builder.AddHeading("With label", myrtle.HeadingLevel(3))
-		builder.AddDividerStyled(myrtle.DividerLabel("OR"))
+		builder.AddDivider(myrtle.DividerLabel("OR"))
 		builder.AddHeading("Dashed + label", myrtle.HeadingLevel(3))
-		builder.AddDividerStyled(myrtle.DividerStyle(myrtle.DividerVariantDashed), myrtle.DividerThickness(2), myrtle.DividerLabel("AND"), myrtle.DividerInset(16))
+		builder.AddDivider(myrtle.DividerStyle(myrtle.DividerVariantDashed), myrtle.DividerThickness(2), myrtle.DividerLabel("AND"), myrtle.DividerInset(16))
 	case "image":
 		builder.AddHeading("Default", myrtle.HeadingLevel(3))
 		builder.AddImage("/assets/myrtle-placeholder.png", "Myrtle placeholder")
+		builder.AddHeading("Inset mode: none (full width)", myrtle.HeadingLevel(3))
+		builder.AddImage("/assets/myrtle-placeholder.png", "Myrtle placeholder", myrtle.ImageInsetMode(myrtle.InsetModeNone), myrtle.ImageFullWidth())
 		builder.AddHeading("Full width", myrtle.HeadingLevel(3))
 		builder.AddImage("/assets/myrtle-placeholder.png", "Myrtle placeholder", myrtle.ImageFullWidth())
 		builder.AddHeading("Centered, 320px wide", myrtle.HeadingLevel(3))
 		builder.AddImage("/assets/myrtle-placeholder.png", "Myrtle placeholder", myrtle.ImageWidth(320), myrtle.ImageAlign(myrtle.ImageAlignmentCenter))
 	case "table":
 		builder.AddHeading("Default", myrtle.HeadingLevel(3))
-		builder.AddTable("Quarterly numbers", []string{"Metric", "Q1", "Q2"}, [][]string{{"Active Users", "8922", "10452"}, {"Conversion", "4.1%", "4.6%"}, {"Churn", "2.8%", "2.3%"}})
+		builder.AddTable([]string{"Metric", "Q1", "Q2"}, [][]string{{"Active Users", "8922", "10452"}, {"Conversion", "4.1%", "4.6%"}, {"Churn", "2.8%", "2.3%"}}, myrtle.TableTitle("Quarterly numbers"))
+		builder.AddHeading("Inset mode: none", myrtle.HeadingLevel(3))
+		builder.AddTable([]string{"Metric", "Q1", "Q2"}, [][]string{{"Active Users", "8922", "10452"}, {"Conversion", "4.1%", "4.6%"}, {"Churn", "2.8%", "2.3%"}}, myrtle.TableTitle("Quarterly numbers"), myrtle.TableInsetMode(myrtle.InsetModeNone))
 		builder.AddHeading("Compact only", myrtle.HeadingLevel(3))
-		builder.AddTable("Quarterly numbers", []string{"Metric", "Q1", "Q2"}, [][]string{{"Active Users", "8922", "10452"}, {"Conversion", "4.1%", "4.6%"}, {"Churn", "2.8%", "2.3%"}}, myrtle.TableCompact(true))
+		builder.AddTable([]string{"Metric", "Q1", "Q2"}, [][]string{{"Active Users", "8922", "10452"}, {"Conversion", "4.1%", "4.6%"}, {"Churn", "2.8%", "2.3%"}}, myrtle.TableCompact(true))
 		builder.AddHeading("Compact · zebra · end-aligned numeric", myrtle.HeadingLevel(3))
-		builder.AddTable("Quarterly numbers", []string{"Metric", "Q1", "Q2"}, [][]string{{"Active Users", "8922", "10452"}, {"Conversion", "4.1%", "4.6%"}, {"Churn", "2.8%", "2.3%"}}, myrtle.TableZebraRows(true), myrtle.TableCompact(true), myrtle.TableRightAlignNumericColumns(true))
+		builder.AddTable([]string{"Metric", "Q1", "Q2"}, [][]string{{"Active Users", "8922", "10452"}, {"Conversion", "4.1%", "4.6%"}, {"Churn", "2.8%", "2.3%"}}, myrtle.TableZebraRows(true), myrtle.TableCompact(true), myrtle.TableRightAlignNumericColumns(true))
 		builder.AddHeading("Relaxed + muted header", myrtle.HeadingLevel(3))
-		builder.AddTable("Quarterly numbers", []string{"Metric", "Q1", "Q2"}, [][]string{{"Active Users", "8922", "10452"}, {"Conversion", "4.1%", "4.6%"}, {"Churn", "2.8%", "2.3%"}}, myrtle.TableDensity(myrtle.TableDensityRelaxed), myrtle.TableHeaderTone(myrtle.TableHeaderToneMuted))
+		builder.AddTable([]string{"Metric", "Q1", "Q2"}, [][]string{{"Active Users", "8922", "10452"}, {"Conversion", "4.1%", "4.6%"}, {"Churn", "2.8%", "2.3%"}}, myrtle.TableDensity(myrtle.TableDensityRelaxed), myrtle.TableHeaderTone(myrtle.TableHeaderToneMuted))
 		builder.AddHeading("Plain header + dashed borders", myrtle.HeadingLevel(3))
-		builder.AddTable("Quarterly numbers", []string{"Metric", "Q1", "Q2"}, [][]string{{"Active Users", "8922", "10452"}, {"Conversion", "4.1%", "4.6%"}, {"Churn", "2.8%", "2.3%"}}, myrtle.TableHeaderTone(myrtle.TableHeaderTonePlain), myrtle.TableBorderStyle(myrtle.TableBorderStyleDashed))
+		builder.AddTable([]string{"Metric", "Q1", "Q2"}, [][]string{{"Active Users", "8922", "10452"}, {"Conversion", "4.1%", "4.6%"}, {"Churn", "2.8%", "2.3%"}}, myrtle.TableHeaderTone(myrtle.TableHeaderTonePlain), myrtle.TableBorderStyle(myrtle.TableBorderStyleDashed))
+		builder.AddHeading("Legend swatches", myrtle.HeadingLevel(3))
+		builder.AddTable(
+			[]string{"Series", "Value"},
+			[][]string{{"Email", "68%"}, {"SMS", "21%"}, {"Push", "11%"}, {"In-app", "6%"}},
+			myrtle.TableTitle("Channel mix"),
+			myrtle.TableLegendSwatches([]string{"#2563eb", "#7c3aed", "#0ea5e9"}),
+		)
 	case "verification_code":
 		builder.Add(myrtle.VerificationCodeBlock{Label: "Verification code", Value: "493817"})
+		builder.AddHeading("Tone: info", myrtle.HeadingLevel(3))
+		builder.AddVerificationCode("Verification code", "493817", myrtle.VerificationCodeTone(myrtle.ToneInfo))
+		builder.AddHeading("Monospace: off", myrtle.HeadingLevel(3))
+		builder.AddVerificationCode("Verification code", "493817", myrtle.VerificationCodeMonospace(false))
+		builder.AddHeading("Spacing: compact", myrtle.HeadingLevel(3))
+		builder.AddVerificationCode("Verification code", "493817", myrtle.VerificationCodeSpacing(0.08))
+		builder.AddHeading("Inset mode: none", myrtle.HeadingLevel(3))
+		builder.AddVerificationCode("Verification code", "493817", myrtle.VerificationCodeInsetMode(myrtle.InsetModeNone))
 	case "message":
 		builder.AddMessage(myrtle.MessageBlock{
 			SenderName:   "Alex Johnson",
@@ -516,6 +660,21 @@ func buildBlockEmail(name string, selectedTheme theme.Theme) (*myrtle.Email, err
 			ActionLabel:  "Open thread",
 			ActionURL:    "https://example.com/messages/42",
 		})
+		builder.AddHeading("Inset mode: none", myrtle.HeadingLevel(3))
+		builder.AddMessage(myrtle.MessageBlock{
+			SenderName:   "Alex Johnson",
+			SenderHandle: "@alex",
+			AvatarURL:    "/assets/avatar1.png",
+			LogoAlt:      "Alex Johnson avatar",
+			LogoHref:     "https://example.com/messages/42",
+			Subject:      "New private message",
+			Preview:      "Can you review the release notes before 3 PM?",
+			SentAt:       "2m ago",
+			Platform:     "Myrtle Chat",
+			URL:          "https://example.com/messages/42",
+			ActionLabel:  "Open thread",
+			ActionURL:    "https://example.com/messages/42",
+		}, myrtle.MessageInsetMode(myrtle.InsetModeNone))
 	case "message-digest":
 		builder.AddMessageDigest([]myrtle.MessageBlock{
 			{SenderName: "Maya", SenderHandle: "@maya", AvatarURL: "/assets/avatar2.png", LogoAlt: "Maya avatar", LogoHref: "https://example.com/messages/43", Subject: "**Launch update**", Preview: "Can you check [the draft](https://example.com/draft)?", SentAt: "5m ago", Platform: "Myrtle Chat", URL: "https://example.com/messages/43"},
@@ -526,6 +685,18 @@ func buildBlockEmail(name string, selectedTheme theme.Theme) (*myrtle.Email, err
 			myrtle.MessageDigestTitle("Inbox"),
 			myrtle.MessageDigestSubtitle("Recent direct messages from Myrtle Chat"),
 			myrtle.MessageDigestFooter("[Open inbox](https://example.com/messages)"),
+		)
+		builder.AddHeading("Inset mode: none", myrtle.HeadingLevel(3))
+		builder.AddMessageDigest([]myrtle.MessageBlock{
+			{SenderName: "Maya", SenderHandle: "@maya", AvatarURL: "/assets/avatar2.png", LogoAlt: "Maya avatar", LogoHref: "https://example.com/messages/43", Subject: "**Launch update**", Preview: "Can you check [the draft](https://example.com/draft)?", SentAt: "5m ago", Platform: "Myrtle Chat", URL: "https://example.com/messages/43"},
+			{SenderName: "Nina", SenderHandle: "@nina", AvatarURL: "/assets/avatar3.png", LogoAlt: "Nina avatar", LogoHref: "https://example.com/messages/46", Preview: "Quick ping: can we move this to tomorrow morning?", SentAt: "11m ago", Platform: "Myrtle Chat", URL: "https://example.com/messages/46"},
+			{SenderName: "Ben", SenderHandle: "@ben", AvatarURL: "/assets/avatar1.png", LogoAlt: "Ben avatar", LogoHref: "https://example.com/messages/44", Subject: "Design feedback", Preview: "Looks good overall.", SentAt: "20m ago", Platform: "Myrtle Chat", URL: "https://example.com/messages/44"},
+			{SenderName: "Ari", SenderHandle: "@ari", Subject: "Follow-up", Preview: "Can we sync tomorrow?", SentAt: "1h ago", Platform: "Myrtle Chat", URL: "https://example.com/messages/45"},
+		},
+			myrtle.MessageDigestTitle("Inbox"),
+			myrtle.MessageDigestSubtitle("Recent direct messages from Myrtle Chat"),
+			myrtle.MessageDigestFooter("[Open inbox](https://example.com/messages)"),
+			myrtle.MessageDigestInsetMode(myrtle.InsetModeNone),
 		)
 	case "tiles":
 		builder.AddHeading("Default (3 columns)", myrtle.HeadingLevel(3))
@@ -540,58 +711,115 @@ func buildBlockEmail(name string, selectedTheme theme.Theme) (*myrtle.Email, err
 		builder.AddTiles([]myrtle.TileEntry{{Content: "1", Title: "One"}, {Content: "2", Title: "Two"}, {Content: "3", Title: "Three", Variant: myrtle.TileVariantCritical}, {Content: "4", Title: "Four"}}, myrtle.TilesColumns(4), myrtle.TilesBorder(true))
 		builder.AddHeading("Wraps when items exceed columns", myrtle.HeadingLevel(3))
 		builder.AddTiles([]myrtle.TileEntry{{Content: "📥", Title: "Inbox"}, {Content: "📤", Title: "Outbox"}, {Content: "⚙️", Title: "Settings"}, {Content: "🔔", Title: "Alerts"}, {Content: "🧪", Title: "Experiments"}, {Content: "🗂️", Title: "Archive"}}, myrtle.TilesColumns(4), myrtle.TilesBorder(true))
-	case "section":
+		builder.AddHeading("Inset mode: none", myrtle.HeadingLevel(3))
+		builder.AddTiles([]myrtle.TileEntry{{Content: "🚀", Title: "Launch", Subtitle: "Ready", URL: "https://example.com/launch", Variant: myrtle.TileVariantHighlight}, {Content: "12", Title: "Queued", Subtitle: "Jobs", Variant: myrtle.TileVariantWarning}, {Content: "✅", Title: "Healthy", Subtitle: "All systems", Variant: myrtle.TileVariantSuccess}}, myrtle.TilesInsetMode(myrtle.InsetModeNone), myrtle.TilesBorder(true))
+	case "panel":
 		builder.AddHeading("Full header (category + title + subtitle)", myrtle.HeadingLevel(3))
-		builder.AddSection(
-			[]myrtle.Block{
-				myrtle.TextBlock{Text: "Section body content with grouped context."},
-				myrtle.ButtonBlock{Label: "Open section", URL: "https://example.com/section", Style: myrtle.ButtonStyleOutline},
-			},
-			myrtle.SectionCategory("Operational Summary"),
-			myrtle.SectionTitle("Section block"),
-			myrtle.SectionSubtitle("Optional subtitle for context"),
-			myrtle.SectionPadding(18),
-			myrtle.SectionBorder(true),
+		builder.AddPanel(
+			myrtle.NewGroup().
+				AddText("Panel body content with grouped context.").
+				AddButton("Open panel", "https://example.com/panel", myrtle.ButtonStyle(myrtle.ButtonStyleOutline)),
+			myrtle.PanelCategory("Operational Summary"),
+			myrtle.PanelTitle("Panel block"),
+			myrtle.PanelSubtitle("Optional subtitle for context"),
+			myrtle.PanelPadding(18),
+			myrtle.PanelBorder(true),
 		)
 		builder.AddHeading("No header fields", myrtle.HeadingLevel(3))
-		builder.AddSection(
-			[]myrtle.Block{
-				myrtle.TextBlock{Text: "This section has no category, title, or subtitle."},
-				myrtle.ButtonBlock{Label: "View details", URL: "https://example.com/section/no-header", Style: myrtle.ButtonStyleOutline},
-			},
-			myrtle.SectionPadding(18),
-			myrtle.SectionBorder(true),
+		builder.AddPanel(
+			myrtle.NewGroup().
+				AddText("This panel has no category, title, or subtitle.").
+				AddButton("View details", "https://example.com/panel/no-header", myrtle.ButtonStyle(myrtle.ButtonStyleOutline)),
+			myrtle.PanelPadding(18),
+			myrtle.PanelBorder(true),
 		)
 		builder.AddHeading("Title only", myrtle.HeadingLevel(3))
-		builder.AddSection(
-			[]myrtle.Block{
-				myrtle.TextBlock{Text: "This section has only a title."},
-			},
-			myrtle.SectionTitle("Title only"),
-			myrtle.SectionPadding(18),
-			myrtle.SectionBorder(true),
+		builder.AddPanel(
+			myrtle.TextBlock{Text: "This panel has only a title."},
+			myrtle.PanelTitle("Title only"),
+			myrtle.PanelPadding(18),
+			myrtle.PanelBorder(true),
 		)
 		builder.AddHeading("Category only", myrtle.HeadingLevel(3))
-		builder.AddSection(
-			[]myrtle.Block{
-				myrtle.TextBlock{Text: "This section has only a category value."},
-			},
-			myrtle.SectionCategory("Category only"),
-			myrtle.SectionPadding(18),
-			myrtle.SectionBorder(true),
+		builder.AddPanel(
+			myrtle.TextBlock{Text: "This panel has only a category value."},
+			myrtle.PanelCategory("Category only"),
+			myrtle.PanelPadding(18),
+			myrtle.PanelBorder(true),
+		)
+		builder.AddHeading("Inset mode examples (with header)", myrtle.HeadingLevel(3))
+		builder.AddHeading("Inset mode: default", myrtle.HeadingLevel(4))
+		builder.AddPanel(
+			myrtle.TextBlock{Text: "Panel rendered with the default inset."},
+			myrtle.PanelCategory("Operational Summary"),
+			myrtle.PanelTitle("Panel block"),
+			myrtle.PanelSubtitle("Header content is present in this inset example."),
+			myrtle.PanelPadding(18),
+			myrtle.PanelBorder(true),
+		)
+		builder.AddHeading("Inset mode: none", myrtle.HeadingLevel(4))
+		builder.AddPanel(
+			myrtle.TextBlock{Text: "Panel rendered with InsetModeNone."},
+			myrtle.PanelCategory("Operational Summary"),
+			myrtle.PanelTitle("Panel block"),
+			myrtle.PanelSubtitle("Header content is present in this inset example."),
+			myrtle.PanelPadding(18),
+			myrtle.PanelBorder(true),
+			myrtle.PanelInsetMode(myrtle.InsetModeNone),
 		)
 	case "grid":
 		builder.AddGrid(
 			[]myrtle.GridItem{
-				{Blocks: []myrtle.Block{myrtle.HeadingBlock{Text: "Item 1", Level: 4}, myrtle.TextBlock{Text: "Grid content one."}}},
-				{Blocks: []myrtle.Block{myrtle.HeadingBlock{Text: "Item 2", Level: 4}, myrtle.TextBlock{Text: "Grid content two."}}},
-				{Blocks: []myrtle.Block{myrtle.HeadingBlock{Text: "Item 3", Level: 4}, myrtle.TextBlock{Text: "Grid content three."}}},
-				{Blocks: []myrtle.Block{myrtle.HeadingBlock{Text: "Item 4", Level: 4}, myrtle.TextBlock{Text: "Grid content four."}}},
-				{Blocks: []myrtle.Block{myrtle.HeadingBlock{Text: "Item 5", Level: 4}, myrtle.TextBlock{Text: "Wraps to new row."}}},
+				myrtle.GridItemGroup(myrtle.NewGroup().Add(myrtle.HeadingBlock{Text: "Item 1", Level: 4}).Add(myrtle.TextBlock{Text: "Grid content one."})),
+				myrtle.GridItemGroup(myrtle.NewGroup().Add(myrtle.HeadingBlock{Text: "Item 2", Level: 4}).Add(myrtle.TextBlock{Text: "Grid content two."})),
+				myrtle.GridItemGroup(myrtle.NewGroup().Add(myrtle.HeadingBlock{Text: "Item 3", Level: 4}).Add(myrtle.TextBlock{Text: "Grid content three."})),
+				myrtle.GridItemGroup(myrtle.NewGroup().Add(myrtle.HeadingBlock{Text: "Item 4", Level: 4}).Add(myrtle.TextBlock{Text: "Grid content four."})),
+				myrtle.GridItemGroup(myrtle.NewGroup().Add(myrtle.HeadingBlock{Text: "Item 5", Level: 4}).Add(myrtle.TextBlock{Text: "Wraps to new row."})),
 			},
 			myrtle.GridColumns(3),
 			myrtle.GridGap(12),
 			myrtle.GridBorder(true),
+		)
+		builder.AddHeading("No spacing between cells", myrtle.HeadingLevel(3))
+		builder.AddGrid(
+			[]myrtle.GridItem{
+				myrtle.GridItemGroup(myrtle.NewGroup().Add(myrtle.HeadingBlock{Text: "Item 1", Level: 4}).Add(myrtle.TextBlock{Text: "Grid content one."})),
+				myrtle.GridItemGroup(myrtle.NewGroup().Add(myrtle.HeadingBlock{Text: "Item 2", Level: 4}).Add(myrtle.TextBlock{Text: "Grid content two."})),
+				myrtle.GridItemGroup(myrtle.NewGroup().Add(myrtle.HeadingBlock{Text: "Item 3", Level: 4}).Add(myrtle.TextBlock{Text: "Grid content three."})),
+				myrtle.GridItemGroup(myrtle.NewGroup().Add(myrtle.HeadingBlock{Text: "Item 4", Level: 4}).Add(myrtle.TextBlock{Text: "Grid content four."})),
+				myrtle.GridItemGroup(myrtle.NewGroup().Add(myrtle.HeadingBlock{Text: "Item 5", Level: 4}).Add(myrtle.TextBlock{Text: "Wraps to new row."})),
+			},
+			myrtle.GridColumns(3),
+			myrtle.GridGap(0),
+			myrtle.GridBorder(true),
+		)
+		builder.AddHeading("Inset mode: none", myrtle.HeadingLevel(3))
+		builder.AddGrid(
+			[]myrtle.GridItem{
+				myrtle.GridItemGroup(myrtle.NewGroup().Add(myrtle.HeadingBlock{Text: "Item 1", Level: 4}).Add(myrtle.TextBlock{Text: "Grid content one."})),
+				myrtle.GridItemGroup(myrtle.NewGroup().Add(myrtle.HeadingBlock{Text: "Item 2", Level: 4}).Add(myrtle.TextBlock{Text: "Grid content two."})),
+				myrtle.GridItemGroup(myrtle.NewGroup().Add(myrtle.HeadingBlock{Text: "Item 3", Level: 4}).Add(myrtle.TextBlock{Text: "Grid content three."})),
+				myrtle.GridItemGroup(myrtle.NewGroup().Add(myrtle.HeadingBlock{Text: "Item 4", Level: 4}).Add(myrtle.TextBlock{Text: "Grid content four."})),
+				myrtle.GridItemGroup(myrtle.NewGroup().Add(myrtle.HeadingBlock{Text: "Item 5", Level: 4}).Add(myrtle.TextBlock{Text: "Wraps to new row."})),
+			},
+			myrtle.GridColumns(3),
+			myrtle.GridGap(12),
+			myrtle.GridBorder(true),
+			myrtle.GridInsetMode(myrtle.InsetModeNone),
+		)
+		builder.AddHeading("No spacing + inset mode none", myrtle.HeadingLevel(3))
+		builder.AddGrid(
+			[]myrtle.GridItem{
+				myrtle.GridItemGroup(myrtle.NewGroup().Add(myrtle.HeadingBlock{Text: "Item 1", Level: 4}).Add(myrtle.TextBlock{Text: "Grid content one."})),
+				myrtle.GridItemGroup(myrtle.NewGroup().Add(myrtle.HeadingBlock{Text: "Item 2", Level: 4}).Add(myrtle.TextBlock{Text: "Grid content two."})),
+				myrtle.GridItemGroup(myrtle.NewGroup().Add(myrtle.HeadingBlock{Text: "Item 3", Level: 4}).Add(myrtle.TextBlock{Text: "Grid content three."})),
+				myrtle.GridItemGroup(myrtle.NewGroup().Add(myrtle.HeadingBlock{Text: "Item 4", Level: 4}).Add(myrtle.TextBlock{Text: "Grid content four."})),
+				myrtle.GridItemGroup(myrtle.NewGroup().Add(myrtle.HeadingBlock{Text: "Item 5", Level: 4}).Add(myrtle.TextBlock{Text: "Wraps to new row."})),
+			},
+			myrtle.GridColumns(3),
+			myrtle.GridGap(0),
+			myrtle.GridBorder(true),
+			myrtle.GridInsetMode(myrtle.InsetModeNone),
 		)
 	case "card-list":
 		builder.AddCardList(
@@ -604,6 +832,18 @@ func buildBlockEmail(name string, selectedTheme theme.Theme) (*myrtle.Email, err
 			myrtle.CardListGap(12),
 			myrtle.CardListBorder(true),
 		)
+		builder.AddHeading("Inset mode: none", myrtle.HeadingLevel(3))
+		builder.AddCardList(
+			[]myrtle.CardItem{
+				{Title: "Deploy complete", Subtitle: "Production", Body: "No customer impact detected.", URL: "https://example.com/deploy/1", CTALabel: "View"},
+				{Title: "Billing updated", Subtitle: "Finance", Body: "Invoice #8241 has been paid.", URL: "https://example.com/billing/8241", CTALabel: "Open"},
+				{Title: "Weekly report", Body: "Read the latest metrics and highlights.", URL: "https://example.com/reports/weekly"},
+			},
+			myrtle.CardListColumns(2),
+			myrtle.CardListGap(12),
+			myrtle.CardListBorder(true),
+			myrtle.CardListInsetMode(myrtle.InsetModeNone),
+		)
 	case "free-markdown":
 		builder.AddFreeMarkdown("### Custom Markdown\n\nYou can use **bold**, lists, and links.\n\n- First\n- Second")
 	default:
@@ -613,28 +853,46 @@ func buildBlockEmail(name string, selectedTheme theme.Theme) (*myrtle.Email, err
 	return builder.Build(), nil
 }
 
-func buildEmailItems(themeName string, selectedTheme theme.Theme) ([]pageItem, error) {
-	items := make([]pageItem, 0, len(exampleEmails))
+func buildEmailItems(themeName string, selectedTheme theme.Theme) ([]groupedPageItems, error) {
+	builderByName := make(map[string]namedEmailBuilder, len(exampleEmails))
 	for _, emailBuilder := range exampleEmails {
-		email, err := emailBuilder.Build(selectedTheme)
-		if err != nil {
-			return nil, err
+		builderByName[emailBuilder.Name] = emailBuilder
+	}
+
+	groups := make([]groupedPageItems, 0, len(exampleEmailGroups))
+	for _, emailGroup := range exampleEmailGroups {
+		items := make([]pageItem, 0, len(emailGroup.Items))
+		for _, emailName := range emailGroup.Items {
+			emailBuilder, exists := builderByName[emailName]
+			if !exists {
+				return nil, fmt.Errorf("unknown example email: %s", emailName)
+			}
+
+			email, err := emailBuilder.Build(selectedTheme)
+			if err != nil {
+				return nil, err
+			}
+
+			text, err := email.Text()
+			if err != nil {
+				return nil, err
+			}
+
+			items = append(items, pageItem{
+				Key:     emailBuilder.Name,
+				Name:    goEmailName(emailBuilder.Name),
+				HTMLURL: "/emails/" + emailBuilder.Name + "/html?theme=" + themeName,
+				Text:    text,
+			})
 		}
 
-		text, err := email.Text()
-		if err != nil {
-			return nil, err
-		}
-
-		items = append(items, pageItem{
-			Key:     emailBuilder.Name,
-			Name:    goEmailName(emailBuilder.Name),
-			HTMLURL: "/emails/" + emailBuilder.Name + "/html?theme=" + themeName,
-			Text:    text,
+		groups = append(groups, groupedPageItems{
+			Name:  emailGroup.Name,
+			Items: items,
 		})
 	}
 
-	return items, nil
+	return groups, nil
 }
 
 func buildBlockItems(themeName string, selectedTheme theme.Theme) ([]groupedPageItems, error) {
@@ -702,6 +960,8 @@ func selectedThemeFromRequest(queryValue string) (string, theme.Theme) {
 		return "flat", flat.New(flat.WithFallback(defaulttheme.New()))
 	case "terminal":
 		return "terminal", terminal.New(terminal.WithFallback(defaulttheme.New()))
+	case "editorial":
+		return "editorial", editorialtheme.New(editorialtheme.WithFallback(defaulttheme.New()))
 	default:
 		return "default", defaulttheme.New()
 	}
@@ -712,5 +972,6 @@ func themeOptions(selected string) []themeOption {
 		{Name: "default", Selected: selected == "default"},
 		{Name: "flat", Selected: selected == "flat"},
 		{Name: "terminal", Selected: selected == "terminal"},
+		{Name: "editorial", Selected: selected == "editorial"},
 	}
 }

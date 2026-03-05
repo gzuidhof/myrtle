@@ -1,0 +1,9 @@
+{
+  "host": "live.smtp.mailtrap.io",
+  "port": 587,
+  "username": "smtp@mailtrap.io",
+  "password": "0f319f07130b49a8c78d52150a4b0d57",
+  "from_name": "Myrtle Example Server",
+  "from_address": "myrtle@airbnbforcats.com",
+  "default_to": "guidozuidhof@gmail.com"
+}

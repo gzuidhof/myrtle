@@ -17,7 +17,7 @@ func (server *Server) handleIndex(writer http.ResponseWriter, request *http.Requ
 	}
 
 	themeName, selectedTheme := selectedThemeFromRequest(request.URL.Query().Get("theme"))
-	emailItems, err := buildEmailItems(themeName, selectedTheme)
+	emailGroups, err := buildEmailItems(themeName, selectedTheme)
 	if err != nil {
 		http.Error(writer, err.Error(), http.StatusInternalServerError)
 		return
@@ -34,7 +34,7 @@ func (server *Server) handleIndex(writer http.ResponseWriter, request *http.Requ
 		Title:        "Example Emails",
 		ThemeOptions: themeOptions(themeName),
 		Theme:        themeName,
-		EmailItems:   emailItems,
+		EmailGroups:  emailGroups,
 		BlockGroups:  blockGroups,
 		SMTPEnabled:  server.smtp != nil,
 		SMTPDefault:  server.defaultTo,

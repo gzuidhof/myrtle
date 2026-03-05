@@ -28,6 +28,11 @@ type blockGroupDefinition struct {
 	Items []string
 }
 
+type emailGroupDefinition struct {
+	Name  string
+	Items []string
+}
+
 type themeOption struct {
 	Name     string
 	Selected bool
@@ -37,7 +42,7 @@ type indexViewData struct {
 	Title        string
 	ThemeOptions []themeOption
 	Theme        string
-	EmailItems   []pageItem
+	EmailGroups  []groupedPageItems
 	BlockGroups  []groupedPageItems
 	SMTPEnabled  bool
 	SMTPDefault  string
@@ -61,8 +66,6 @@ type previewViewData struct {
 
 var exampleEmails = []namedEmailBuilder{
 	{Name: "welcome", Build: example.WelcomeEmailWithTheme},
-	{Name: "product-launch", Build: example.ProductLaunchEmailWithTheme},
-	{Name: "common-blocks", Build: example.CommonBlocksEmailWithTheme},
 	{Name: "monster", Build: example.MonsterEmailWithTheme},
 	{Name: "monster-dark-mode", Build: example.MonsterDarkModeEmailWithTheme},
 	{Name: "monster-rtl", Build: example.MonsterRTLEmailWithTheme},
@@ -75,19 +78,76 @@ var exampleEmails = []namedEmailBuilder{
 
 	{Name: "report", Build: example.WeeklyReportEmailWithTheme},
 	{Name: "feature-digest", Build: example.FeatureDigestEmailWithTheme},
-	{Name: "high-impact", Build: example.HighImpactEmailWithTheme},
+	{Name: "weekly-operations-brief", Build: example.WeeklyOperationsBriefEmailWithTheme},
 	{Name: "bar-chart", Build: example.HorizontalBarChartEmailWithTheme},
 	{Name: "vertical-bar-chart", Build: example.VerticalBarChartEmailWithTheme},
+	{Name: "vertical-bar-chart-ticks", Build: example.VerticalBarChartTicksEmailWithTheme},
+	{Name: "inset-modes", Build: example.InsetModesEmailWithTheme},
 
 	{Name: "invoice-summary", Build: example.InvoiceSummaryEmailWithTheme},
 	{Name: "billing-receipt", Build: example.BillingReceiptEmailWithTheme},
 	{Name: "activity-empty-state", Build: example.ActivityEmptyStateEmailWithTheme},
-	{Name: "container-styles", Build: example.ContainerStylesEmailWithTheme},
 	{Name: "dark-mode-styles", Build: example.DarkModeStylesEmailWithTheme},
 	{Name: "custom-feature-flag-rollout", Build: CustomFeatureFlagRolloutEmailWithTheme},
 
 	{Name: "onboarding-checklist", Build: example.OnboardingChecklistEmailWithTheme},
 	{Name: "columns-complex", Build: example.ColumnsComplexEmailWithTheme},
+}
+
+var exampleEmailGroups = []emailGroupDefinition{
+	{
+		Name: "Lifecycle & Onboarding",
+		Items: []string{
+			"welcome",
+			"onboarding-checklist",
+			"security",
+			"password-reset",
+			"account-deletion-confirmation",
+		},
+	},
+	{
+		Name: "Operations & Incidents",
+		Items: []string{
+			"incident-notice",
+			"activity-empty-state",
+			"report",
+			"feature-digest",
+			"weekly-operations-brief",
+			"custom-feature-flag-rollout",
+		},
+	},
+	{
+		Name: "Commerce & Billing",
+		Items: []string{
+			"invoice-summary",
+			"billing-receipt",
+		},
+	},
+	{
+		Name: "Data & Charts",
+		Items: []string{
+			"bar-chart",
+			"vertical-bar-chart",
+			"vertical-bar-chart-ticks",
+		},
+	},
+	{
+		Name: "Showcase & Styling",
+		Items: []string{
+			"columns-complex",
+			"dark-mode-styles",
+			"monster",
+			"monster-dark-mode",
+			"monster-rtl",
+			"stress",
+		},
+	},
+	{
+		Name: "Inset Modes",
+		Items: []string{
+			"inset-modes",
+		},
+	},
 }
 
 var blockGroups = []blockGroupDefinition{
@@ -126,7 +186,7 @@ var blockGroups = []blockGroupDefinition{
 	{
 		Name: "Layout & Structure",
 		Items: []string{
-			"section",
+			"panel",
 			"columns",
 			"grid",
 			"card-list",

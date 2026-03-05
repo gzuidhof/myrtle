@@ -153,3 +153,5 @@ func (block customBlock[T]) RenderText(context RenderContext) (string, error) {
 func (block customBlock[T]) RenderHTML(values theme.Values) (string, error) {
 	return block.renderer.renderHTML(block.data, values)
 }
+
+func (block customBlock[T]) LayoutSpec() LayoutSpec { return defaultLayoutSpec() }

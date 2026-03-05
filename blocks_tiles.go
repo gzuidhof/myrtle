@@ -7,6 +7,7 @@ import (
 	"github.com/gzuidhof/myrtle/theme"
 )
 
+// TileVariant defines semantic styling for a tile.
 type TileVariant string
 
 const (
@@ -17,6 +18,7 @@ const (
 	TileVariantCritical  TileVariant = "critical"
 )
 
+// TileAlignment defines content alignment within each tile.
 type TileAlignment string
 
 const (
@@ -33,12 +35,14 @@ type TileEntry struct {
 	Variant  TileVariant
 }
 
+// TilesBlock renders multiple tile entries in a compact grid.
 type TilesBlock struct {
 	Columns               int
 	Border                bool
 	TransparentBackground bool
 	Alignment             TileAlignment
 	Entries               []TileEntry
+	InsetMode             InsetMode
 }
 
 func (block TilesBlock) Kind() theme.BlockKind {
@@ -102,6 +106,10 @@ func (block TilesBlock) RenderText(_ RenderContext) (string, error) {
 	}
 
 	return strings.Join(parts, "\n"), nil
+}
+
+func (block TilesBlock) LayoutSpec() LayoutSpec {
+	return normalizedLayoutSpec(LayoutSpec{InsetMode: block.InsetMode})
 }
 
 func normalizedTileVariant(value TileVariant) TileVariant {

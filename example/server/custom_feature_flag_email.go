@@ -13,12 +13,16 @@ func CustomFeatureFlagRolloutEmailWithTheme(selectedTheme theme.Theme) (*myrtle.
 	}
 
 	builder := myrtle.NewBuilder(selectedTheme)
+	logoSrc := "/assets/logo.png"
+	if selectedTheme != nil && selectedTheme.Name() == "terminal" {
+		logoSrc = "/assets/logo-light.png"
+	}
 
 	email := builder.
 		WithPreheader("Custom block demo: feature flag rollout guardrail snapshot").
 		WithHeader(
 			myrtle.NewGroup().
-				Add(myrtle.ImageBlock{Src: "/assets/logo.png", Alt: "Myrtle", Width: 140, Align: myrtle.ImageAlignmentCenter}).
+				Add(myrtle.ImageBlock{Src: logoSrc, Alt: "Myrtle", Width: 140, Align: myrtle.ImageAlignmentCenter}).
 				Add(myrtle.TextBlock{Text: "Myrtle Control Plane", Align: myrtle.TextAlignCenter, Weight: myrtle.TextWeightSemibold}),
 		).
 		AddHeading("Feature rollout guardrail", myrtle.HeadingLevel(1)).
@@ -37,7 +41,7 @@ func CustomFeatureFlagRolloutEmailWithTheme(selectedTheme theme.Theme) (*myrtle.
 			RollbackNowURL:   "https://example.com/flags/checkout.v2/rollback",
 			IncidentBoardURL: "https://example.com/incidents/active",
 		})).
-		AddLegal("Myrtle Inc.", "123 Market St, San Francisco, CA", "https://example.com/preferences", "https://example.com/unsubscribe").
+		AddLegal("Myrtle Inc.", "Dam Square 1, 1012 JS Amsterdam, Netherlands", "https://example.com/preferences", "https://example.com/unsubscribe").
 		Build()
 
 	return email, nil

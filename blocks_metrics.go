@@ -13,12 +13,14 @@ type TimelineItem struct {
 	Detail string
 }
 
+// TimelineBlock renders chronological milestones or status updates.
 type TimelineBlock struct {
 	Header          string
 	AggregateHeader string
 	HasCurrentIndex bool
 	CurrentIndex    int
 	Items           []TimelineItem
+	InsetMode       InsetMode
 }
 
 func (block TimelineBlock) Kind() theme.BlockKind {
@@ -87,6 +89,7 @@ const (
 	StatDeltaSemanticNegative StatDeltaSemantic = "negative"
 )
 
+// StatsRowBlock renders a row of compact KPI/stat entries.
 type StatsRowBlock struct {
 	Header string
 	Stats  []StatItem
@@ -137,17 +140,9 @@ func (block StatsRowBlock) RenderText(_ RenderContext) (string, error) {
 	return strings.Join(parts, "\n"), nil
 }
 
-type BadgeTone string
-
-const (
-	BadgeToneInfo    BadgeTone = "info"
-	BadgeToneSuccess BadgeTone = "success"
-	BadgeToneWarning BadgeTone = "warning"
-	BadgeToneError   BadgeTone = "error"
-)
-
+// BadgeBlock renders a short status label with semantic tone.
 type BadgeBlock struct {
-	Tone BadgeTone
+	Tone Tone
 	Text string
 }
 
@@ -169,10 +164,13 @@ func (block BadgeBlock) RenderText(_ RenderContext) (string, error) {
 	return fmt.Sprintf("[%s] %s", strings.ToUpper(string(normalizedBadgeTone(block.Tone))), text), nil
 }
 
+// SummaryCardBlock renders a concise title/body/footer summary card.
 type SummaryCardBlock struct {
-	Title  string
-	Body   string
-	Footer string
+	Title     string
+	Body      string
+	Footer    string
+	Tone      Tone
+	InsetMode InsetMode
 }
 
 func (block SummaryCardBlock) Kind() theme.BlockKind {
@@ -180,7 +178,10 @@ func (block SummaryCardBlock) Kind() theme.BlockKind {
 }
 
 func (block SummaryCardBlock) TemplateData() any {
-	return block
+	normalized := block
+	normalized.Tone = normalizedSummaryCardTone(block.Tone)
+
+	return normalized
 }
 
 func (block SummaryCardBlock) RenderText(_ RenderContext) (string, error) {
@@ -198,11 +199,13 @@ func (block SummaryCardBlock) RenderText(_ RenderContext) (string, error) {
 	return strings.Join(parts, "\n\n"), nil
 }
 
+// AttachmentBlock renders file attachment metadata with a CTA link.
 type AttachmentBlock struct {
-	Filename string
-	Meta     string
-	URL      string
-	CTA      string
+	Filename  string
+	Meta      string
+	URL       string
+	CTA       string
+	InsetMode InsetMode
 }
 
 func (block AttachmentBlock) Kind() theme.BlockKind {
@@ -231,12 +234,12 @@ func (block AttachmentBlock) RenderText(_ RenderContext) (string, error) {
 	return line, nil
 }
 
-func normalizedBadgeTone(value BadgeTone) BadgeTone {
+func normalizedBadgeTone(value Tone) Tone {
 	switch value {
-	case BadgeToneSuccess, BadgeToneWarning, BadgeToneError:
+	case ToneSuccess, ToneWarning, ToneDanger, ToneDark:
 		return value
 	default:
-		return BadgeToneInfo
+		return ToneInfo
 	}
 }
 
@@ -247,4 +250,24 @@ func normalizedStatDeltaSemantic(value StatDeltaSemantic) StatDeltaSemantic {
 	default:
 		return StatDeltaSemanticNone
 	}
+}
+
+func normalizedSummaryCardTone(value Tone) Tone {
+	return normalizedTone(value)
+}
+
+func (block TimelineBlock) LayoutSpec() LayoutSpec {
+	return normalizedLayoutSpec(LayoutSpec{InsetMode: block.InsetMode})
+}
+
+func (block StatsRowBlock) LayoutSpec() LayoutSpec { return defaultLayoutSpec() }
+
+func (block BadgeBlock) LayoutSpec() LayoutSpec { return defaultLayoutSpec() }
+
+func (block SummaryCardBlock) LayoutSpec() LayoutSpec {
+	return normalizedLayoutSpec(LayoutSpec{InsetMode: block.InsetMode})
+}
+
+func (block AttachmentBlock) LayoutSpec() LayoutSpec {
+	return normalizedLayoutSpec(LayoutSpec{InsetMode: block.InsetMode})
 }

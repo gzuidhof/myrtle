@@ -35,3 +35,4 @@ example/server/smtp.config.json
 # .vscode/
 
 tmp/
+node_modules/

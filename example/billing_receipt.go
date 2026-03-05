@@ -20,7 +20,7 @@ func BillingReceiptEmailWithTheme(selectedTheme theme.Theme) (*myrtle.Email, err
 	).
 		AddHeading("Your payment receipt").
 		WithPreheader("Invoice INV-2026-021 has been paid").
-		WithHeader(commonHeaderGroup("Myrtle Billing")).
+		WithHeader(commonHeaderGroup("Myrtle Billing", selectedTheme)).
 		AddHeading("Payment confirmed", myrtle.HeadingLevel(2)).
 		AddKeyValue("Receipt details", []myrtle.KeyValuePair{
 			{Key: "Invoice", Value: "INV-2026-021"},
@@ -30,6 +30,6 @@ func BillingReceiptEmailWithTheme(selectedTheme theme.Theme) (*myrtle.Email, err
 		}).
 		AddText("Download your PDF receipt:").
 		AddButton("View receipt", "https://example.com/billing/receipt/INV-2026-021").
-		AddLegal("Myrtle Inc.", "123 Market St, San Francisco, CA", "https://example.com/preferences", "https://example.com/unsubscribe").
+		AddLegal("Myrtle Inc.", "Dam Square 1, 1012 JS Amsterdam, Netherlands", "https://example.com/preferences", "https://example.com/unsubscribe").
 		Build(), nil
 }

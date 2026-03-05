@@ -1,13 +1,22 @@
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:separate;border-spacing:8px;margin:0 0 16px;">
-  {{ range .Rows }}
+{{ $gap := 8 }}{{ if eq .Block.InsetMode "none" }}{{ $gap = 0 }}{{ end }}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;margin:0 0 16px;">
+  {{ range $rowIndex, $row := .Rows }}
   <tr>
-    {{ range . }}
-    <td width="{{ $.ColumnWidth }}%" valign="top" style="padding:0;">
-      <div style="height:100%;box-sizing:border-box;padding:{{ if .Content }}10px 12px 12px{{ else }}8px{{ end }};border-radius:{{ $.Values.Styles.RadiusElement }};{{ if eq .Variant "highlight" }}border:1px solid {{ $.Values.Styles.ColorInfoBorder }};{{ if $.Block.TransparentBackground }}background:transparent;{{ else }}background:{{ $.Values.Styles.ColorInfoBackground }};{{ end }}{{ else if eq .Variant "success" }}border:1px solid {{ $.Values.Styles.ColorSuccessBorder }};{{ if $.Block.TransparentBackground }}background:transparent;{{ else }}background:{{ $.Values.Styles.ColorSuccessBackground }};{{ end }}{{ else if eq .Variant "warning" }}border:1px solid {{ $.Values.Styles.ColorWarningBorder }};{{ if $.Block.TransparentBackground }}background:transparent;{{ else }}background:{{ $.Values.Styles.ColorWarningBackground }};{{ end }}{{ else if eq .Variant "critical" }}border:1px solid {{ $.Values.Styles.ColorDangerBorder }};{{ if $.Block.TransparentBackground }}background:transparent;{{ else }}background:{{ $.Values.Styles.ColorDangerBackground }};{{ end }}{{ else }}{{ if $.Block.Border }}border:1px solid {{ $.Values.Styles.ColorBorder }};{{ else }}border:1px solid transparent;{{ end }}{{ if $.Block.TransparentBackground }}background:transparent;{{ else }}background:{{ $.Values.Styles.ColorSurfaceMuted }};{{ end }}{{ end }}text-align:{{ physicalAlign $.Block.Alignment $.Values }};">
-        {{ if .Content }}<div style="width:84px;height:84px;line-height:84px;margin:{{ if eq $.Block.Alignment "start" }}{{ if isRTL $.Values }}0 0 6px auto{{ else }}0 0 6px{{ end }}{{ else if eq $.Block.Alignment "end" }}{{ if isRTL $.Values }}0 0 6px{{ else }}0 0 6px auto{{ end }}{{ else }}0 auto 6px{{ end }};border-radius:{{ $.Values.Styles.RadiusElement }};font-size:40px;font-weight:700;color:{{ $.Values.Styles.ColorText }};">{{ .Content }}</div>{{ end }}
-        {{ if .Title }}<p style="margin:0 0 4px;color:{{ $.Values.Styles.ColorText }};font-weight:700;line-height:1.4;">{{ if .URL }}<a href="{{ .URL }}" style="color:{{ $.Values.Styles.ColorText }};text-decoration:underline;">{{ .Title }}</a>{{ else }}{{ .Title }}{{ end }}</p>{{ end }}
-        {{ if .Subtitle }}<p style="margin:0;color:{{ $.Values.Styles.ColorTextMuted }};font-size:13px;line-height:1.4;">{{ .Subtitle }}</p>{{ end }}
-      </div>
+    {{ range $colIndex, $tile := $row }}
+    <td width="{{ $.ColumnWidth }}%" valign="top" style="padding:0;{{ if and (gt $gap 0) (not (isLastRow $rowIndex (len $.Rows))) }}padding-bottom:{{ $gap }}px;{{ end }}{{ if and (gt $gap 0) (not (isLastRow $colIndex (len $row))) }}padding-{{ physicalSide "end" $.Values }}:{{ $gap }}px;{{ end }}">
+      {{ $tilePadding := "8px" }}{{ if $tile.Content }}{{ $tilePadding = "10px 12px 12px" }}{{ end }}
+      {{ $tileBorder := "1px solid transparent" }}
+      {{ $tileBackground := "transparent" }}{{ if not $.Block.TransparentBackground }}{{ $tileBackground = $.Values.Styles.ColorSurfaceMuted }}{{ end }}
+      {{ if eq $tile.Variant "highlight" }}{{ $tileBorder = printf "1px solid %s" $.Values.Styles.ColorInfoBorder }}{{ if not $.Block.TransparentBackground }}{{ $tileBackground = $.Values.Styles.ColorInfoBackground }}{{ end }}{{ else if eq $tile.Variant "success" }}{{ $tileBorder = printf "1px solid %s" $.Values.Styles.ColorSuccessBorder }}{{ if not $.Block.TransparentBackground }}{{ $tileBackground = $.Values.Styles.ColorSuccessBackground }}{{ end }}{{ else if eq $tile.Variant "warning" }}{{ $tileBorder = printf "1px solid %s" $.Values.Styles.ColorWarningBorder }}{{ if not $.Block.TransparentBackground }}{{ $tileBackground = $.Values.Styles.ColorWarningBackground }}{{ end }}{{ else if eq $tile.Variant "critical" }}{{ $tileBorder = printf "1px solid %s" $.Values.Styles.ColorDangerBorder }}{{ if not $.Block.TransparentBackground }}{{ $tileBackground = $.Values.Styles.ColorDangerBackground }}{{ end }}{{ else if $.Block.Border }}{{ $tileBorder = printf "1px solid %s" $.Values.Styles.ColorBorder }}{{ end }}
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate;border-spacing:0;height:100%;">
+        <tr>
+          <td bgcolor="{{ $tileBackground }}" style="height:100%;box-sizing:border-box;padding:{{ $tilePadding }};mso-padding-alt:{{ $tilePadding }};border-radius:{{ if eq $.Block.InsetMode "none" }}0{{ else }}{{ $.Values.Styles.RadiusElement }}{{ end }};border:{{ $tileBorder }};background:{{ $tileBackground }};{{ if ne $tile.Variant "default" }}{{ if eq $.Block.InsetMode "none" }}border-left:0;border-right:0;{{ end }}{{ else }}{{ if and $.Block.Border (eq $.Block.InsetMode "none") }}border-left:0;border-right:0;{{ end }}{{ end }}text-align:{{ physicalAlign $.Block.Alignment $.Values }};">
+            {{ if $tile.Content }}<div style="width:84px;height:84px;line-height:84px;margin:{{ if eq $.Block.Alignment "start" }}{{ if isRTL $.Values }}0 0 6px auto{{ else }}0 0 6px{{ end }}{{ else if eq $.Block.Alignment "end" }}{{ if isRTL $.Values }}0 0 6px{{ else }}0 0 6px auto{{ end }}{{ else }}0 auto 6px{{ end }};border-radius:{{ $.Values.Styles.RadiusElement }};font-size:40px;font-weight:700;color:{{ $.Values.Styles.ColorText }};">{{ $tile.Content }}</div>{{ end }}
+            {{ if $tile.Title }}<p style="margin:0 0 4px;color:{{ $.Values.Styles.ColorText }};font-weight:700;line-height:1.4;">{{ if $tile.URL }}<a href="{{ $tile.URL }}" style="color:{{ $.Values.Styles.ColorText }};text-decoration:underline;">{{ $tile.Title }}</a>{{ else }}{{ $tile.Title }}{{ end }}</p>{{ end }}
+            {{ if $tile.Subtitle }}<p style="margin:0;color:{{ $.Values.Styles.ColorTextMuted }};font-size:13px;line-height:1.4;">{{ $tile.Subtitle }}</p>{{ end }}
+          </td>
+        </tr>
+      </table>
     </td>
     {{ end }}
   </tr>

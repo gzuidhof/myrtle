@@ -9,6 +9,7 @@ import (
 	"github.com/gzuidhof/myrtle/theme"
 )
 
+// VerticalBarChartLegendPlacementValue controls where the chart legend is rendered.
 type VerticalBarChartLegendPlacementValue string
 
 const (
@@ -16,6 +17,7 @@ const (
 	VerticalBarChartLegendBottom VerticalBarChartLegendPlacementValue = "bottom"
 )
 
+// VerticalBarChartAxisLabelFormatValue controls axis tick label formatting.
 type VerticalBarChartAxisLabelFormatValue string
 
 const (
@@ -23,6 +25,7 @@ const (
 	VerticalBarChartAxisLabelFormatPercent VerticalBarChartAxisLabelFormatValue = "percent"
 )
 
+// VerticalBarChartMagnitudeSuffixValue controls compact magnitude suffix formatting.
 type VerticalBarChartMagnitudeSuffixValue string
 
 const (
@@ -30,6 +33,7 @@ const (
 	VerticalBarChartMagnitudeSuffixShort VerticalBarChartMagnitudeSuffixValue = "short"
 )
 
+// VerticalBarChartNegativeFormatValue controls negative number formatting style.
 type VerticalBarChartNegativeFormatValue string
 
 const (
@@ -45,11 +49,11 @@ type VerticalBarChartValueFormatter struct {
 }
 
 type VerticalBarChartSeries struct {
-	Key   string
-	Label string
-	Color string
+	Key             string
+	Label           string
+	Color           string
 	ValueLabelColor string
-	Values []float64
+	Values          []float64
 }
 
 type VerticalBarChartLegendItem struct {
@@ -58,16 +62,22 @@ type VerticalBarChartLegendItem struct {
 }
 
 type VerticalBarChartAxis struct {
-	ShowBaseline       bool
-	ShowYTicks         bool
-	YTickCount         int
+	ShowBaseline          bool
+	ShowYTicks            bool
+	HasDrawYAxisLine      bool
+	DrawYAxisLine         bool
 	HasShowCategoryLabels bool
-	ShowCategoryLabels bool
-	LabelFormat        VerticalBarChartAxisLabelFormatValue
-	HasMin             bool
-	Min                float64
-	HasMax             bool
-	Max                float64
+	ShowCategoryLabels    bool
+	LabelFormat           VerticalBarChartAxisLabelFormatValue
+	HasMin                bool
+	Min                   float64
+	// HasMax enables a configured upper bound hint for the chart range.
+	// When true, Max is only used to raise the computed max range if needed.
+	// It does not clamp bars to a lower maximum than the data-derived max.
+	HasMax bool
+	// Max is the optional upper bound hint used when HasMax is true.
+	// Effective max is max(dataDerivedMax, Max).
+	Max float64
 }
 
 type VerticalBarChartValueLabels struct {
@@ -81,16 +91,21 @@ type VerticalBarChartLegendConfig struct {
 	Items     []VerticalBarChartLegendItem
 }
 
+// VerticalBarChartBlock renders multi-series vertical columns with axis and legend controls.
 type VerticalBarChartBlock struct {
-	Header                string
+	Title                 string
+	Subtitle              string
 	AxisLabels            []string
 	Series                []VerticalBarChartSeries
 	Height                int
 	Normalize             bool
 	HasColumnGap          bool
 	ColumnGap             int
+	HasOuterGap           bool
+	OuterGap              int
 	TransparentBackground bool
-	Tone                  ChartToneValue
+	Tone                  Tone
+	InsetMode             InsetMode
 	LegendPlacement       VerticalBarChartLegendPlacementValue
 	Legend                []VerticalBarChartLegendItem
 	Axis                  VerticalBarChartAxis
@@ -99,22 +114,22 @@ type VerticalBarChartBlock struct {
 }
 
 type VerticalBarChartSegmentView struct {
-	Series string
-	Label  string
-	Value  float64
-	Color  string
+	Series          string
+	Label           string
+	Value           float64
+	Color           string
 	ValueLabelColor string
-	Display string
-	SignedDisplay string
-	Height int
+	Display         string
+	SignedDisplay   string
+	Height          int
 }
 
 type VerticalBarChartColumnView struct {
-	Label            string
-	PositiveSegments []VerticalBarChartSegmentView
-	NegativeSegments []VerticalBarChartSegmentView
-	PositiveTopPadding int
-	PositiveAboveLabel string
+	Label                   string
+	PositiveSegments        []VerticalBarChartSegmentView
+	NegativeSegments        []VerticalBarChartSegmentView
+	PositiveTopPadding      int
+	PositiveAboveLabel      string
 	PositiveAboveLabelColor string
 }
 
@@ -123,17 +138,22 @@ type VerticalBarChartTickView struct {
 }
 
 type VerticalBarChartTemplateData struct {
-	Header                string
+	Title                 string
+	Subtitle              string
+	InsetMode             InsetMode
 	Columns               []VerticalBarChartColumnView
 	Legend                []VerticalBarChartLegendItem
 	LegendPlacement       VerticalBarChartLegendPlacementValue
 	Height                int
 	ColumnGap             int
+	OuterGap              int
+	LegendStartOffset     int
 	PositiveHeight        int
 	NegativeHeight        int
 	ShowBaseline          bool
 	ShowCategoryLabels    bool
 	ShowYTicks            bool
+	DrawYAxisLine         bool
 	YAxisWidth            int
 	YAxisMaxLabel         string
 	YAxisZeroLabel        string
@@ -142,7 +162,7 @@ type VerticalBarChartTemplateData struct {
 	ValueLabelColor       string
 	Ticks                 []VerticalBarChartTickView
 	TransparentBackground bool
-	Tone                  ChartToneValue
+	Tone                  Tone
 }
 
 func (block VerticalBarChartBlock) Kind() theme.BlockKind {
@@ -158,17 +178,12 @@ func (block VerticalBarChartBlock) RenderText(_ RenderContext) (string, error) {
 	normalized := block.normalized()
 	parts := make([]string, 0, len(normalized.Columns)+4)
 
-	if strings.TrimSpace(normalized.Header) != "" {
-		header := strings.TrimSpace(normalized.Header)
-		parts = append(parts, header, strings.Repeat("-", min(48, max(8, len(header)))))
-	}
-
-	if len(normalized.Ticks) > 0 {
-		tickLabels := make([]string, 0, len(normalized.Ticks))
-		for _, tick := range normalized.Ticks {
-			tickLabels = append(tickLabels, tick.Label)
+	if strings.TrimSpace(normalized.Title) != "" {
+		title := strings.TrimSpace(normalized.Title)
+		parts = append(parts, title, strings.Repeat("-", min(48, max(8, len(title)))))
+		if strings.TrimSpace(normalized.Subtitle) != "" {
+			parts = append(parts, strings.TrimSpace(normalized.Subtitle))
 		}
-		parts = append(parts, "Y-axis: "+strings.Join(tickLabels, " | "))
 	}
 
 	for _, column := range normalized.Columns {
@@ -178,7 +193,7 @@ func (block VerticalBarChartBlock) RenderText(_ RenderContext) (string, error) {
 
 		segmentParts := make([]string, 0, len(column.PositiveSegments)+len(column.NegativeSegments))
 		for _, segment := range column.PositiveSegments {
-			segmentParts = append(segmentParts, fmt.Sprintf("%s +%s", segment.Label, segment.Display))
+			segmentParts = append(segmentParts, fmt.Sprintf("%s %s", segment.Label, segment.Display))
 		}
 		for _, segment := range column.NegativeSegments {
 			segmentParts = append(segmentParts, fmt.Sprintf("%s %s", segment.Label, segment.SignedDisplay))
@@ -221,20 +236,14 @@ func (block VerticalBarChartBlock) normalized() VerticalBarChartTemplateData {
 	}
 
 	axis := block.Axis
-	if axis.YTickCount <= 0 {
-		axis.YTickCount = 4
-	}
-	if axis.YTickCount < 2 {
-		axis.YTickCount = 2
-	}
-	if axis.YTickCount > 7 {
-		axis.YTickCount = 7
-	}
 	if axis.LabelFormat != VerticalBarChartAxisLabelFormatPercent {
 		axis.LabelFormat = VerticalBarChartAxisLabelFormatNumber
 	}
 	if !axis.HasShowCategoryLabels {
 		axis.ShowCategoryLabels = true
+	}
+	if !axis.HasDrawYAxisLine {
+		axis.DrawYAxisLine = axis.ShowYTicks
 	}
 
 	valueLabels := block.ValueLabels
@@ -256,7 +265,6 @@ func (block VerticalBarChartBlock) normalized() VerticalBarChartTemplateData {
 	valueFormatter.Prefix = strings.TrimSpace(valueFormatter.Prefix)
 	valueFormatter.Suffix = strings.TrimSpace(valueFormatter.Suffix)
 
-
 	tone := normalizedChartTone(block.Tone)
 	normalizedSeries := make([]VerticalBarChartSeries, 0, len(block.Series))
 	for seriesIndex, series := range block.Series {
@@ -269,11 +277,11 @@ func (block VerticalBarChartBlock) normalized() VerticalBarChartTemplateData {
 			label = key
 		}
 		normalizedSeries = append(normalizedSeries, VerticalBarChartSeries{
-			Key:    key,
-			Label:  label,
-			Color:  strings.TrimSpace(series.Color),
+			Key:             key,
+			Label:           label,
+			Color:           strings.TrimSpace(series.Color),
 			ValueLabelColor: strings.TrimSpace(series.ValueLabelColor),
-			Values: append([]float64(nil), series.Values...),
+			Values:          append([]float64(nil), series.Values...),
 		})
 	}
 
@@ -321,13 +329,13 @@ func (block VerticalBarChartBlock) normalized() VerticalBarChartTemplateData {
 			}
 
 			segment := VerticalBarChartSegmentView{
-				Series:  series.Key,
-				Label:   series.Label,
-				Value:   value,
-				Color:   series.Color,
+				Series:          series.Key,
+				Label:           series.Label,
+				Value:           value,
+				Color:           series.Color,
 				ValueLabelColor: series.ValueLabelColor,
-				Display: display,
-				SignedDisplay: signedDisplay,
+				Display:         display,
+				SignedDisplay:   signedDisplay,
 			}
 
 			if value > 0 {
@@ -366,26 +374,32 @@ func (block VerticalBarChartBlock) normalized() VerticalBarChartTemplateData {
 		columnGap := 0
 		if block.HasColumnGap {
 			columnGap = block.ColumnGap
-			if columnGap < 0 {
-				columnGap = 0
-			}
-			if columnGap > 28 {
-				columnGap = 28
-			}
+			columnGap = normalizeVerticalBarChartGap(columnGap)
+		}
+
+		outerGap := columnGap
+		if block.HasOuterGap {
+			outerGap = block.OuterGap
+			outerGap = normalizeVerticalBarChartGap(outerGap)
 		}
 
 		return VerticalBarChartTemplateData{
-			Header:                strings.TrimSpace(block.Header),
+			Title:                 strings.TrimSpace(block.Title),
+			Subtitle:              strings.TrimSpace(block.Subtitle),
+			InsetMode:             block.InsetMode,
 			Columns:               nil,
 			Legend:                nil,
 			LegendPlacement:       normalizedLegendPlacement(block.LegendPlacement),
 			Height:                height,
 			ColumnGap:             columnGap,
+			OuterGap:              outerGap,
+			LegendStartOffset:     outerGap,
 			PositiveHeight:        height,
 			NegativeHeight:        0,
 			ShowBaseline:          false,
 			ShowCategoryLabels:    axis.ShowCategoryLabels,
 			ShowYTicks:            false,
+			DrawYAxisLine:         axis.DrawYAxisLine,
 			YAxisWidth:            0,
 			YAxisMaxLabel:         "",
 			YAxisZeroLabel:        "",
@@ -401,12 +415,13 @@ func (block VerticalBarChartBlock) normalized() VerticalBarChartTemplateData {
 	columnGap := defaultVerticalBarChartColumnGap(len(columns))
 	if block.HasColumnGap {
 		columnGap = block.ColumnGap
-		if columnGap < 0 {
-			columnGap = 0
-		}
-		if columnGap > 28 {
-			columnGap = 28
-		}
+		columnGap = normalizeVerticalBarChartGap(columnGap)
+	}
+
+	outerGap := columnGap
+	if block.HasOuterGap {
+		outerGap = block.OuterGap
+		outerGap = normalizeVerticalBarChartGap(outerGap)
 	}
 
 	minValue := -maxNegativeAbsTotal
@@ -415,6 +430,8 @@ func (block VerticalBarChartBlock) normalized() VerticalBarChartTemplateData {
 		minValue = axis.Min
 	}
 	if axis.HasMax {
+		// Max is intentionally treated as a floor for the upper range so explicit
+		// axis configs can guarantee headroom without clipping higher data values.
 		if axis.Max > maxValue {
 			maxValue = axis.Max
 		}
@@ -510,18 +527,25 @@ func (block VerticalBarChartBlock) normalized() VerticalBarChartTemplateData {
 		showBaseline = axis.ShowBaseline
 	}
 
+	legendStartOffset := outerGap + yAxisWidth
+
 	return VerticalBarChartTemplateData{
-		Header:                strings.TrimSpace(block.Header),
+		Title:                 strings.TrimSpace(block.Title),
+		Subtitle:              strings.TrimSpace(block.Subtitle),
+		InsetMode:             block.InsetMode,
 		Columns:               columns,
 		Legend:                legend,
 		LegendPlacement:       normalizedLegendPlacement(block.LegendPlacement),
 		Height:                height,
 		ColumnGap:             columnGap,
+		OuterGap:              outerGap,
+		LegendStartOffset:     legendStartOffset,
 		PositiveHeight:        positiveHeight,
 		NegativeHeight:        negativeHeight,
 		ShowBaseline:          showBaseline,
 		ShowCategoryLabels:    axis.ShowCategoryLabels,
 		ShowYTicks:            axis.ShowYTicks,
+		DrawYAxisLine:         axis.DrawYAxisLine,
 		YAxisWidth:            yAxisWidth,
 		YAxisMaxLabel:         yAxisMaxLabel,
 		YAxisZeroLabel:        yAxisZeroLabel,
@@ -532,6 +556,17 @@ func (block VerticalBarChartBlock) normalized() VerticalBarChartTemplateData {
 		TransparentBackground: block.TransparentBackground,
 		Tone:                  tone,
 	}
+}
+
+func normalizeVerticalBarChartGap(value int) int {
+	if value < 0 {
+		return 0
+	}
+	if value > 28 {
+		return 28
+	}
+
+	return value
 }
 
 func normalizedLegendPlacement(value VerticalBarChartLegendPlacementValue) VerticalBarChartLegendPlacementValue {
@@ -678,16 +713,16 @@ func defaultVerticalBarChartColumnGap(columnCount int) int {
 		return 0
 	}
 	if columnCount <= 4 {
-		return 12
-	}
-	if columnCount <= 8 {
 		return 8
 	}
-	if columnCount <= 12 {
+	if columnCount <= 8 {
 		return 6
 	}
-	if columnCount <= 18 {
+	if columnCount <= 12 {
 		return 4
+	}
+	if columnCount <= 18 {
+		return 3
 	}
 	if columnCount <= 30 {
 		return 2
@@ -716,4 +751,8 @@ func resolveVerticalBarChartAxisWidth(maxLabel, zeroLabel string) int {
 	}
 
 	return width
+}
+
+func (block VerticalBarChartBlock) LayoutSpec() LayoutSpec {
+	return normalizedLayoutSpec(LayoutSpec{InsetMode: block.InsetMode})
 }
