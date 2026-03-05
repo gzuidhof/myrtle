@@ -48,7 +48,7 @@ func main() {
     WithPreheader("Use this one-time code to sign in").
     AddHeading("Your verification code").
     AddText("Use the code below to complete your sign-in. This code expires in 10 minutes.").
-    Add(myrtle.VerificationCodeBlock{Label: "Verification code", Value: "493817"}).
+    AddVerificationCode("Verification code", "493817").
     AddKeyValue("Request details", []myrtle.KeyValuePair{
       {Key: "IP", Value: "203.0.113.5"},
       {Key: "Location", Value: "Amsterdam, NL"},

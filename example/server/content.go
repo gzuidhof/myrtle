@@ -443,13 +443,13 @@ func buildBlockEmail(name string, selectedTheme theme.Theme) (*myrtle.Email, err
 		builder.AddAttachment("invoice-Feb-2026.pdf", "PDF · 284 KB", "https://example.com/invoices/feb-2026.pdf", "Download")
 	case "hero":
 		builder.AddHeading("Default", myrtle.HeadingLevel(3))
-		builder.Add(myrtle.HeroBlock{
-			Eyebrow:  "New",
-			Title:    "Faster sends with Myrtle",
-			Body:     "Compose transactional emails with reusable blocks and themeable output.",
-			CTALabel: "Read docs",
-			CTAURL:   "https://github.com/gzuidhof/myrtle",
-		})
+		builder.AddHero(
+			"Faster sends with Myrtle",
+			"Compose transactional emails with reusable blocks and themeable output.",
+			"Read docs",
+			"https://github.com/gzuidhof/myrtle",
+			myrtle.HeroEyebrow("New"),
+		)
 		builder.AddHeading("Inset mode: none", myrtle.HeadingLevel(3))
 		builder.AddHero(
 			"Faster sends with Myrtle",
@@ -459,15 +459,14 @@ func buildBlockEmail(name string, selectedTheme theme.Theme) (*myrtle.Email, err
 			myrtle.HeroInsetMode(myrtle.InsetModeNone),
 		)
 		builder.AddHeading("With image", myrtle.HeadingLevel(3))
-		builder.Add(myrtle.HeroBlock{
-			Eyebrow:  "New",
-			Title:    "Faster sends with Myrtle",
-			Body:     "Compose transactional emails with reusable blocks and themeable output.",
-			CTALabel: "Read docs",
-			CTAURL:   "https://github.com/gzuidhof/myrtle",
-			ImageURL: "/assets/hero.png",
-			ImageAlt: "Hero image",
-		})
+		builder.AddHero(
+			"Faster sends with Myrtle",
+			"Compose transactional emails with reusable blocks and themeable output.",
+			"Read docs",
+			"https://github.com/gzuidhof/myrtle",
+			myrtle.HeroEyebrow("New"),
+			myrtle.HeroImage("/assets/hero.png", "Hero image"),
+		)
 		builder.AddHeading("Tone: primary", myrtle.HeadingLevel(3))
 		builder.AddHero(
 			"Faster sends with Myrtle",
@@ -517,10 +516,12 @@ func buildBlockEmail(name string, selectedTheme theme.Theme) (*myrtle.Email, err
 			myrtle.HeroTone(myrtle.ToneDark),
 		)
 		builder.AddHeading("Minimal", myrtle.HeadingLevel(3))
-		builder.Add(myrtle.HeroBlock{
-			Title: "A compact hero",
-			Body:  "Useful for announcement emails that do not need an image or CTA.",
-		})
+		builder.AddHero(
+			"A compact hero",
+			"Useful for announcement emails that do not need an image or CTA.",
+			"",
+			"",
+		)
 	case "footer-links":
 		builder.AddHeading("Default", myrtle.HeadingLevel(3))
 		builder.AddFooterLinks([]myrtle.FooterLink{
@@ -688,7 +689,7 @@ func buildBlockEmail(name string, selectedTheme theme.Theme) (*myrtle.Email, err
 			myrtle.TableLegendSwatches([]string{"#2563eb", "#7c3aed", "#0ea5e9"}),
 		)
 	case "verification_code":
-		builder.Add(myrtle.VerificationCodeBlock{Label: "Verification code", Value: "493817"})
+		builder.AddVerificationCode("Verification code", "493817")
 		builder.AddHeading("Tone: info", myrtle.HeadingLevel(3))
 		builder.AddVerificationCode("Verification code", "493817", myrtle.VerificationCodeTone(myrtle.ToneInfo))
 		builder.AddHeading("Monospace: off", myrtle.HeadingLevel(3))
@@ -822,11 +823,11 @@ func buildBlockEmail(name string, selectedTheme theme.Theme) (*myrtle.Email, err
 	case "grid":
 		builder.AddGrid(
 			[]myrtle.GridItem{
-				myrtle.GridItemGroup(myrtle.NewGroup().Add(myrtle.HeadingBlock{Text: "Item 1", Level: 4}).Add(myrtle.TextBlock{Text: "Grid content one."})),
-				myrtle.GridItemGroup(myrtle.NewGroup().Add(myrtle.HeadingBlock{Text: "Item 2", Level: 4}).Add(myrtle.TextBlock{Text: "Grid content two."})),
-				myrtle.GridItemGroup(myrtle.NewGroup().Add(myrtle.HeadingBlock{Text: "Item 3", Level: 4}).Add(myrtle.TextBlock{Text: "Grid content three."})),
-				myrtle.GridItemGroup(myrtle.NewGroup().Add(myrtle.HeadingBlock{Text: "Item 4", Level: 4}).Add(myrtle.TextBlock{Text: "Grid content four."})),
-				myrtle.GridItemGroup(myrtle.NewGroup().Add(myrtle.HeadingBlock{Text: "Item 5", Level: 4}).Add(myrtle.TextBlock{Text: "Wraps to new row."})),
+				myrtle.GridItemGroup(myrtle.NewGroup().AddHeading("Item 1", myrtle.HeadingLevel(4)).AddText("Grid content one.")),
+				myrtle.GridItemGroup(myrtle.NewGroup().AddHeading("Item 2", myrtle.HeadingLevel(4)).AddText("Grid content two.")),
+				myrtle.GridItemGroup(myrtle.NewGroup().AddHeading("Item 3", myrtle.HeadingLevel(4)).AddText("Grid content three.")),
+				myrtle.GridItemGroup(myrtle.NewGroup().AddHeading("Item 4", myrtle.HeadingLevel(4)).AddText("Grid content four.")),
+				myrtle.GridItemGroup(myrtle.NewGroup().AddHeading("Item 5", myrtle.HeadingLevel(4)).AddText("Wraps to new row.")),
 			},
 			myrtle.GridColumns(3),
 			myrtle.GridGap(12),
@@ -835,11 +836,11 @@ func buildBlockEmail(name string, selectedTheme theme.Theme) (*myrtle.Email, err
 		builder.AddHeading("No spacing between cells", myrtle.HeadingLevel(3))
 		builder.AddGrid(
 			[]myrtle.GridItem{
-				myrtle.GridItemGroup(myrtle.NewGroup().Add(myrtle.HeadingBlock{Text: "Item 1", Level: 4}).Add(myrtle.TextBlock{Text: "Grid content one."})),
-				myrtle.GridItemGroup(myrtle.NewGroup().Add(myrtle.HeadingBlock{Text: "Item 2", Level: 4}).Add(myrtle.TextBlock{Text: "Grid content two."})),
-				myrtle.GridItemGroup(myrtle.NewGroup().Add(myrtle.HeadingBlock{Text: "Item 3", Level: 4}).Add(myrtle.TextBlock{Text: "Grid content three."})),
-				myrtle.GridItemGroup(myrtle.NewGroup().Add(myrtle.HeadingBlock{Text: "Item 4", Level: 4}).Add(myrtle.TextBlock{Text: "Grid content four."})),
-				myrtle.GridItemGroup(myrtle.NewGroup().Add(myrtle.HeadingBlock{Text: "Item 5", Level: 4}).Add(myrtle.TextBlock{Text: "Wraps to new row."})),
+				myrtle.GridItemGroup(myrtle.NewGroup().AddHeading("Item 1", myrtle.HeadingLevel(4)).AddText("Grid content one.")),
+				myrtle.GridItemGroup(myrtle.NewGroup().AddHeading("Item 2", myrtle.HeadingLevel(4)).AddText("Grid content two.")),
+				myrtle.GridItemGroup(myrtle.NewGroup().AddHeading("Item 3", myrtle.HeadingLevel(4)).AddText("Grid content three.")),
+				myrtle.GridItemGroup(myrtle.NewGroup().AddHeading("Item 4", myrtle.HeadingLevel(4)).AddText("Grid content four.")),
+				myrtle.GridItemGroup(myrtle.NewGroup().AddHeading("Item 5", myrtle.HeadingLevel(4)).AddText("Wraps to new row.")),
 			},
 			myrtle.GridColumns(3),
 			myrtle.GridGap(0),
@@ -848,11 +849,11 @@ func buildBlockEmail(name string, selectedTheme theme.Theme) (*myrtle.Email, err
 		builder.AddHeading("Inset mode: none", myrtle.HeadingLevel(3))
 		builder.AddGrid(
 			[]myrtle.GridItem{
-				myrtle.GridItemGroup(myrtle.NewGroup().Add(myrtle.HeadingBlock{Text: "Item 1", Level: 4}).Add(myrtle.TextBlock{Text: "Grid content one."})),
-				myrtle.GridItemGroup(myrtle.NewGroup().Add(myrtle.HeadingBlock{Text: "Item 2", Level: 4}).Add(myrtle.TextBlock{Text: "Grid content two."})),
-				myrtle.GridItemGroup(myrtle.NewGroup().Add(myrtle.HeadingBlock{Text: "Item 3", Level: 4}).Add(myrtle.TextBlock{Text: "Grid content three."})),
-				myrtle.GridItemGroup(myrtle.NewGroup().Add(myrtle.HeadingBlock{Text: "Item 4", Level: 4}).Add(myrtle.TextBlock{Text: "Grid content four."})),
-				myrtle.GridItemGroup(myrtle.NewGroup().Add(myrtle.HeadingBlock{Text: "Item 5", Level: 4}).Add(myrtle.TextBlock{Text: "Wraps to new row."})),
+				myrtle.GridItemGroup(myrtle.NewGroup().AddHeading("Item 1", myrtle.HeadingLevel(4)).AddText("Grid content one.")),
+				myrtle.GridItemGroup(myrtle.NewGroup().AddHeading("Item 2", myrtle.HeadingLevel(4)).AddText("Grid content two.")),
+				myrtle.GridItemGroup(myrtle.NewGroup().AddHeading("Item 3", myrtle.HeadingLevel(4)).AddText("Grid content three.")),
+				myrtle.GridItemGroup(myrtle.NewGroup().AddHeading("Item 4", myrtle.HeadingLevel(4)).AddText("Grid content four.")),
+				myrtle.GridItemGroup(myrtle.NewGroup().AddHeading("Item 5", myrtle.HeadingLevel(4)).AddText("Wraps to new row.")),
 			},
 			myrtle.GridColumns(3),
 			myrtle.GridGap(12),
@@ -862,11 +863,11 @@ func buildBlockEmail(name string, selectedTheme theme.Theme) (*myrtle.Email, err
 		builder.AddHeading("No spacing + inset mode none", myrtle.HeadingLevel(3))
 		builder.AddGrid(
 			[]myrtle.GridItem{
-				myrtle.GridItemGroup(myrtle.NewGroup().Add(myrtle.HeadingBlock{Text: "Item 1", Level: 4}).Add(myrtle.TextBlock{Text: "Grid content one."})),
-				myrtle.GridItemGroup(myrtle.NewGroup().Add(myrtle.HeadingBlock{Text: "Item 2", Level: 4}).Add(myrtle.TextBlock{Text: "Grid content two."})),
-				myrtle.GridItemGroup(myrtle.NewGroup().Add(myrtle.HeadingBlock{Text: "Item 3", Level: 4}).Add(myrtle.TextBlock{Text: "Grid content three."})),
-				myrtle.GridItemGroup(myrtle.NewGroup().Add(myrtle.HeadingBlock{Text: "Item 4", Level: 4}).Add(myrtle.TextBlock{Text: "Grid content four."})),
-				myrtle.GridItemGroup(myrtle.NewGroup().Add(myrtle.HeadingBlock{Text: "Item 5", Level: 4}).Add(myrtle.TextBlock{Text: "Wraps to new row."})),
+				myrtle.GridItemGroup(myrtle.NewGroup().AddHeading("Item 1", myrtle.HeadingLevel(4)).AddText("Grid content one.")),
+				myrtle.GridItemGroup(myrtle.NewGroup().AddHeading("Item 2", myrtle.HeadingLevel(4)).AddText("Grid content two.")),
+				myrtle.GridItemGroup(myrtle.NewGroup().AddHeading("Item 3", myrtle.HeadingLevel(4)).AddText("Grid content three.")),
+				myrtle.GridItemGroup(myrtle.NewGroup().AddHeading("Item 4", myrtle.HeadingLevel(4)).AddText("Grid content four.")),
+				myrtle.GridItemGroup(myrtle.NewGroup().AddHeading("Item 5", myrtle.HeadingLevel(4)).AddText("Wraps to new row.")),
 			},
 			myrtle.GridColumns(3),
 			myrtle.GridGap(0),

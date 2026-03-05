@@ -879,6 +879,21 @@ func HeroTone(value Tone) HeroOption {
 	}
 }
 
+// HeroEyebrow sets the eyebrow text of the hero block.
+func HeroEyebrow(value string) HeroOption {
+	return func(block *HeroBlock) {
+		block.Eyebrow = value
+	}
+}
+
+// HeroImage sets the hero image URL and alt text.
+func HeroImage(url, alt string) HeroOption {
+	return func(block *HeroBlock) {
+		block.ImageURL = url
+		block.ImageAlt = alt
+	}
+}
+
 // Add appends a block to the builder.
 // Use this for custom or preconstructed block instances.
 func (builder *Builder) Add(block Block) *Builder {
