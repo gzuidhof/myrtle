@@ -7,7 +7,7 @@ Assumes the example server is already running (default: `http://localhost:8380`)
 ## Setup
 
 ```bash
-cd scripts/preview
+cd example/script/preview
 npm install
 npx playwright install chromium
 ```
@@ -43,6 +43,6 @@ By default, screenshots are written to `example/screenshot/`.
 - `--emails <a,b,c>`: Comma-separated list of email keys
 - `--themes <a,b,c>`: Comma-separated theme list
 - `--base-url <url>`: Example server base URL
-- `--out-dir <path>`: Output directory for screenshots (default `../../example/screenshot`)
+- `--out-dir <path>`: Output directory for screenshots (default `../../screenshot`)
 - `--width <px>`: Viewport width (default `720`)
 - `--height <px>`: Viewport height (default `400`) (this is intentionally small to reduce empty space below the email content as we capture the full page anyhow).
