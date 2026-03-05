@@ -1,7 +1,7 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="logo-light.png">
-    <img alt="Myrtle logo" src="logo.png">
+    <source media="(prefers-color-scheme: dark)" srcset="example/server/assets/logo-light.png">
+    <img alt="Myrtle logo" src="example/server/assets/logo.png">
   </picture>
 </p>
 
@@ -10,7 +10,7 @@ Myrtle is a composable, strongly typed email content builder for Go.
 
 | Default | Terminal |
 | --- | --- |
-| ![Security example (default)](screenshots/default--security.png) | ![Security example (terminal)](screenshots/terminal--security.png) |
+| ![Security example (default)](example/screenshot/default--security.png) | ![Security example (terminal)](example/screenshot/terminal--security.png) |
 
 ## Features
 
@@ -253,31 +253,31 @@ func main() {
 
 | Default | Flat |
 | --- | --- |
-| ![Weekly operations brief (default)](screenshots/default--weekly-operations-brief.png) | ![Weekly operations brief (flat)](screenshots/flat--weekly-operations-brief.png) |
+| ![Weekly operations brief (default)](example/screenshot/default--weekly-operations-brief.png) | ![Weekly operations brief (flat)](example/screenshot/flat--weekly-operations-brief.png) |
 | Terminal | Editorial |
-| ![Weekly operations brief (terminal)](screenshots/terminal--weekly-operations-brief.png) | ![Weekly operations brief (editorial)](screenshots/editorial--weekly-operations-brief.png) |
+| ![Weekly operations brief (terminal)](example/screenshot/terminal--weekly-operations-brief.png) | ![Weekly operations brief (editorial)](example/screenshot/editorial--weekly-operations-brief.png) |
 
 #### Account deletion confirmation
 
 | Default | Flat |
 | --- | --- |
-| ![Account deletion confirmation (default)](screenshots/default--account-deletion-confirmation.png) | ![Account deletion confirmation (flat)](screenshots/flat--account-deletion-confirmation.png) |
+| ![Account deletion confirmation (default)](example/screenshot/default--account-deletion-confirmation.png) | ![Account deletion confirmation (flat)](example/screenshot/flat--account-deletion-confirmation.png) |
 | Terminal | Editorial |
-| ![Account deletion confirmation (terminal)](screenshots/terminal--account-deletion-confirmation.png) | ![Account deletion confirmation (editorial)](screenshots/editorial--account-deletion-confirmation.png) |
+| ![Account deletion confirmation (terminal)](example/screenshot/terminal--account-deletion-confirmation.png) | ![Account deletion confirmation (editorial)](example/screenshot/editorial--account-deletion-confirmation.png) |
 
 #### Security confirmation
 
 | Default | Flat |
 | --- | --- |
-| ![Security confirmation (default)](screenshots/default--security.png) | ![Security confirmation (flat)](screenshots/flat--security.png) |
+| ![Security confirmation (default)](example/screenshot/default--security.png) | ![Security confirmation (flat)](example/screenshot/flat--security.png) |
 | Terminal | Editorial |
-| ![Security confirmation (terminal)](screenshots/terminal--security.png) | ![Security confirmation (editorial)](screenshots/editorial--security.png) |
+| ![Security confirmation (terminal)](example/screenshot/terminal--security.png) | ![Security confirmation (editorial)](example/screenshot/editorial--security.png) |
 
 #### Monster
 
 The monster example is a fun showcase of many blocks and styles together. It intentionally has a lot of content to demonstrate how the builder and themes handle it.
 
-- [screenshots/default--monster.png](screenshots/default--monster.png)
+- [example/screenshot/default--monster.png](example/screenshot/default--monster.png)
 
 ## Example server
 
@@ -289,7 +289,7 @@ Clone this repository and run the server to preview example emails in the browse
 go run ./example/server/cmd
 ```
 
-![Example server preview](screenshots/example-server.png)
+![Example server preview](example/screenshot/example-server.png)
 
 ## Development
 The code for this repository is repetitive and verbose, I recommend you use AI-assisted code generation to speed up development. Writing inlined CSS manually is particularly painful.
