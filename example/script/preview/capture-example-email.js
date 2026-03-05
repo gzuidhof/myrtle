@@ -10,7 +10,7 @@ function parseArgs(argv) {
     emails: [],
     themes: ["default", "flat", "terminal", "editorial"],
     baseUrl: "http://localhost:8380",
-    outDir: "../../example/screenshot",
+    outDir: "../../screenshot",
     width: 720,
     height: 400,
   };
