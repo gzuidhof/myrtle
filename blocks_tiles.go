@@ -11,22 +11,31 @@ import (
 type TileVariant string
 
 const (
-	TileVariantDefault   TileVariant = "default"
+	// TileVariantDefault renders the default tile styling.
+	TileVariantDefault TileVariant = "default"
+	// TileVariantHighlight renders an emphasized highlight style.
 	TileVariantHighlight TileVariant = "highlight"
-	TileVariantSuccess   TileVariant = "success"
-	TileVariantWarning   TileVariant = "warning"
-	TileVariantCritical  TileVariant = "critical"
+	// TileVariantSuccess renders success-oriented styling.
+	TileVariantSuccess TileVariant = "success"
+	// TileVariantWarning renders warning-oriented styling.
+	TileVariantWarning TileVariant = "warning"
+	// TileVariantCritical renders critical/error-oriented styling.
+	TileVariantCritical TileVariant = "critical"
 )
 
 // TileAlignment defines content alignment within each tile.
 type TileAlignment string
 
 const (
+	// TileAlignmentCenter centers tile content.
 	TileAlignmentCenter TileAlignment = "center"
-	TileAlignmentStart  TileAlignment = "start"
-	TileAlignmentEnd    TileAlignment = "end"
+	// TileAlignmentStart aligns tile content to the logical start edge.
+	TileAlignmentStart TileAlignment = "start"
+	// TileAlignmentEnd aligns tile content to the logical end edge.
+	TileAlignmentEnd TileAlignment = "end"
 )
 
+// TileEntry is a single tile item rendered inside a TilesBlock.
 type TileEntry struct {
 	Content  string
 	Title    string

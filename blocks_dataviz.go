@@ -61,6 +61,7 @@ func (block SparklineBlock) RenderText(_ RenderContext) (string, error) {
 	return strings.Join(parts, "\n"), nil
 }
 
+// StackedBarSegment is one labeled segment in a stacked bar row.
 type StackedBarSegment struct {
 	Label   string
 	Percent int
@@ -68,6 +69,7 @@ type StackedBarSegment struct {
 	Color   string
 }
 
+// StackedBarRow is one row of stacked segments in a StackedBarBlock.
 type StackedBarRow struct {
 	Label    string
 	Segments []StackedBarSegment
@@ -169,6 +171,7 @@ func (block StackedBarBlock) RenderText(_ RenderContext) (string, error) {
 	return strings.Join(parts, "\n"), nil
 }
 
+// ProgressItem is one progress entry rendered by ProgressBlock.
 type ProgressItem struct {
 	Label   string
 	Percent int
@@ -241,6 +244,7 @@ func (block ProgressBlock) RenderText(_ RenderContext) (string, error) {
 	return strings.Join(parts, "\n"), nil
 }
 
+// DistributionBucket is one bucket entry in a DistributionBlock.
 type DistributionBucket struct {
 	Label        string
 	Count        int
@@ -403,6 +407,7 @@ func (block DistributionBlock) LayoutSpec() LayoutSpec {
 	return normalizedLayoutSpec(LayoutSpec{InsetMode: block.InsetMode})
 }
 
+// KeyValuePair is one key/value row rendered by KeyValueBlock.
 type KeyValuePair struct {
 	Key   string
 	Value string
@@ -444,6 +449,7 @@ func (block KeyValueBlock) RenderText(_ RenderContext) (string, error) {
 	return strings.Join(parts, "\n"), nil
 }
 
+// HorizontalBarChartItem is one category/value row in a HorizontalBarChartBlock.
 type HorizontalBarChartItem struct {
 	Label   string
 	Value   string
@@ -548,6 +554,7 @@ func (block HorizontalBarChartBlock) normalizedThickness() int {
 	return block.Thickness
 }
 
+// TimelineItem is one timestamped entry in a TimelineBlock.
 type TimelineItem struct {
 	Time   string
 	Title  string
@@ -615,6 +622,7 @@ func (block TimelineBlock) RenderText(_ RenderContext) (string, error) {
 	return strings.Join(parts, "\n"), nil
 }
 
+// StatItem is one KPI entry rendered in a StatsRowBlock.
 type StatItem struct {
 	Label         string
 	Value         string
@@ -622,11 +630,15 @@ type StatItem struct {
 	DeltaSemantic StatDeltaSemantic
 }
 
+// StatDeltaSemantic controls semantic styling for stat delta values.
 type StatDeltaSemantic string
 
 const (
-	StatDeltaSemanticNone     StatDeltaSemantic = "none"
+	// StatDeltaSemanticNone renders delta text without semantic emphasis.
+	StatDeltaSemanticNone StatDeltaSemantic = "none"
+	// StatDeltaSemanticPositive renders positive/upward delta emphasis.
 	StatDeltaSemanticPositive StatDeltaSemantic = "positive"
+	// StatDeltaSemanticNegative renders negative/downward delta emphasis.
 	StatDeltaSemanticNegative StatDeltaSemantic = "negative"
 )
 

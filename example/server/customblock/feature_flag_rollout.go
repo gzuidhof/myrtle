@@ -14,8 +14,10 @@ import (
 //go:embed *.html.tmpl
 var templatesFS embed.FS
 
+// FeatureFlagRolloutKind is the block kind identifier used by the feature rollout custom block.
 const FeatureFlagRolloutKind theme.BlockKind = "feature_flag_rollout"
 
+// FeatureFlagRollout describes rollout status data rendered by the custom feature flag block.
 type FeatureFlagRollout struct {
 	FlagName         string
 	Environment      string
@@ -29,10 +31,6 @@ type FeatureFlagRollout struct {
 	OpenFlagURL      string
 	RollbackNowURL   string
 	IncidentBoardURL string
-}
-
-func Register(registry *myrtle.Registry) error {
-	return myrtle.Register(registry, FeatureFlagRolloutKind, renderHTML, renderText)
 }
 
 func NewFeatureFlagRolloutBlock(data FeatureFlagRollout) myrtle.Block {

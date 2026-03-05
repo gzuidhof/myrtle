@@ -20,6 +20,7 @@ type PanelBlock struct {
 	InsetMode  InsetMode
 }
 
+// GridItem is one content cell in a GridBlock.
 type GridItem struct {
 	Content Block
 }
@@ -33,6 +34,7 @@ type GridBlock struct {
 	InsetMode InsetMode
 }
 
+// CardItem is one card entry rendered by CardListBlock.
 type CardItem struct {
 	Title    string
 	Body     string
@@ -64,12 +66,55 @@ type ColumnsBlock struct {
 // ColumnsOption configures a ColumnsBlock when building content.
 type ColumnsOption func(*ColumnsBlock)
 
+// ColumnsWidths sets relative left/right column widths using percentage normalization.
+func ColumnsWidths(leftWidth, rightWidth int) ColumnsOption {
+	return func(block *ColumnsBlock) {
+		if leftWidth <= 0 || rightWidth <= 0 {
+			return
+		}
+		total := leftWidth + rightWidth
+		if total <= 0 {
+			return
+		}
+
+		block.LeftWidth = (leftWidth * 100) / total
+		block.RightWidth = 100 - block.LeftWidth
+	}
+}
+
+// ColumnsGap sets the horizontal gap between columns.
+func ColumnsGap(value int) ColumnsOption {
+	return func(block *ColumnsBlock) {
+		if value < 0 {
+			return
+		}
+		block.Gap = value
+	}
+}
+
+// ColumnsAlign sets vertical alignment for both columns.
+func ColumnsAlign(value ColumnsVerticalAlign) ColumnsOption {
+	return func(block *ColumnsBlock) {
+		block.VerticalAlign = value
+	}
+}
+
+// ColumnsInsetMode sets the layout inset mode for a columns block.
+func ColumnsInsetMode(value InsetMode) ColumnsOption {
+	return func(block *ColumnsBlock) {
+		block.InsetMode = value
+	}
+}
+
 // ColumnsVerticalAlign controls vertical alignment of content inside each columns cell.
 type ColumnsVerticalAlign string
 
 const (
-	ColumnsVerticalAlignTop    ColumnsVerticalAlign = "top"
+	// ColumnsVerticalAlignTop aligns column content to the top.
+	ColumnsVerticalAlignTop ColumnsVerticalAlign = "top"
+	// ColumnsVerticalAlignMiddle aligns column content to the vertical middle.
 	ColumnsVerticalAlignMiddle ColumnsVerticalAlign = "middle"
+	// ColumnsVerticalAlignBottom aligns column content to the bottom.
 	ColumnsVerticalAlignBottom ColumnsVerticalAlign = "bottom"
 )
 
@@ -330,8 +375,11 @@ type DividerBlock struct {
 type DividerVariant string
 
 const (
-	DividerVariantSolid  DividerVariant = "solid"
+	// DividerVariantSolid renders a continuous divider line.
+	DividerVariantSolid DividerVariant = "solid"
+	// DividerVariantDashed renders a dashed divider line.
 	DividerVariantDashed DividerVariant = "dashed"
+	// DividerVariantDotted renders a dotted divider line.
 	DividerVariantDotted DividerVariant = "dotted"
 )
 

@@ -170,55 +170,6 @@ func TestMSOCompatibilityStyleToggleControlsOutlookSpacerFallback(t *testing.T) 
 	}
 }
 
-func TestCustomBlockRegistry(t *testing.T) {
-	t.Parallel()
-	type Promo struct {
-		Title string
-	}
-
-	registry := myrtle.NewRegistry()
-	err := myrtle.Register(registry, "promo",
-		func(value Promo, values theme.Values) (string, error) {
-			_ = values
-			return "<section><h2>" + value.Title + " for Myrtle</h2></section>", nil
-		},
-		func(value Promo, context myrtle.RenderContext) (string, error) {
-			_ = context
-			return "## " + value.Title + " for Myrtle", nil
-		},
-	)
-	if err != nil {
-		t.Fatalf("register returned error: %v", err)
-	}
-
-	builder := myrtle.NewBuilder(
-		defaulttheme.New(),
-	)
-
-	promoBlock, err := myrtle.CreateBlock(registry, "promo", Promo{Title: "Launch"})
-	if err != nil {
-		t.Fatalf("create returned error: %v", err)
-	}
-
-	email := builder.WithHeader(myrtle.HeadingBlock{Text: "Custom", Level: 1}).Add(promoBlock).Build()
-
-	html, err := email.HTML()
-	if err != nil {
-		t.Fatalf("expected html render to succeed for registry custom block: %v", err)
-	}
-	if !strings.Contains(html, "Launch for Myrtle") {
-		t.Fatalf("expected html to contain custom rendered content")
-	}
-
-	text, err := email.Text()
-	if err != nil {
-		t.Fatalf("text returned error: %v", err)
-	}
-	if !strings.Contains(text, "## Launch for Myrtle") {
-		t.Fatalf("expected text to contain custom rendered content")
-	}
-}
-
 func TestAddWithNewCustomBlock(t *testing.T) {
 	t.Parallel()
 	type Promo struct {
@@ -255,6 +206,61 @@ func TestAddWithNewCustomBlock(t *testing.T) {
 	}
 	if !strings.Contains(text, "## Launch for Myrtle") {
 		t.Fatalf("expected text to contain custom rendered content")
+	}
+}
+
+func TestNewCustomBlockWithLayoutSpecUsesProvidedLayout(t *testing.T) {
+	t.Parallel()
+
+	block := myrtle.NewCustomBlockWithLayoutSpec(
+		"promo_direct",
+		struct{ Title string }{Title: "Launch"},
+		myrtle.LayoutSpec{InsetMode: myrtle.InsetModeCustom, CustomInset: "14px"},
+		func(value struct{ Title string }, values theme.Values) (string, error) {
+			_ = value
+			_ = values
+			return "<p>ok</p>", nil
+		},
+		func(value struct{ Title string }, context myrtle.RenderContext) (string, error) {
+			_ = value
+			_ = context
+			return "ok", nil
+		},
+	)
+
+	spec := block.LayoutSpec()
+	if spec.InsetMode != myrtle.InsetModeCustom {
+		t.Fatalf("expected inset mode custom, got %q", spec.InsetMode)
+	}
+	if spec.CustomInset != "14px" {
+		t.Fatalf("expected custom inset 14px, got %q", spec.CustomInset)
+	}
+}
+
+func TestNewCustomBlockDefaultsToDefaultLayoutSpec(t *testing.T) {
+	t.Parallel()
+
+	block := myrtle.NewCustomBlock(
+		"promo_direct",
+		struct{ Title string }{Title: "Launch"},
+		func(value struct{ Title string }, values theme.Values) (string, error) {
+			_ = value
+			_ = values
+			return "<p>ok</p>", nil
+		},
+		func(value struct{ Title string }, context myrtle.RenderContext) (string, error) {
+			_ = value
+			_ = context
+			return "ok", nil
+		},
+	)
+
+	spec := block.LayoutSpec()
+	if spec.InsetMode != myrtle.InsetModeDefault {
+		t.Fatalf("expected default inset mode, got %q", spec.InsetMode)
+	}
+	if spec.CustomInset != "" {
+		t.Fatalf("expected empty custom inset for default layout, got %q", spec.CustomInset)
 	}
 }
 

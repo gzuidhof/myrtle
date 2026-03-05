@@ -54,6 +54,7 @@ func (block HeroBlock) RenderText(_ RenderContext) (string, error) {
 	return strings.Join(parts, "\n\n"), nil
 }
 
+// FooterLink is one label/URL pair rendered by FooterLinksBlock.
 type FooterLink struct {
 	Label string
 	URL   string
@@ -103,6 +104,7 @@ func (block HeroBlock) LayoutSpec() LayoutSpec {
 
 func (block FooterLinksBlock) LayoutSpec() LayoutSpec { return defaultLayoutSpec() }
 
+// PriceLine is one line item rendered in a PriceSummaryBlock.
 type PriceLine struct {
 	Label string
 	Value string

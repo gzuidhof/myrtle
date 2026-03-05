@@ -15,6 +15,7 @@ var templatesFS embed.FS
 //go:embed assets/*
 var assetsFS embed.FS
 
+// Server serves email and block previews along with static assets.
 type Server struct {
 	templates templateSet
 	mux       *http.ServeMux

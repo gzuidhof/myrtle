@@ -9,6 +9,7 @@ import (
 	"github.com/gzuidhof/myrtle/theme"
 )
 
+// ThemeFactory constructs a fresh theme instance for suite execution.
 type ThemeFactory func() theme.Theme
 
 func RunSuite(t *testing.T, factory ThemeFactory) {

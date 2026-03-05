@@ -26,7 +26,7 @@ func CustomFeatureFlagRolloutEmailWithTheme(selectedTheme theme.Theme) (*myrtle.
 				Add(myrtle.TextBlock{Text: "Myrtle Control Plane", Align: myrtle.TextAlignCenter, Weight: myrtle.TextWeightSemibold}),
 		).
 		AddHeading("Feature rollout guardrail", myrtle.HeadingLevel(1)).
-		AddText("This email demonstrates a registry-backed custom block rendered without modifying any built-in themes.").
+		AddText("This email demonstrates custom block rendered without modifying any built-in themes.").
 		Add(customblock.NewFeatureFlagRolloutBlock(customblock.FeatureFlagRollout{
 			FlagName:         "checkout.v2",
 			Environment:      "production",

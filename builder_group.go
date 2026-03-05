@@ -21,55 +21,6 @@ func (group *Group) Blocks() []Block {
 	return append([]Block(nil), group.blocks...)
 }
 
-// HeadingLevel sets the heading level on a HeadingBlock.
-func HeadingLevel(value int) HeadingOption {
-	return func(block *HeadingBlock) {
-		if value > 0 {
-			block.Level = value
-		}
-	}
-}
-
-// ColumnsWidths sets relative left/right column widths using percentage normalization.
-func ColumnsWidths(leftWidth, rightWidth int) ColumnsOption {
-	return func(block *ColumnsBlock) {
-		if leftWidth <= 0 || rightWidth <= 0 {
-			return
-		}
-		total := leftWidth + rightWidth
-		if total <= 0 {
-			return
-		}
-
-		block.LeftWidth = (leftWidth * 100) / total
-		block.RightWidth = 100 - block.LeftWidth
-	}
-}
-
-// ColumnsGap sets the horizontal gap between columns.
-func ColumnsGap(value int) ColumnsOption {
-	return func(block *ColumnsBlock) {
-		if value < 0 {
-			return
-		}
-		block.Gap = value
-	}
-}
-
-// ColumnsAlign sets vertical alignment for both columns.
-func ColumnsAlign(value ColumnsVerticalAlign) ColumnsOption {
-	return func(block *ColumnsBlock) {
-		block.VerticalAlign = value
-	}
-}
-
-// ColumnsInsetMode sets the layout inset mode for a columns block.
-func ColumnsInsetMode(value InsetMode) ColumnsOption {
-	return func(block *ColumnsBlock) {
-		block.InsetMode = value
-	}
-}
-
 // Add appends a block to the group.
 // Use this for custom or preconstructed block instances.
 func (group *Group) Add(block Block) *Group {
