@@ -140,10 +140,10 @@ func monsterEmailWithThemeAndStyles(selectedTheme theme.Theme, styles theme.Styl
 		).
 		AddGrid(
 			[]myrtle.GridItem{
-				myrtle.GridItemGroup(myrtle.NewGroup().Add(myrtle.HeadingBlock{Text: "Grid item 1", Level: 4}).Add(myrtle.TextBlock{Text: "Nested content one."})),
-				myrtle.GridItemGroup(myrtle.NewGroup().Add(myrtle.HeadingBlock{Text: "Grid item 2", Level: 4}).Add(myrtle.TextBlock{Text: "Nested content two."})),
-				myrtle.GridItemGroup(myrtle.NewGroup().Add(myrtle.HeadingBlock{Text: "Grid item 3", Level: 4}).Add(myrtle.TextBlock{Text: "Wrap behavior check."})),
-				myrtle.GridItemGroup(myrtle.NewGroup().Add(myrtle.HeadingBlock{Text: "Grid item 4", Level: 4}).Add(myrtle.TextBlock{Text: "Border + spacing stress."})),
+				myrtle.GridItemGroup(myrtle.NewGroup().AddHeading("Grid item 1", myrtle.HeadingLevel(4)).AddText("Nested content one.")),
+				myrtle.GridItemGroup(myrtle.NewGroup().AddHeading("Grid item 2", myrtle.HeadingLevel(4)).AddText("Nested content two.")),
+				myrtle.GridItemGroup(myrtle.NewGroup().AddHeading("Grid item 3", myrtle.HeadingLevel(4)).AddText("Wrap behavior check.")),
+				myrtle.GridItemGroup(myrtle.NewGroup().AddHeading("Grid item 4", myrtle.HeadingLevel(4)).AddText("Border + spacing stress.")),
 			},
 			myrtle.GridColumns(3),
 			myrtle.GridGap(12),
