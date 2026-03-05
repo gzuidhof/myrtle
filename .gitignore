@@ -36,3 +36,7 @@ example/server/smtp.config.json
 
 tmp/
 node_modules/
+
+# macOS Finder metadata
+.DS_Store
+**/.DS_Store
