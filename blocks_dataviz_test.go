@@ -100,7 +100,7 @@ func TestSparklineGlyphs(t *testing.T) {
 			}
 
 			if test.expectedRunes != "" {
-				for _, glyph := range []rune(test.expectedRunes) {
+				for _, glyph := range test.expectedRunes {
 					if !strings.ContainsRune(actual, glyph) {
 						t.Fatalf("expected %q to contain glyph %q", actual, glyph)
 					}

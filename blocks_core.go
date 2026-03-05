@@ -1,6 +1,10 @@
 package myrtle
 
-import "github.com/gzuidhof/myrtle/theme"
+import (
+	"strings"
+
+	"github.com/gzuidhof/myrtle/theme"
+)
 
 type RenderContext struct {
 	Preheader string
@@ -63,3 +67,38 @@ type Block interface {
 	// LayoutSpec returns layout metadata, such as inset behavior, used by theme layout templates.
 	LayoutSpec() LayoutSpec
 }
+
+func normalizedLayoutSpec(spec LayoutSpec) LayoutSpec {
+	if spec.InsetMode != InsetModeNone && spec.InsetMode != InsetModeCustom {
+		spec.InsetMode = InsetModeDefault
+	}
+
+	spec.CustomInset = strings.TrimSpace(spec.CustomInset)
+	if spec.InsetMode == InsetModeCustom && spec.CustomInset == "" {
+		spec.InsetMode = InsetModeDefault
+	}
+
+	return spec
+}
+
+func defaultLayoutSpec() LayoutSpec {
+	return LayoutSpec{InsetMode: InsetModeDefault}
+}
+
+func (group *Group) Kind() theme.BlockKind {
+	return theme.BlockKind("group")
+}
+
+func (group *Group) TemplateData() any {
+	return group
+}
+
+func (group *Group) RenderText(context RenderContext) (string, error) {
+	if group == nil {
+		return "", nil
+	}
+
+	return renderColumnText(group.Blocks(), context)
+}
+
+func (group *Group) LayoutSpec() LayoutSpec { return defaultLayoutSpec() }

@@ -12,10 +12,12 @@ var (
 	ErrRendererNotFound          = errors.New("myrtle: renderer not found")
 )
 
+// Registry maps custom block kinds to their renderer functions.
 type Registry struct {
 	renderers map[theme.BlockKind]customRenderer
 }
 
+// customRenderer stores normalized renderer callbacks for dynamic custom blocks.
 type customRenderer struct {
 	renderHTML func(any, theme.Values) (string, error)
 	renderText func(any, RenderContext) (string, error)
@@ -132,6 +134,7 @@ func (registry *Registry) createBlock(kind theme.BlockKind, data any) (Block, er
 	}, nil
 }
 
+// customBlock is a runtime block wrapper backed by a registered custom renderer.
 type customBlock[T any] struct {
 	kind     theme.BlockKind
 	data     T

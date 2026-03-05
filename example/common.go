@@ -55,9 +55,7 @@ func usesDarkBackground(selectedTheme theme.Theme) bool {
 
 func isDarkHexColor(value string) bool {
 	color := strings.TrimSpace(value)
-	if strings.HasPrefix(color, "#") {
-		color = color[1:]
-	}
+	color = strings.TrimPrefix(color, "#")
 
 	if len(color) == 3 {
 		color = strings.Repeat(string(color[0]), 2) + strings.Repeat(string(color[1]), 2) + strings.Repeat(string(color[2]), 2)

@@ -3,6 +3,7 @@ package server
 import (
 	"errors"
 	"fmt"
+	"math"
 	"strings"
 
 	"github.com/gzuidhof/myrtle"
@@ -170,6 +171,18 @@ func buildBlockEmail(name string, selectedTheme theme.Theme) (*myrtle.Email, err
 			{Key: "base", Label: "Base", Values: []float64{95, 92, 94, 93}},
 			{Key: "small", Label: "Small", Values: []float64{5, 8, 6, 7}},
 		}
+		edgeSparseSeries := []myrtle.VerticalBarChartSeries{
+			{Key: "", Label: "", Values: []float64{28, 0, 17, 0, 14, 9}},
+			{Key: "refund", Label: "Refund", Color: "#ef4444", Values: []float64{0, -4}},
+		}
+		edgeAllNegativeSeries := []myrtle.VerticalBarChartSeries{
+			{Key: "churn", Label: "Churn", Color: "#ef4444", Values: []float64{-18, -24, -16, -21}},
+			{Key: "refund", Label: "Refund", Color: "#f87171", Values: []float64{-7, -3, -5, -8}},
+		}
+		edgeNonFiniteSeries := []myrtle.VerticalBarChartSeries{
+			{Key: "valid", Label: "Valid", Color: "#1d4ed8", Values: []float64{12, math.NaN(), 8, math.Inf(1)}},
+			{Key: "negative", Label: "Negative", Color: "#ef4444", Values: []float64{-3, -2, math.Inf(-1), 0}},
+		}
 		monthNames := []string{"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"}
 		axisLabels24Months := make([]string, 0, 24)
 		series24Months := []myrtle.VerticalBarChartSeries{
@@ -318,6 +331,45 @@ func buildBlockEmail(name string, selectedTheme theme.Theme) (*myrtle.Email, err
 			myrtle.VerticalBarChartTitle("MRR movement"),
 			myrtle.VerticalBarChartLegendPlacement(myrtle.VerticalBarChartLegendBottom),
 			myrtle.VerticalBarChartInsetMode(myrtle.InsetModeNone),
+		)
+
+		builder.AddHeading("Edge case: sparse labels + mismatched lengths", myrtle.HeadingLevel(3))
+		builder.AddVerticalBarChart(
+			[]string{"", "Feb", "", "Apr"},
+			edgeSparseSeries,
+			myrtle.VerticalBarChartTitle("Sparse categories"),
+			myrtle.VerticalBarChartAxisShowYTicks(true),
+			myrtle.VerticalBarChartAxisShowBaseline(true),
+			myrtle.VerticalBarChartLegendPlacement(myrtle.VerticalBarChartLegendBottom),
+		)
+
+		builder.AddHeading("Edge case: all-negative stacks", myrtle.HeadingLevel(3))
+		builder.AddVerticalBarChart(
+			axisLabels,
+			edgeAllNegativeSeries,
+			myrtle.VerticalBarChartTitle("Negative-only movement"),
+			myrtle.VerticalBarChartAxisShowYTicks(true),
+			myrtle.VerticalBarChartAxisShowBaseline(true),
+			myrtle.VerticalBarChartValueFormatterOption(myrtle.VerticalBarChartValueFormatter{Prefix: "$", NegativeFormat: myrtle.VerticalBarChartNegativeFormatParentheses}),
+		)
+
+		builder.AddHeading("Edge case: non-finite values are ignored", myrtle.HeadingLevel(3))
+		builder.AddVerticalBarChart(
+			axisLabels,
+			edgeNonFiniteSeries,
+			myrtle.VerticalBarChartTitle("NaN/Inf filtering"),
+			myrtle.VerticalBarChartAxisShowYTicks(true),
+			myrtle.VerticalBarChartLegendPlacement(myrtle.VerticalBarChartLegendBottom),
+		)
+
+		builder.AddHeading("Edge case: gap clamping", myrtle.HeadingLevel(3))
+		builder.AddGrid(
+			[]myrtle.GridItem{
+				myrtle.GridItemGroup(myrtle.NewGroup().AddVerticalBarChart(axisLabels, series, myrtle.VerticalBarChartTitle("ColumnGap -5 => 0"), myrtle.VerticalBarChartColumnGap(-5))),
+				myrtle.GridItemGroup(myrtle.NewGroup().AddVerticalBarChart(axisLabels, series, myrtle.VerticalBarChartTitle("ColumnGap 40 => 28"), myrtle.VerticalBarChartColumnGap(40))),
+				myrtle.GridItemGroup(myrtle.NewGroup().AddVerticalBarChart(axisLabels, series, myrtle.VerticalBarChartTitle("OuterGap 40 => 28"), myrtle.VerticalBarChartOuterGap(40))),
+			},
+			myrtle.GridColumns(3),
 		)
 	case "sparkline":
 		builder.AddHeading("Signups", myrtle.HeadingLevel(3))
