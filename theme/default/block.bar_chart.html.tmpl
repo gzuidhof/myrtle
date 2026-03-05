@@ -1,0 +1,51 @@
+{{ if .Block.Header }}<p style="margin:0 0 10px;font-weight:700;color:{{ .Values.Styles.ColorText }};{{ if eq .Block.InsetMode "none" }}padding-{{ physicalSide "start" .Values }}:24px;padding-{{ physicalSide "end" .Values }}:24px;{{ end }}">{{ .Block.Header }}</p>{{ end }}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0 0 16px;">
+  {{ range .Block.Items }}
+  {{ if not $.Block.ShowLabelsInsideBars }}
+  <tr>
+    <td style="padding:0 0 4px;font-size:13px;color:{{ $.Values.Styles.ColorTextMuted }};{{ if eq $.Block.InsetMode "none" }}padding-{{ physicalSide "start" $.Values }}:24px;{{ end }}">{{ .Label }}</td>
+    <td align="right" style="padding:0 0 4px;font-size:13px;color:{{ $.Values.Styles.ColorText }};{{ if eq $.Block.InsetMode "none" }}padding-{{ physicalSide "end" $.Values }}:24px;{{ end }}">{{ .Value }}</td>
+  </tr>
+  {{ end }}
+  {{ if $.Block.ShowLabelsInsideBars }}
+  <tr>
+    <td style="padding:0 0 10px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;{{ if $.Block.TransparentBackground }}background:transparent;{{ else }}background:{{ $.Values.Styles.ColorBorder }};{{ end }}">
+        <tr>
+          <td>
+            <table role="presentation" width="{{ .Percent }}%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;table-layout:fixed;">
+              <tr>
+                <td style="height:{{ $.Block.Thickness }}px;line-height:{{ $.Block.Thickness }}px;font-size:0;overflow:hidden;background:{{ if .Color }}{{ .Color }}{{ else }}{{ toneColor $.Block.Tone $.Values "strong" }}{{ end }};">
+                  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;table-layout:fixed;width:100%;">
+                    <tr>
+                      <td align="{{ physicalAlign "start" $.Values }}" style="max-width:0;padding-{{ physicalSide "start" $.Values }}:6px;padding-{{ physicalSide "end" $.Values }}:6px;color:{{ $.Values.Styles.ColorTextOnSolid }};font-size:11px;line-height:1.2;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ .Label }}</td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </td>
+    <td align="{{ physicalAlign "end" $.Values }}" style="padding:0 0 10px;padding-{{ physicalSide "start" $.Values }}:6px;font-size:11px;line-height:1.2;font-weight:700;color:{{ $.Values.Styles.ColorText }};white-space:nowrap;{{ if eq $.Block.InsetMode "none" }}padding-{{ physicalSide "end" $.Values }}:24px;{{ end }}">{{ .Value }}</td>
+  </tr>
+  {{ else }}
+  <tr>
+    <td colspan="2" style="padding:0 0 10px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;{{ if $.Block.TransparentBackground }}background:transparent;{{ else }}background:{{ $.Values.Styles.ColorBorder }};{{ end }}">
+        <tr>
+          <td>
+            <table role="presentation" width="{{ .Percent }}%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;table-layout:fixed;">
+              <tr>
+                <td style="height:{{ $.Block.Thickness }}px;line-height:{{ $.Block.Thickness }}px;font-size:0;background:{{ if .Color }}{{ .Color }}{{ else }}{{ toneColor $.Block.Tone $.Values "strong" }}{{ end }};">&nbsp;</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  {{ end }}
+  {{ end }}
+</table>

@@ -1,0 +1,7 @@
+{{ if and .Header .Header.Text }}{{ .Header.Text }}{{ end }}
+
+{{ if .Preheader }}{{ .Preheader }}{{ end }}
+
+{{ .Body }}
+
+{{ if and .Footer .Footer.Text }}{{ .Footer.Text }}{{ end }}

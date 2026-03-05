@@ -1,0 +1,42 @@
+<div style="margin:0 0 16px;border:1px solid {{ .Values.Styles.ColorBorder }};border-radius:{{ .Values.Styles.RadiusElement }};background:{{ .Values.Styles.ColorSurface }};overflow:hidden;">
+  <div style="padding:12px 14px;border-bottom:1px solid {{ .Values.Styles.ColorBorder }};background:{{ .Values.Styles.ColorSurfaceMuted }};">
+    <p style="margin:0 0 4px;font-size:12px;color:{{ .Values.Styles.ColorTextMuted }};text-transform:uppercase;letter-spacing:0.05em;">Custom block · feature flag rollout</p>
+    <p style="margin:0;font-size:15px;font-weight:700;color:{{ .Values.Styles.ColorText }};">{{ .Data.FlagName }} <span style="font-size:12px;font-weight:600;color:{{ .Values.Styles.ColorTextMuted }};">({{ .Data.Environment }})</span></p>
+  </div>
+  <div style="padding:12px 14px;">
+    <p style="margin:0 0 8px;font-size:13px;color:{{ .Values.Styles.ColorText }};"><strong>Status:</strong> <span style="font-weight:700;color:{{ if eq .Data.Status "rolled-back" }}{{ .Values.Styles.ColorDangerText }}{{ else if eq .Data.Status "at-risk" }}{{ .Values.Styles.ColorWarning }}{{ else }}{{ .Values.Styles.ColorSuccessText }}{{ end }};{{ if eq .Data.Status "at-risk" }}background:{{ .Values.Styles.ColorWarningBackground }};padding:1px 6px;border-radius:999px;{{ end }}">{{ .Data.Status }}</span> · <strong>Rollout:</strong> {{ .Data.RolloutPercent }}%</p>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;background:{{ .Values.Styles.ColorSurfaceMuted }};">
+      <tr>
+        <td style="height:8px;line-height:8px;font-size:0;background:{{ if eq .Data.Status "rolled-back" }}{{ .Values.Styles.ColorDanger }}{{ else if eq .Data.Status "at-risk" }}{{ .Values.Styles.ColorWarning }}{{ else }}{{ .Values.Styles.ColorSuccess }}{{ end }};" width="{{ .Data.RolloutPercent }}%">&nbsp;</td>
+        <td style="height:8px;line-height:8px;font-size:0;">&nbsp;</td>
+      </tr>
+    </table>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:10px 0 0;">
+      <tr>
+        <td style="padding:2px 0;font-size:12px;color:{{ .Values.Styles.ColorTextMuted }};">Error budget used</td>
+        <td align="right" style="padding:2px 0;font-size:12px;color:{{ .Values.Styles.ColorText }};">{{ .Data.ErrorBudgetUsed }}</td>
+      </tr>
+      <tr>
+        <td style="padding:2px 0;font-size:12px;color:{{ .Values.Styles.ColorTextMuted }};">P95 latency delta</td>
+        <td align="right" style="padding:2px 0;font-size:12px;color:{{ .Values.Styles.ColorText }};">{{ .Data.P95LatencyDelta }}</td>
+      </tr>
+      <tr>
+        <td style="padding:2px 0;font-size:12px;color:{{ .Values.Styles.ColorTextMuted }};">Auto rollback</td>
+        <td align="right" style="padding:2px 0;font-size:12px;color:{{ .Values.Styles.ColorText }};">{{ .Data.AutoRollback }}</td>
+      </tr>
+      <tr>
+        <td style="padding:2px 0;font-size:12px;color:{{ .Values.Styles.ColorTextMuted }};">Owner</td>
+        <td align="right" style="padding:2px 0;font-size:12px;color:{{ .Values.Styles.ColorText }};">{{ .Data.Owner }}</td>
+      </tr>
+      <tr>
+        <td style="padding:2px 0;font-size:12px;color:{{ .Values.Styles.ColorTextMuted }};">Change ID</td>
+        <td align="right" style="padding:2px 0;font-size:12px;color:{{ .Values.Styles.ColorText }};">{{ .Data.ChangeID }}</td>
+      </tr>
+    </table>
+    <p style="margin:10px 0 0;font-size:12px;">
+      <a href="{{ .Data.OpenFlagURL }}" style="color:{{ .Values.Styles.ColorPrimary }};text-decoration:none;">Open flag</a>
+      {{ if .Data.RollbackNowURL }} · <a href="{{ .Data.RollbackNowURL }}" style="color:{{ .Values.Styles.ColorDanger }};text-decoration:none;">Rollback now</a>{{ end }}
+      {{ if .Data.IncidentBoardURL }} · <a href="{{ .Data.IncidentBoardURL }}" style="color:{{ .Values.Styles.ColorText }};text-decoration:none;">Incident board</a>{{ end }}
+    </p>
+  </div>
+</div>

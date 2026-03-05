@@ -1,0 +1,92 @@
+{{ define "content" }}
+<div class="page">
+  <aside class="sidebar">
+    <div class="brand">
+      <img src="/assets/logo.png" alt="Myrtle logo" />
+    </div>
+    <p class="muted">Directory and live previews.</p>
+
+    <label for="theme-select">Theme:</label>
+    <select id="theme-select" onchange="window.location.search='?theme='+this.value">
+      {{ range .ThemeOptions }}
+      <option value="{{ .Name }}" {{ if .Selected }}selected{{ end }}>{{ .Name }}</option>
+      {{ end }}
+    </select>
+
+    <h3 style="margin-top:1rem;">Example Emails</h3>
+    {{ range .EmailGroups }}
+    <h4 style="margin:.75rem 0 .35rem;">{{ .Name }}</h4>
+    <ul class="nav-list">
+      {{ range .Items }}
+      <li><a href="#email-{{ .Key }}">{{ .Name }}</a></li>
+      {{ end }}
+    </ul>
+    {{ end }}
+
+    <h3 style="margin-top:1rem;">Blocks</h3>
+    {{ range .BlockGroups }}
+    <h4 style="margin:.75rem 0 .35rem;">{{ .Name }}</h4>
+    <ul class="nav-list">
+      {{ range .Items }}
+      <li><a href="#block-{{ .Key }}">{{ .Name }}</a></li>
+      {{ end }}
+    </ul>
+    {{ end }}
+  </aside>
+
+  <main class="main">
+    <section id="emails" class="section-anchor">
+      <h2>Example Emails</h2>
+      {{ range .EmailGroups }}
+      <h3>{{ .Name }}</h3>
+      <div class="list">
+        {{ range .Items }}
+        <article id="email-{{ .Key }}" class="item section-anchor">
+          <h3>{{ .Name }}</h3>
+          {{ if $.SMTPEnabled }}
+          {{ if and $.SendStatus (eq $.SendStatus.Name .Key) }}
+          <p class="send-status {{ if $.SendStatus.Success }}ok{{ else }}error{{ end }}">{{ $.SendStatus.Message }}</p>
+          {{ end }}
+          <form method="post" action="/emails/send" class="send-form">
+            <input type="hidden" name="name" value="{{ .Key }}" />
+            <input type="hidden" name="theme" value="{{ $.Theme }}" />
+            <input type="email" name="to" value="{{ $.SMTPDefault }}" placeholder="you@example.com" required />
+            <button type="submit">Send email</button>
+          </form>
+          {{ end }}
+          <p><a href="{{ .HTMLURL }}" target="_blank" rel="noopener noreferrer">Open HTML in new tab</a></p>
+          <iframe src="{{ .HTMLURL }}" title="Email {{ .Name }}" height="520" loading="lazy"></iframe>
+          <details>
+            <summary>Text fallback</summary>
+            <pre>{{ .Text }}</pre>
+          </details>
+        </article>
+        {{ end }}
+      </div>
+      {{ end }}
+    </section>
+
+    <section id="blocks" class="section-anchor">
+      <h2>Blocks</h2>
+      {{ range .BlockGroups }}
+      <h3>{{ .Name }}</h3>
+      <div class="list">
+        {{ range .Items }}
+        <article id="block-{{ .Key }}" class="item section-anchor">
+          <h3>{{ .Name }}</h3>
+          <p><a href="{{ .HTMLURL }}" target="_blank" rel="noopener noreferrer">Open HTML in new tab</a></p>
+          <iframe src="{{ .HTMLURL }}" title="Block {{ .Name }}" height="320" loading="lazy"></iframe>
+          <details>
+            <summary>Text fallback</summary>
+            <pre>{{ .Text }}</pre>
+          </details>
+        </article>
+        {{ end }}
+      </div>
+      {{ end }}
+    </section>
+  </main>
+</div>
+{{ end }}
+
+{{ template "layout.html.tmpl" . }}

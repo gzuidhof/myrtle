@@ -1,0 +1,13 @@
+{{/*
+Image block with width and alignment support.
+Supported .Block fields: Src, Alt, Href, Width, Align
+*/}}
+{{ $align := .Block.Align }}
+{{ $width := .Block.Width }}
+<p style="margin:{{if .Block.HasTopSpacing}}{{.Block.TopSpacing}}px{{else}}20px{{end}} 0 {{if .Block.HasBottomSpacing}}{{.Block.BottomSpacing}}px{{else}}20px{{end}};{{if eq $align "full"}}margin-left:0;margin-right:0;width:100%;{{else}}text-align:{{ physicalAlign $align $.Values }};{{end}}">
+	{{ if .Block.Href }}<a href="{{ .Block.Href }}" style="text-decoration:none;">{{ end }}
+	<img src="{{ .Block.Src }}" alt="{{ .Block.Alt }}"
+		style="max-width:100%;height:auto;border-radius:{{if eq .Block.CornerMode "none"}}0{{else if eq .Block.CornerMode "top"}}{{ $.Values.Styles.RadiusElement }} {{ $.Values.Styles.RadiusElement }} 0 0{{else if eq .Block.CornerMode "bottom"}}0 0 {{ $.Values.Styles.RadiusElement }} {{ $.Values.Styles.RadiusElement }}{{else if eq .Block.CornerMode "all"}}{{ $.Values.Styles.RadiusElement }}{{else if eq .Block.InsetMode "none"}}0{{else}}{{ $.Values.Styles.RadiusElement }}{{end}};{{if $width}}{{if gt $width 0}}width:{{$width}}px;max-width:{{$width}}px;{{end}}{{else if eq $align "full"}}width:100%;max-width:100%;display:block;{{end}}"
+	/>
+	{{ if .Block.Href }}</a>{{ end }}
+</p>

@@ -1,0 +1,25 @@
+<div style="margin:0 0 16px;padding:12px 14px;border:1px solid {{ .Values.Styles.ColorBorder }};border-radius:{{ if eq .Block.InsetMode "none" }}0{{ else }}{{ .Values.Styles.RadiusElement }}{{ end }};{{ if eq .Block.InsetMode "none" }}border-left:0;border-right:0;{{ end }}background:{{ .Values.Styles.ColorSurface }};">
+  {{ if .Block.Header }}<p style="margin:0 0 8px;font-weight:700;color:{{ .Values.Styles.ColorText }};">{{ .Block.Header }}</p>{{ end }}
+  <p style="margin:0 0 6px;color:{{ .Values.Styles.ColorText }};font-size:14px;">{{ if .Block.Label }}{{ .Block.Label }}{{ end }}{{ if .Block.Value }}{{ if .Block.Label }}: {{ end }}<strong>{{ .Block.Value }}</strong>{{ end }}{{ if .Block.Delta }} <span style="color:{{ if eq .Block.DeltaSemantic "positive" }}{{ .Values.Styles.ColorSuccessText }}{{ else if eq .Block.DeltaSemantic "negative" }}{{ .Values.Styles.ColorDangerText }}{{ else }}{{ .Values.Styles.ColorTextMuted }}{{ end }};font-weight:{{ if eq .Block.DeltaSemantic "none" }}400{{ else }}600{{ end }};">({{ .Block.Delta }})</span>{{ end }}</p>
+  {{ if .Block.Points }}
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;table-layout:fixed;">
+    <tr>
+      {{ range .Block.Points }}
+      <td style="padding:0 1px;vertical-align:bottom;height:36px;">
+        <table role="presentation" width="100%" height="36" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;table-layout:fixed;height:36px;">
+          <tr>
+            <td valign="bottom" style="padding:0;vertical-align:bottom;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;table-layout:fixed;">
+                <tr>
+                  <td bgcolor="{{ toneColor $.Block.Tone $.Values "strong" }}" style="height:{{ . }}px;line-height:{{ . }}px;font-size:0;background:{{ toneColor $.Block.Tone $.Values "strong" }};">&nbsp;</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </td>
+      {{ end }}
+    </tr>
+  </table>
+  {{ end }}
+</div>

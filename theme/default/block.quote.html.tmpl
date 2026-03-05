@@ -1,0 +1,8 @@
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate;border-spacing:0;margin:0 0 16px;">
+  <tr>
+    <td bgcolor="{{ .Values.Styles.ColorSurfaceMuted }}" style="padding:10px 14px;mso-padding-alt:10px 14px;border-{{ physicalSide "start" .Values }}:4px solid {{ .Values.Styles.ColorBorder }};background:{{ .Values.Styles.ColorSurfaceMuted }};">
+      <p style="margin:0 0 8px;color:{{ .Values.Styles.ColorText }};line-height:1.6;font-style:italic;">{{ .Block.Text }}</p>
+      {{ if .Block.Author }}<p style="margin:0;color:{{ .Values.Styles.ColorTextMuted }};font-size:13px;">— {{ .Block.Author }}</p>{{ end }}
+    </td>
+  </tr>
+</table>

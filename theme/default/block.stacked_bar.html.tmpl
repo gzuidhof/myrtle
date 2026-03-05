@@ -1,0 +1,33 @@
+<div style="margin:0 0 16px;">
+  {{ if .Block.Header }}<p style="margin:0 0 10px;font-weight:700;color:{{ .Values.Styles.ColorText }};{{ if eq .Block.InsetMode "none" }}padding-{{ physicalSide "start" .Values }}:24px;padding-{{ physicalSide "end" .Values }}:24px;{{ end }}">{{ .Block.Header }}</p>{{ end }}
+  {{ if or .Block.TotalLabel .Block.TotalValue }}<p style="margin:0 0 10px;color:{{ .Values.Styles.ColorText }};{{ if eq .Block.InsetMode "none" }}padding-{{ physicalSide "start" .Values }}:24px;padding-{{ physicalSide "end" .Values }}:24px;{{ end }}"><strong>{{ .Block.TotalLabel }}</strong>{{ if .Block.TotalValue }}: {{ .Block.TotalValue }}{{ end }}</p>{{ end }}
+  {{ range .Block.Rows }}
+  <div style="margin:0;">
+    {{ if .Label }}<p style="margin:0 0 6px;color:{{ $.Values.Styles.ColorText }};font-size:13px;text-align:{{ physicalAlign "start" $.Values }};{{ if eq $.Block.InsetMode "none" }}padding-{{ physicalSide "start" $.Values }}:24px;padding-{{ physicalSide "end" $.Values }}:24px;{{ end }}">{{ .Label }}</p>{{ end }}
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;table-layout:fixed;border-radius:{{ if eq $.Block.InsetMode "none" }}0{{ else }}{{ $.Values.Styles.RadiusElement }}{{ end }};overflow:hidden;{{ if eq $.Block.InsetMode "none" }}border-left:0;border-right:0;{{ end }}">
+      <tr>
+        {{ range $idx, $segment := .Segments }}
+        {{ $segmentColor := $.Values.Styles.ColorPrimary }}
+        {{ if $segment.Color }}
+          {{ $segmentColor = $segment.Color }}
+        {{ else if eq $idx 1 }}
+          {{ $segmentColor = $.Values.Styles.ColorSecondary }}
+        {{ else if eq $idx 2 }}
+          {{ $segmentColor = $.Values.Styles.ColorInfo }}
+        {{ else if eq $idx 3 }}
+          {{ $segmentColor = $.Values.Styles.ColorSuccess }}
+        {{ else if eq $idx 4 }}
+          {{ $segmentColor = $.Values.Styles.ColorWarning }}
+        {{ else if ge $idx 5 }}
+          {{ $segmentColor = $.Values.Styles.ColorDanger }}
+        {{ end }}
+        <td style="width:{{ $segment.Percent }}%;background:{{ $segmentColor }};height:12px;"></td>
+        {{ end }}
+      </tr>
+    </table>
+    <p style="margin:6px 0 0;color:{{ $.Values.Styles.ColorTextMuted }};font-size:12px;text-align:{{ physicalAlign "end" $.Values }};{{ if eq $.Block.InsetMode "none" }}padding-{{ physicalSide "start" $.Values }}:24px;padding-{{ physicalSide "end" $.Values }}:24px;{{ end }}">
+      {{ range $idx, $segment := .Segments }}{{ if $idx }} · {{ end }}{{ if $segment.Label }}{{ $segment.Label }}{{ end }}{{ if $segment.Value }} {{ $segment.Value }}{{ else }} {{ $segment.Percent }}%{{ end }}{{ end }}
+    </p>
+  </div>
+  {{ end }}
+</div>

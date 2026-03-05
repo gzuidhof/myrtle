@@ -27,6 +27,16 @@ go.work.sum
 # env file
 .env
 
+# local smtp credentials for example server
+example/server/smtp.config.json
+
 # Editor/IDE
 # .idea/
 # .vscode/
+
+tmp/
+node_modules/
+
+# macOS Finder metadata
+.DS_Store
+**/.DS_Store

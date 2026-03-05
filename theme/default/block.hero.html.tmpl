@@ -1,0 +1,33 @@
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate;border-spacing:0;margin:0 0 18px;">
+  <tr>
+    <td bgcolor="{{ toneColor .Block.Tone .Values "background" }}" style="padding:16px;mso-padding-alt:16px;border:1px solid {{ toneColor .Block.Tone .Values "border" }};border-radius:{{ if eq .Block.InsetMode "none" }}0{{ else }}{{ .Values.Styles.RadiusElement }}{{ end }};{{ if eq .Block.InsetMode "none" }}border-left:0;border-right:0;{{ end }}background:{{ toneColor .Block.Tone .Values "background" }};">
+      {{ if .Block.Eyebrow }}<p style="margin:0 0 8px;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:{{ toneColor .Block.Tone .Values "muted-text" }};">{{ .Block.Eyebrow }}</p>{{ end }}
+      {{ if .Block.Title }}<h2 style="margin:0 0 8px;font-size:24px;line-height:1.25;color:{{ toneColor .Block.Tone .Values "text" }};">{{ .Block.Title }}</h2>{{ end }}
+      {{ if .Block.Body }}<p style="margin:0 0 12px;line-height:1.6;color:{{ toneColor .Block.Tone .Values "text" }};">{{ .Block.Body }}</p>{{ end }}
+      {{ if and .Block.CTALabel .Block.CTAURL }}
+      <p style="margin:0 0 12px;">
+        <!--[if mso]>
+        <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" href="{{ .Block.CTAURL }}" style="height:40px;v-text-anchor:middle;width:220px;" arcsize="10%" stroke="f" fillcolor="{{ toneColor .Block.Tone .Values "cta-background" }}">
+          <w:anchorlock/>
+          <center style="color:{{ toneColor .Block.Tone .Values "cta-text" }};font-size:14px;font-weight:600;">{{ .Block.CTALabel }}</center>
+        </v:roundrect>
+        <![endif]-->
+        <!--[if !mso]><!-- -->
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate;border-spacing:0;display:inline-table;">
+          <tr>
+            <td bgcolor="{{ toneColor .Block.Tone .Values "cta-background" }}" style="padding:10px 18px;mso-padding-alt:10px 18px;border-radius:{{ .Values.Styles.RadiusButton }};background:{{ toneColor .Block.Tone .Values "cta-background" }};">
+              <a href="{{ .Block.CTAURL }}" style="display:inline-block;padding:0;mso-padding-alt:0;border-radius:{{ .Values.Styles.RadiusButton }};background:{{ toneColor .Block.Tone .Values "cta-background" }};color:{{ toneColor .Block.Tone .Values "cta-text" }};text-decoration:none;font-weight:600;">{{ .Block.CTALabel }}</a>
+            </td>
+          </tr>
+        </table>
+        <!--<![endif]-->
+      </p>
+      {{ end }}
+      {{ if .Block.ImageURL }}
+      <p style="margin:0;">
+        <img src="{{ .Block.ImageURL }}" alt="{{ .Block.ImageAlt }}" style="width:100%;max-width:100%;height:auto;border-radius:{{ if eq .Block.InsetMode "none" }}0{{ else }}{{ .Values.Styles.RadiusElement }}{{ end }};display:block;" />
+      </p>
+      {{ end }}
+    </td>
+  </tr>
+</table>

@@ -1,0 +1,15 @@
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;margin:0 0 16px;">
+  {{ range $rowIndex, $row := .Rows }}
+  <tr>
+    {{ range $colIndex, $cell := $row }}
+    <td width="{{ $.ColumnWidth }}%" valign="top" style="padding:0;{{ if and (gt $.Block.Gap 0) (not (isLastRow $rowIndex (len $.Rows))) }}padding-bottom:{{ $.Block.Gap }}px;{{ end }}{{ if and (gt $.Block.Gap 0) (not (isLastRow $colIndex (len $row))) }}padding-{{ physicalSide "end" $.Values }}:{{ $.Block.Gap }}px;{{ end }}">
+      {{ if ne $cell "" }}
+      <div style="{{ if $.Block.Border }}border:1px solid {{ $.Values.Styles.ColorBorder }};{{ end }}border-radius:{{ if and (eq $.Block.InsetMode "none") (eq $.Block.Gap 0) }}0{{ else }}{{ $.Values.Styles.RadiusElement }}{{ end }};{{ if and $.Block.Border (eq $.Block.InsetMode "none") (eq $.Block.Gap 0) (eq $colIndex 0) }}border-left:0;{{ end }}{{ if and $.Block.Border (eq $.Block.InsetMode "none") (eq $.Block.Gap 0) (not (keepRightBorderForGaplessNone $row $colIndex)) }}border-right:0;{{ end }}{{ if and $.Block.Border (eq $.Block.InsetMode "none") (eq $.Block.Gap 0) (gt $rowIndex 0) }}border-top:0;{{ end }}padding:12px;">
+        {{ safe $cell }}
+      </div>
+      {{ end }}
+    </td>
+    {{ end }}
+  </tr>
+  {{ end }}
+</table>

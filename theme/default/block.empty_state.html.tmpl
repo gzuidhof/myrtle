@@ -1,0 +1,9 @@
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate;border-spacing:0;margin:0 0 16px;">
+  <tr>
+    <td bgcolor="{{ toneColor .Block.Tone .Values "background" }}" style="padding:18px;mso-padding-alt:18px;border:1px dashed {{ toneColor .Block.Tone .Values "border" }};border-radius:{{ if eq .Block.InsetMode "none" }}0{{ else }}{{ .Values.Styles.RadiusElement }}{{ end }};{{ if eq .Block.InsetMode "none" }}border-left:0;border-right:0;{{ end }}text-align:center;background:{{ toneColor .Block.Tone .Values "background" }};">
+      {{ if .Block.Title }}<p style="margin:0 0 6px;font-size:18px;font-weight:700;color:{{ toneColor .Block.Tone .Values "text" }};">{{ .Block.Title }}</p>{{ end }}
+      {{ if .Block.Body }}<p style="margin:0 0 10px;color:{{ toneColor .Block.Tone .Values "muted-text" }};line-height:1.5;">{{ .Block.Body }}</p>{{ end }}
+      {{ if and .Block.ActionLabel .Block.ActionURL }}<p style="margin:0;"><a href="{{ .Block.ActionURL }}" style="color:{{ toneColor .Block.Tone .Values "link" }};text-decoration:none;font-weight:600;">{{ .Block.ActionLabel }}</a></p>{{ end }}
+    </td>
+  </tr>
+</table>

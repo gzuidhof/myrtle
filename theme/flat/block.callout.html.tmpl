@@ -1,0 +1,13 @@
+{{ $calloutBackground := "transparent" }}
+{{ if eq .Block.Variant "solid" }}{{ $calloutBackground = toneColor .Block.Tone .Values "strong" }}{{ else if eq .Block.Variant "soft" }}{{ $calloutBackground = toneColor .Block.Tone .Values "background" }}{{ end }}
+{{ $calloutBorder := toneColor .Block.Tone .Values "border" }}
+{{ if eq .Block.Variant "solid" }}{{ $calloutBorder = toneColor .Block.Tone .Values "strong" }}{{ end }}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate;border-spacing:0;margin:0 0 14px;">
+  <tr>
+    <td bgcolor="{{ $calloutBackground }}" style="padding:10px 12px;border:1px solid {{ $calloutBorder }};{{ if eq .Block.InsetMode "none" }}border-left:0;border-right:0;{{ end }}background:{{ $calloutBackground }};">
+      {{ if .Block.Title }}<p style="margin:0 0 6px;font-weight:700;color:{{ if eq .Block.Variant "solid" }}{{ .Values.Styles.ColorTextOnSolid }}{{ else }}{{ .Values.Styles.ColorText }}{{ end }};">{{ .Block.Title }}</p>{{ end }}
+      {{ if .Block.Body }}<p style="margin:0;color:{{ if eq .Block.Variant "solid" }}{{ .Values.Styles.ColorTextOnSolid }}{{ else }}{{ .Values.Styles.ColorText }}{{ end }};line-height:1.45;">{{ .Block.Body }}</p>{{ end }}
+      {{ if and .Block.LinkLabel .Block.LinkURL }}<p style="margin:8px 0 0;"><a href="{{ .Block.LinkURL }}" style="text-decoration:underline;font-weight:600;color:{{ if eq .Block.Variant "solid" }}{{ .Values.Styles.ColorTextOnSolid }}{{ else }}{{ toneColor .Block.Tone .Values "link" }}{{ end }};">{{ .Block.LinkLabel }}</a></p>{{ end }}
+    </td>
+  </tr>
+</table>

@@ -1,0 +1,42 @@
+{{ if or .Block.StackOnMobile .Block.FullWidthOnMobile }}<style>@media only screen and (max-width:600px){ {{ if .Block.StackOnMobile }}.myrtle-btn-group-stack td{display:block !important;width:100% !important;padding-{{ physicalSide "start" .Values }}:0 !important;padding-{{ physicalSide "end" .Values }}:0 !important;}.myrtle-btn-group-stack td + td{padding-top:{{ .Block.Gap }}px !important;}.myrtle-btn-group-stack td a{display:block !important;width:100% !important;box-sizing:border-box !important;text-align:center !important;}{{ end }}{{ if .Block.FullWidthOnMobile }}.myrtle-btn-group-mobile-full td a{display:block !important;width:100% !important;box-sizing:border-box !important;text-align:center !important;}{{ end }} }</style>{{ end }}
+{{ $gapStart := halfFloor .Block.Gap }}
+{{ $gapEnd := halfCeil .Block.Gap }}
+<table role="presentation" cellpadding="0" cellspacing="0" class="{{ if .Block.StackOnMobile }}myrtle-btn-group-stack{{ end }}{{ if .Block.FullWidthOnMobile }}{{ if .Block.StackOnMobile }} {{ end }}myrtle-btn-group-mobile-full{{ end }}" style="margin:20px 0;{{ if eq .Block.Alignment "center" }}margin-left:auto;margin-right:auto;{{ else if eq (physicalAlign .Block.Alignment .Values) "right" }}margin-left:auto;{{ else }}margin-right:auto;{{ end }}">
+  <tr>
+    {{ range $idx, $button := .Block.Buttons }}
+    <td style="{{ if and (not $.Block.Joined) (gt $.Block.Gap 0) (gt $idx 0) }}padding-{{ physicalSide "start" $.Values }}:{{ $gapStart }}px;{{ end }}{{ if and (not $.Block.Joined) (gt $.Block.Gap 0) (not (isLastRow $idx (len $.Block.Buttons))) }}padding-{{ physicalSide "end" $.Values }}:{{ $gapEnd }}px;{{ end }}">
+      {{ $isSolid := and (ne $button.Style "outline") (ne $button.Style "ghost") }}
+      {{ $isOutline := eq $button.Style "outline" }}
+      {{ $isGhost := eq $button.Style "ghost" }}
+      {{ $bgColor := $.Values.Styles.ColorPrimary }}
+      {{ if eq $button.Tone "secondary" }}{{ $bgColor = $.Values.Styles.ColorSecondary }}{{ else if eq $button.Tone "danger" }}{{ $bgColor = $.Values.Styles.ColorDanger }}{{ end }}
+      {{ $textColor := $.Values.Styles.ColorPrimary }}
+      {{ if eq $button.Tone "secondary" }}{{ $textColor = $.Values.Styles.ColorSecondary }}{{ else if eq $button.Tone "danger" }}{{ $textColor = $.Values.Styles.ColorDanger }}{{ end }}
+      {{ $cellBorder := "1px solid transparent" }}
+      {{ $cellBackground := "transparent" }}
+      {{ if $isOutline }}{{ $cellBorder = printf "1px solid %s" $textColor }}{{ $cellBackground = $.Values.Styles.ColorSurface }}{{ else if $isGhost }}{{ if $.Block.Joined }}{{ $cellBorder = printf "1px solid %s" $textColor }}{{ end }}{{ else }}{{ $cellBackground = $bgColor }}{{ if $.Block.Joined }}{{ $cellBorder = printf "1px solid %s" $bgColor }}{{ end }}{{ end }}
+      {{ if and $isSolid (not $.Block.Joined) }}
+      <!--[if mso]>
+      <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" href="{{ $button.URL }}" style="height:40px;v-text-anchor:middle;width:190px;" arcsize="10%" stroke="f" fillcolor="{{ $bgColor }}">
+        <w:anchorlock/>
+        <center style="color:{{ $.Values.Styles.ColorTextOnSolid }};font-size:14px;font-weight:600;">{{ $button.Label }}</center>
+      </v:roundrect>
+      <![endif]-->
+      <!--[if !mso]><!-- -->
+      {{ end }}
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate;border-spacing:0;{{ if $.Block.Joined }}{{ if $idx }}margin-{{ physicalSide "start" $.Values }}:-1px;{{ end }}{{ end }}">
+        <tr>
+          <td bgcolor="{{ $cellBackground }}" style="padding:10px 18px;mso-padding-alt:10px 18px;border:{{ $cellBorder }};color:{{ if $isSolid }}{{ $.Values.Styles.ColorTextOnSolid }}{{ else }}{{ $textColor }}{{ end }};background:{{ $cellBackground }};{{ if $.Block.Joined }}border-radius:0;{{ if eq $idx 0 }}border-top-{{ physicalSide "start" $.Values }}-radius:{{ $.Values.Styles.RadiusButton }};border-bottom-{{ physicalSide "start" $.Values }}-radius:{{ $.Values.Styles.RadiusButton }};{{ end }}{{ if isLastRow $idx (len $.Block.Buttons) }}border-top-{{ physicalSide "end" $.Values }}-radius:{{ $.Values.Styles.RadiusButton }};border-bottom-{{ physicalSide "end" $.Values }}-radius:{{ $.Values.Styles.RadiusButton }};{{ end }}{{ else }}border-radius:{{ $.Values.Styles.RadiusButton }};{{ end }}">
+            <a href="{{ $button.URL }}" style="display:inline-block;max-width:100%;box-sizing:border-box;white-space:nowrap;padding:0;mso-padding-alt:0;border:0;outline:0;text-decoration:none;font-weight:600;{{ if $.Block.Joined }}border-radius:0;{{ if eq $idx 0 }}border-top-{{ physicalSide "start" $.Values }}-radius:{{ $.Values.Styles.RadiusButton }};border-bottom-{{ physicalSide "start" $.Values }}-radius:{{ $.Values.Styles.RadiusButton }};{{ end }}{{ if isLastRow $idx (len $.Block.Buttons) }}border-top-{{ physicalSide "end" $.Values }}-radius:{{ $.Values.Styles.RadiusButton }};border-bottom-{{ physicalSide "end" $.Values }}-radius:{{ $.Values.Styles.RadiusButton }};{{ end }}{{ else }}border-radius:{{ $.Values.Styles.RadiusButton }};{{ end }}{{ if eq $button.Style "outline" }}{{ if eq $button.Tone "secondary" }}color:{{ $.Values.Styles.ColorSecondary }};{{ else if eq $button.Tone "danger" }}color:{{ $.Values.Styles.ColorDanger }};{{ else }}color:{{ $.Values.Styles.ColorPrimary }};{{ end }}background:{{ $.Values.Styles.ColorSurface }};{{ else if eq $button.Style "ghost" }}background:transparent;{{ if eq $button.Tone "secondary" }}color:{{ $.Values.Styles.ColorSecondary }};{{ else if eq $button.Tone "danger" }}color:{{ $.Values.Styles.ColorDanger }};{{ else }}color:{{ $.Values.Styles.ColorPrimary }};{{ end }};{{ else }}{{ if eq $button.Tone "secondary" }}background:{{ $.Values.Styles.ColorSecondary }};{{ else if eq $button.Tone "danger" }}background:{{ $.Values.Styles.ColorDanger }};{{ else }}background:{{ $.Values.Styles.ColorPrimary }};{{ end }}color:{{ $.Values.Styles.ColorTextOnSolid }};{{ end }}">
+              {{ $button.Label }}
+            </a>
+          </td>
+        </tr>
+      </table>
+      {{ if and $isSolid (not $.Block.Joined) }}
+      <!--<![endif]-->
+      {{ end }}
+    </td>
+    {{ end }}
+  </tr>
+</table>
