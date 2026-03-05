@@ -19,6 +19,7 @@ type ButtonBlock struct {
 	FullWidth bool
 }
 
+// ButtonGroupButton is one button entry inside a ButtonGroupBlock.
 type ButtonGroupButton struct {
 	Label string
 	URL   string

@@ -77,6 +77,169 @@ func main() {
 
 Make use of auto-complete/Intellisense in your IDE to explore the rich library of blocks and customization options.
 
+## Expandable snippets
+
+<details>
+<summary><strong>Custom block (basic)</strong></summary>
+
+```go
+package main
+
+import (
+  "fmt"
+
+  "github.com/gzuidhof/myrtle"
+  "github.com/gzuidhof/myrtle/theme"
+  defaulttheme "github.com/gzuidhof/myrtle/theme/default"
+)
+
+type DeploymentStatus struct {
+  Service string
+  Version string
+  Status  string
+}
+
+func main() {
+  block := myrtle.NewCustomBlock(
+    theme.BlockKind("deployment_status"),
+    DeploymentStatus{Service: "billing-api", Version: "v1.42.0", Status: "healthy"},
+    func(v DeploymentStatus, values theme.Values) (string, error) {
+      _ = values
+      return fmt.Sprintf("<p><strong>%s</strong> on <code>%s</code>: %s</p>", v.Service, v.Version, v.Status), nil
+    },
+    func(v DeploymentStatus, context myrtle.RenderContext) (string, error) {
+      _ = context
+      return fmt.Sprintf("%s on %s: %s", v.Service, v.Version, v.Status), nil
+    },
+  )
+
+  email := myrtle.NewBuilder(defaulttheme.New()).
+    AddHeading("Deployment update").
+    Add(block).
+    Build()
+
+  _, _ = email.HTML()
+  _, _ = email.Text()
+}
+```
+
+</details>
+
+<details>
+<summary><strong>Style tweaks (basic)</strong></summary>
+
+```go
+package main
+
+import (
+  "github.com/gzuidhof/myrtle"
+  "github.com/gzuidhof/myrtle/theme"
+  defaulttheme "github.com/gzuidhof/myrtle/theme/default"
+)
+
+func main() {
+  styles := theme.DefaultDarkModeStyles()
+  styles.ColorPrimary = "#22d3ee"
+  styles.MaxWidthMain = "640px"
+  styles.MainContentBodyTopSpacing = "0"
+
+  email := myrtle.NewBuilder(
+    defaulttheme.New(),
+    myrtle.WithStyles(styles),
+  ).
+    WithPreheader("Theme overrides example").
+    AddHeading("Style tweaks").
+    AddText("This message uses a dark preset with a few token overrides.").
+    AddButton("Open dashboard", "https://example.com/dashboard").
+    Build()
+
+  _, _ = email.HTML()
+  _, _ = email.Text()
+}
+```
+
+</details>
+
+<details>
+<summary><strong>Concurrent rendering with shared header/footer/theme/styles</strong></summary>
+
+```go
+package main
+
+import (
+  "sync"
+
+  "github.com/gzuidhof/myrtle"
+  "github.com/gzuidhof/myrtle/theme"
+  defaulttheme "github.com/gzuidhof/myrtle/theme/default"
+)
+
+type RenderedEmail struct {
+  To   string
+  HTML string
+  Text string
+  Err  error
+}
+
+func main() {
+  // Shared theme/styles/header/footer used to build one baseline builder.
+  sharedStyles := theme.Styles{
+    ColorPrimary: "#2563eb",
+    MaxWidthMain: "640px",
+  }
+
+  sharedHeader := myrtle.NewGroup().
+    AddImage("https://example.com/logo.png", "Myrtle", myrtle.ImageWidth(120), myrtle.ImageAlign(myrtle.ImageAlignmentCenter)).
+    AddText("Security updates", myrtle.TextAlign(myrtle.TextAlignCenter), myrtle.TextWeight(myrtle.TextWeightSemibold))
+
+  sharedFooter := myrtle.NewGroup().
+    AddLegal(
+      "Myrtle Inc.",
+      "Dam Square 1, 1012 JS Amsterdam, Netherlands",
+      "https://example.com/preferences",
+      "https://example.com/unsubscribe",
+    )
+
+  baseBuilder := myrtle.NewBuilder(defaulttheme.New(), myrtle.WithStyles(sharedStyles)).
+    WithHeader(sharedHeader).
+    WithFooter(sharedFooter).
+    WithPreheader("Important account security update")
+
+  recipients := []string{"ana@example.com", "bo@example.com", "cy@example.com"}
+  results := make([]RenderedEmail, len(recipients))
+
+  var wg sync.WaitGroup
+  for i, to := range recipients {
+    wg.Add(1)
+    go func(i int, to string) {
+      defer wg.Done()
+
+      // Clone the baseline builder and apply recipient-specific content.
+      email := baseBuilder.Clone().
+        AddHeading("Account alert").
+        AddText("We detected a sign-in from a new location.").
+        AddKeyValue("Recipient", []myrtle.KeyValuePair{{Key: "Email", Value: to}}).
+        AddButton("Review activity", "https://example.com/security").
+        Build()
+
+      html, err := email.HTML()
+      if err != nil {
+        results[i] = RenderedEmail{To: to, Err: err}
+        return
+      }
+
+      text, err := email.Text()
+      results[i] = RenderedEmail{To: to, HTML: html, Text: text, Err: err}
+    }(i, to)
+  }
+  wg.Wait()
+
+  _ = results
+}
+```
+
+</details>
+
 ## Examples
 
 - [example/weekly_operations_brief.go](example/high_impact.go)

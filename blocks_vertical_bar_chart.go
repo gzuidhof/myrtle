@@ -13,7 +13,9 @@ import (
 type VerticalBarChartLegendPlacementValue string
 
 const (
-	VerticalBarChartLegendNone   VerticalBarChartLegendPlacementValue = "none"
+	// VerticalBarChartLegendNone hides the legend.
+	VerticalBarChartLegendNone VerticalBarChartLegendPlacementValue = "none"
+	// VerticalBarChartLegendBottom renders the legend below the chart.
 	VerticalBarChartLegendBottom VerticalBarChartLegendPlacementValue = "bottom"
 )
 
@@ -21,7 +23,9 @@ const (
 type VerticalBarChartAxisLabelFormatValue string
 
 const (
-	VerticalBarChartAxisLabelFormatNumber  VerticalBarChartAxisLabelFormatValue = "number"
+	// VerticalBarChartAxisLabelFormatNumber renders numeric axis labels.
+	VerticalBarChartAxisLabelFormatNumber VerticalBarChartAxisLabelFormatValue = "number"
+	// VerticalBarChartAxisLabelFormatPercent renders percent axis labels.
 	VerticalBarChartAxisLabelFormatPercent VerticalBarChartAxisLabelFormatValue = "percent"
 )
 
@@ -29,7 +33,9 @@ const (
 type VerticalBarChartMagnitudeSuffixValue string
 
 const (
-	VerticalBarChartMagnitudeSuffixNone  VerticalBarChartMagnitudeSuffixValue = "none"
+	// VerticalBarChartMagnitudeSuffixNone disables compact number suffixes.
+	VerticalBarChartMagnitudeSuffixNone VerticalBarChartMagnitudeSuffixValue = "none"
+	// VerticalBarChartMagnitudeSuffixShort enables compact suffixes like K/M/B.
 	VerticalBarChartMagnitudeSuffixShort VerticalBarChartMagnitudeSuffixValue = "short"
 )
 
@@ -37,7 +43,9 @@ const (
 type VerticalBarChartNegativeFormatValue string
 
 const (
-	VerticalBarChartNegativeFormatMinus       VerticalBarChartNegativeFormatValue = "minus"
+	// VerticalBarChartNegativeFormatMinus renders negatives with a leading minus sign.
+	VerticalBarChartNegativeFormatMinus VerticalBarChartNegativeFormatValue = "minus"
+	// VerticalBarChartNegativeFormatParentheses renders negatives in parentheses.
 	VerticalBarChartNegativeFormatParentheses VerticalBarChartNegativeFormatValue = "parentheses"
 )
 

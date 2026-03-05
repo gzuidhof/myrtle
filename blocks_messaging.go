@@ -40,9 +40,12 @@ func (block QuoteBlock) RenderText(_ RenderContext) (string, error) {
 type CalloutVariant string
 
 const (
-	CalloutVariantSoft    CalloutVariant = "soft"
+	// CalloutVariantSoft renders a subtle filled callout.
+	CalloutVariantSoft CalloutVariant = "soft"
+	// CalloutVariantOutline renders a bordered callout.
 	CalloutVariantOutline CalloutVariant = "outline"
-	CalloutVariantSolid   CalloutVariant = "solid"
+	// CalloutVariantSolid renders a strong filled callout.
+	CalloutVariantSolid CalloutVariant = "solid"
 )
 
 // CalloutBlock renders an emphasized informational or alert callout.

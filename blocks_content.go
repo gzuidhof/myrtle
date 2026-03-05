@@ -159,6 +159,15 @@ type HeadingBlock struct {
 // HeadingOption configures a HeadingBlock when building content.
 type HeadingOption func(*HeadingBlock)
 
+// HeadingLevel sets the heading level on a HeadingBlock.
+func HeadingLevel(value int) HeadingOption {
+	return func(block *HeadingBlock) {
+		if value > 0 {
+			block.Level = value
+		}
+	}
+}
+
 func (block HeadingBlock) Kind() theme.BlockKind {
 	return theme.BlockKindHeading
 }

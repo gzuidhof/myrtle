@@ -7,6 +7,7 @@ import (
 	"github.com/gzuidhof/myrtle/theme"
 )
 
+// ErrThemeCannotRenderBlock is returned when neither a block-provided renderer nor the active theme can render a block kind.
 var ErrThemeCannotRenderBlock = errors.New("myrtle: theme cannot render block")
 
 type htmlBlock interface {

@@ -9,6 +9,7 @@ import (
 	"github.com/jordan-wright/email"
 )
 
+// Config defines SMTP connection and sender settings.
 type Config struct {
 	Host        string
 	Port        int
@@ -18,6 +19,7 @@ type Config struct {
 	FromAddress string
 }
 
+// Client sends emails through an SMTP transport using normalized Config values.
 type Client struct {
 	host string
 	port int

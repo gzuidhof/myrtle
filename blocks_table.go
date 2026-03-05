@@ -37,20 +37,32 @@ type TableHeaderToneValue string
 type TableBorderStyleValue string
 
 const (
-	TableColumnAlignmentStart  TableColumnAlignmentValue = "start"
+	// TableColumnAlignmentStart aligns cell content to the logical start edge.
+	TableColumnAlignmentStart TableColumnAlignmentValue = "start"
+	// TableColumnAlignmentCenter centers cell content.
 	TableColumnAlignmentCenter TableColumnAlignmentValue = "center"
-	TableColumnAlignmentEnd    TableColumnAlignmentValue = "end"
+	// TableColumnAlignmentEnd aligns cell content to the logical end edge.
+	TableColumnAlignmentEnd TableColumnAlignmentValue = "end"
 
+	// TableDensityCompact uses tighter row spacing.
 	TableDensityCompact TableDensityValue = "compact"
-	TableDensityNormal  TableDensityValue = "normal"
+	// TableDensityNormal uses default row spacing.
+	TableDensityNormal TableDensityValue = "normal"
+	// TableDensityRelaxed uses looser row spacing.
 	TableDensityRelaxed TableDensityValue = "relaxed"
 
+	// TableHeaderTonePrimary uses primary header styling.
 	TableHeaderTonePrimary TableHeaderToneValue = "primary"
-	TableHeaderToneMuted   TableHeaderToneValue = "muted"
-	TableHeaderTonePlain   TableHeaderToneValue = "plain"
+	// TableHeaderToneMuted uses muted header styling.
+	TableHeaderToneMuted TableHeaderToneValue = "muted"
+	// TableHeaderTonePlain uses plain/unaccented header styling.
+	TableHeaderTonePlain TableHeaderToneValue = "plain"
 
-	TableBorderStyleSolid  TableBorderStyleValue = "solid"
+	// TableBorderStyleSolid renders solid borders.
+	TableBorderStyleSolid TableBorderStyleValue = "solid"
+	// TableBorderStyleDashed renders dashed borders.
 	TableBorderStyleDashed TableBorderStyleValue = "dashed"
+	// TableBorderStyleDotted renders dotted borders.
 	TableBorderStyleDotted TableBorderStyleValue = "dotted"
 )
 

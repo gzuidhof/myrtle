@@ -6,6 +6,7 @@ import (
 	"github.com/gzuidhof/myrtle/theme"
 )
 
+// Builder composes email content and rendering configuration before Build is called.
 type Builder struct {
 	mu                     sync.Mutex
 	header                 *HeaderSection
@@ -23,8 +24,11 @@ type Builder struct {
 type HeaderMode int
 
 const (
+	// HeaderModeAuto includes a header only when one is configured.
 	HeaderModeAuto HeaderMode = iota
+	// HeaderModeEnabled forces header rendering even when empty defaults apply.
 	HeaderModeEnabled
+	// HeaderModeDisabled suppresses header rendering.
 	HeaderModeDisabled
 )
 
@@ -32,8 +36,11 @@ const (
 type FooterMode int
 
 const (
+	// FooterModeAuto includes a footer only when one is configured.
 	FooterModeAuto FooterMode = iota
+	// FooterModeEnabled forces footer rendering even when empty defaults apply.
 	FooterModeEnabled
+	// FooterModeDisabled suppresses footer rendering.
 	FooterModeDisabled
 )
 

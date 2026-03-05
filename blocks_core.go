@@ -6,6 +6,7 @@ import (
 	"github.com/gzuidhof/myrtle/theme"
 )
 
+// RenderContext contains resolved email values available to block text renderers.
 type RenderContext struct {
 	Preheader string
 	Values    theme.Values
@@ -30,15 +31,24 @@ const (
 type Tone string
 
 const (
-	ToneDefault   Tone = "default"
-	TonePrimary   Tone = "primary"
+	// ToneDefault renders neutral/default styling.
+	ToneDefault Tone = "default"
+	// TonePrimary renders primary accent styling.
+	TonePrimary Tone = "primary"
+	// ToneSecondary renders secondary accent styling.
 	ToneSecondary Tone = "secondary"
-	ToneMuted     Tone = "muted"
-	ToneInfo      Tone = "info"
-	ToneSuccess   Tone = "success"
-	ToneWarning   Tone = "warning"
-	ToneDanger    Tone = "danger"
-	ToneDark      Tone = "dark"
+	// ToneMuted renders de-emphasized styling.
+	ToneMuted Tone = "muted"
+	// ToneInfo renders informational semantic styling.
+	ToneInfo Tone = "info"
+	// ToneSuccess renders success semantic styling.
+	ToneSuccess Tone = "success"
+	// ToneWarning renders warning semantic styling.
+	ToneWarning Tone = "warning"
+	// ToneDanger renders danger/error semantic styling.
+	ToneDanger Tone = "danger"
+	// ToneDark renders high-contrast dark styling.
+	ToneDark Tone = "dark"
 )
 
 func normalizedTone(value Tone) Tone {
