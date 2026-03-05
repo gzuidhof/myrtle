@@ -6,6 +6,7 @@ import (
 	"github.com/gzuidhof/myrtle/theme"
 )
 
+// LegalBlock renders company and subscription-management compliance text.
 type LegalBlock struct {
 	CompanyName    string
 	Address        string
@@ -43,3 +44,5 @@ func (block LegalBlock) RenderText(_ RenderContext) (string, error) {
 
 	return strings.Join(parts, "\n\n"), nil
 }
+
+func (block LegalBlock) LayoutSpec() LayoutSpec { return defaultLayoutSpec() }

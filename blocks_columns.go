@@ -6,6 +6,7 @@ import (
 	"github.com/gzuidhof/myrtle/theme"
 )
 
+// ColumnsBlock renders two side-by-side block columns with configurable widths.
 type ColumnsBlock struct {
 	Left          []Block
 	Right         []Block
@@ -13,8 +14,10 @@ type ColumnsBlock struct {
 	RightWidth    int
 	Gap           int
 	VerticalAlign ColumnsVerticalAlign
+	InsetMode     InsetMode
 }
 
+// ColumnsVerticalAlign controls vertical alignment of content inside each columns cell.
 type ColumnsVerticalAlign string
 
 const (
@@ -80,4 +83,8 @@ func renderColumnText(blocks []Block, context RenderContext) (string, error) {
 	}
 
 	return strings.Join(parts, "\n\n"), nil
+}
+
+func (block ColumnsBlock) LayoutSpec() LayoutSpec {
+	return normalizedLayoutSpec(LayoutSpec{InsetMode: block.InsetMode})
 }

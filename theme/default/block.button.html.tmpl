@@ -1,5 +1,33 @@
-<p style="margin:20px 0;text-align:{{ physicalAlign .Block.Alignment .Values }};">
-  <a href="{{ .Block.URL }}" style="display:inline-block;max-width:100%;box-sizing:border-box;overflow-wrap:anywhere;word-break:break-word;word-wrap:break-word;{{ if eq .Block.Size "small" }}padding:8px 14px;font-size:13px;{{ else if eq .Block.Size "large" }}padding:12px 22px;font-size:16px;{{ else }}padding:10px 18px;font-size:14px;{{ end }}border-radius:{{ .Values.Styles.RadiusButton }};text-decoration:none;font-weight:600;{{ if .Block.NoWrap }}white-space:nowrap;overflow:hidden;text-overflow:ellipsis;{{ end }}{{ if .Block.FullWidth }}display:block;width:100%;max-width:100%;box-sizing:border-box;text-align:center;{{ end }}{{ if eq .Block.Style "outline" }}{{ if eq .Block.Tone "secondary" }}border:1px solid {{ .Values.Styles.ColorSecondary }};color:{{ .Values.Styles.ColorSecondary }};{{ else if eq .Block.Tone "danger" }}border:1px solid {{ .Values.Styles.ColorDanger }};color:{{ .Values.Styles.ColorDanger }};{{ else }}border:1px solid {{ .Values.Styles.ColorPrimary }};color:{{ .Values.Styles.ColorPrimary }};{{ end }}background:{{ .Values.Styles.ColorSurface }};{{ else if eq .Block.Style "ghost" }}background:transparent;{{ if eq .Block.Tone "secondary" }}color:{{ .Values.Styles.ColorSecondary }};{{ else if eq .Block.Tone "danger" }}color:{{ .Values.Styles.ColorDanger }};{{ else }}color:{{ .Values.Styles.ColorPrimary }};{{ end }}padding:0;{{ else }}{{ if eq .Block.Tone "secondary" }}background:{{ .Values.Styles.ColorSecondary }};{{ else if eq .Block.Tone "danger" }}background:{{ .Values.Styles.ColorDanger }};{{ else }}background:{{ .Values.Styles.ColorPrimary }};{{ end }}color:{{ .Values.Styles.ColorTextOnSolid }};{{ end }}">
-    <span style="overflow-wrap:anywhere;word-break:break-word;">{{ .Block.Label }}</span>
+{{ $isOutline := eq .Block.Style "outline" }}
+{{ $isGhost := eq .Block.Style "ghost" }}
+{{ $bgColor := .Values.Styles.ColorPrimary }}
+{{ if eq .Block.Tone "secondary" }}{{ $bgColor = .Values.Styles.ColorSecondary }}{{ else if eq .Block.Tone "danger" }}{{ $bgColor = .Values.Styles.ColorDanger }}{{ else if eq .Block.Tone "dark" }}{{ $bgColor = .Values.Styles.ColorText }}{{ end }}
+{{ $textColor := .Values.Styles.ColorPrimary }}
+{{ if eq .Block.Tone "secondary" }}{{ $textColor = .Values.Styles.ColorSecondary }}{{ else if eq .Block.Tone "danger" }}{{ $textColor = .Values.Styles.ColorDanger }}{{ else if eq .Block.Tone "dark" }}{{ $textColor = .Values.Styles.ColorText }}{{ end }}
+{{ $borderColor := $bgColor }}
+{{ if $isOutline }}{{ $borderColor = $textColor }}{{ end }}
+{{ $cellBackground := $bgColor }}
+{{ if $isOutline }}{{ $cellBackground = .Values.Styles.ColorSurface }}{{ end }}
+<div style="margin:0 0 20px 0;text-align:{{ physicalAlign .Block.Alignment .Values }};">
+  {{ if $isGhost }}
+  <a href="{{ .Block.URL }}" style="display:inline-block;max-width:100%;box-sizing:border-box;word-break:break-word;word-wrap:break-word;padding:0;font-size:14px;text-decoration:none;font-weight:600;background:transparent;color:{{ $textColor }};{{ if .Block.NoWrap }}white-space:nowrap;overflow:hidden;text-overflow:ellipsis;{{ end }}{{ if .Block.FullWidth }}display:block;width:100%;max-width:100%;text-align:center;{{ end }}">
+    <span style="word-break:break-word;">{{ .Block.Label }}</span>
   </a>
-</p>
+  {{ else }}
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
+    <tr>
+      <td align="{{ physicalAlign .Block.Alignment .Values }}" {{ if .Block.FullWidth }}style="padding:0;"{{ end }}>
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" {{ if .Block.FullWidth }}width="100%"{{ end }} style="border-collapse:separate;border-spacing:0;max-width:100%;">
+          <tr>
+            <td bgcolor="{{ $cellBackground }}" style="border:1px solid {{ $borderColor }};border-radius:{{ .Values.Styles.RadiusButton }};background:{{ $cellBackground }};{{ if eq .Block.Size "small" }}mso-padding-alt:8px 14px;{{ else if eq .Block.Size "large" }}mso-padding-alt:12px 22px;{{ else }}mso-padding-alt:8px 16px;{{ end }}{{ if .Block.FullWidth }}text-align:center;{{ end }}">
+              <a href="{{ .Block.URL }}" style="display:block;max-width:100%;box-sizing:border-box;word-break:break-word;word-wrap:break-word;{{ if eq .Block.Size "small" }}padding:8px 14px;font-size:13px;mso-padding-alt:8px 14px;{{ else if eq .Block.Size "large" }}padding:12px 22px;font-size:16px;mso-padding-alt:12px 22px;{{ else }}padding:8px 16px;font-size:14px;mso-padding-alt:8px 16px;{{ end }}text-decoration:none;font-weight:600;color:{{ if $isOutline }}{{ $textColor }}{{ else }}{{ .Values.Styles.ColorTextOnSolid }}{{ end }};{{ if .Block.NoWrap }}white-space:nowrap;overflow:hidden;text-overflow:ellipsis;{{ end }}{{ if .Block.FullWidth }}width:100%;max-width:100%;box-sizing:border-box;text-align:center;{{ end }}">
+                <span style="word-break:break-word;">{{ .Block.Label }}</span>
+              </a>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+  {{ end }}
+</div>

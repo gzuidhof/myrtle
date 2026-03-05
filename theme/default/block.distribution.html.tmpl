@@ -1,12 +1,24 @@
 <div style="margin:0 0 16px;">
-  {{ if .Block.Header }}<p style="margin:0 0 10px;font-weight:700;color:{{ .Values.Styles.ColorText }};">{{ .Block.Header }}</p>{{ end }}
+  {{ if .Block.Header }}<p style="margin:0 0 10px;font-weight:700;color:{{ .Values.Styles.ColorText }};{{ if eq .Block.InsetMode "none" }}padding-{{ physicalSide "start" .Values }}:24px;padding-{{ physicalSide "end" .Values }}:24px;{{ end }}">{{ .Block.Header }}</p>{{ end }}
   {{ range .Block.Buckets }}
-  <div style="display:grid;grid-template-columns:120px 1fr auto;gap:8px;align-items:center;margin:0 0 6px;">
-    <span style="font-size:13px;color:{{ $.Values.Styles.ColorText }};">{{ .Label }}</span>
-    <div style="height:8px;background:{{ $.Values.Styles.ColorSurfaceMuted }};border-radius:{{ $.Values.Styles.RadiusPill }};overflow:hidden;border:1px solid {{ $.Values.Styles.ColorBorder }};">
-      <div style="height:100%;width:{{ .WidthPercent }}%;max-width:100%;background:{{ if .Color }}{{ .Color }}{{ else }}{{ $.Values.Styles.ColorPrimary }}{{ end }};"></div>
-    </div>
-    <span style="font-size:12px;color:{{ $.Values.Styles.ColorTextMuted }};">{{ .Count }}</span>
-  </div>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="width:100%;margin:0 0 6px;border-collapse:collapse;">
+    <tr>
+      <td width="120" style="width:120px;padding:0 8px 0 0;font-size:13px;color:{{ $.Values.Styles.ColorText }};vertical-align:middle;{{ if eq $.Block.InsetMode "none" }}padding-{{ physicalSide "start" $.Values }}:24px;{{ end }}">{{ .Label }}</td>
+      <td style="padding:0 8px 0 0;vertical-align:middle;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate;border-spacing:0;table-layout:fixed;background:{{ $.Values.Styles.ColorSurfaceMuted }};border:1px solid {{ $.Values.Styles.ColorBorder }};{{ if eq $.Block.InsetMode "none" }}border-left:0;border-right:0;{{ end }}">
+          <tr>
+            <td style="padding:0;">
+              <table role="presentation" width="{{ .WidthPercent }}%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;table-layout:fixed;width:{{ .WidthPercent }}%;max-width:100%;">
+                <tr>
+                  <td bgcolor="{{ if .Color }}{{ .Color }}{{ else }}{{ $.Values.Styles.ColorPrimary }}{{ end }}" style="height:8px;line-height:8px;font-size:0;background:{{ if .Color }}{{ .Color }}{{ else }}{{ $.Values.Styles.ColorPrimary }}{{ end }};">&nbsp;</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </td>
+      <td style="padding:0;width:{{ $.Block.CountColumnWidthCh }}ch;font-size:12px;color:{{ $.Values.Styles.ColorTextMuted }};text-align:{{ physicalAlign "end" $.Values }};white-space:nowrap;vertical-align:middle;{{ if eq $.Block.InsetMode "none" }}padding-{{ physicalSide "end" $.Values }}:24px;{{ end }}">{{ .Count }}</td>
+    </tr>
+  </table>
   {{ end }}
 </div>

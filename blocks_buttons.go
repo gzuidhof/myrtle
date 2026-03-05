@@ -7,10 +7,11 @@ import (
 	"github.com/gzuidhof/myrtle/theme"
 )
 
+// ButtonBlock renders a single call-to-action button.
 type ButtonBlock struct {
 	Label     string
 	URL       string
-	Tone      ButtonToneValue
+	Tone      Tone
 	Style     ButtonStyleValue
 	Alignment ButtonAlignmentValue
 	Size      ButtonSizeValue
@@ -21,10 +22,11 @@ type ButtonBlock struct {
 type ButtonGroupButton struct {
 	Label string
 	URL   string
-	Tone  ButtonToneValue
+	Tone  Tone
 	Style ButtonStyleValue
 }
 
+// ButtonGroupBlock renders multiple related buttons as one responsive group.
 type ButtonGroupBlock struct {
 	Buttons           []ButtonGroupButton
 	Alignment         ButtonAlignmentValue
@@ -35,17 +37,12 @@ type ButtonGroupBlock struct {
 }
 
 type (
-	ButtonToneValue      string
 	ButtonStyleValue     string
 	ButtonAlignmentValue string
 	ButtonSizeValue      string
 )
 
 const (
-	ButtonTonePrimary   ButtonToneValue = "primary"
-	ButtonToneSecondary ButtonToneValue = "secondary"
-	ButtonToneDanger    ButtonToneValue = "danger"
-
 	ButtonStyleFilled  ButtonStyleValue = "filled"
 	ButtonStyleOutline ButtonStyleValue = "outline"
 	ButtonStyleGhost   ButtonStyleValue = "ghost"
@@ -88,12 +85,12 @@ func (block ButtonBlock) RenderText(_ RenderContext) (string, error) {
 	return fmt.Sprintf("%s (%s)", label, url), nil
 }
 
-func normalizedButtonTone(value ButtonToneValue) ButtonToneValue {
+func normalizedButtonTone(value Tone) Tone {
 	switch value {
-	case ButtonToneSecondary, ButtonToneDanger:
+	case ToneSecondary, ToneDanger, ToneDark:
 		return value
 	default:
-		return ButtonTonePrimary
+		return TonePrimary
 	}
 }
 
@@ -176,3 +173,7 @@ func (block ButtonGroupBlock) RenderText(_ RenderContext) (string, error) {
 
 	return strings.Join(parts, " · "), nil
 }
+
+func (block ButtonBlock) LayoutSpec() LayoutSpec { return defaultLayoutSpec() }
+
+func (block ButtonGroupBlock) LayoutSpec() LayoutSpec { return defaultLayoutSpec() }

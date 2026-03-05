@@ -1,3 +1,4 @@
+// Package themetest contains tests for theme implementations.
 package themetest
 
 import (
@@ -124,7 +125,7 @@ func sampleBlocks() []myrtle.Block {
 		myrtle.DistributionBlock{Header: "Distribution", Buckets: []myrtle.DistributionBucket{{Label: "0-10", Count: 12}, {Label: "11-20", Count: 34}, {Label: "21-30", Count: 18}}},
 		myrtle.TimelineBlock{Header: "Timeline", Items: []myrtle.TimelineItem{{Time: "09:00", Title: "Start", Detail: "Initialization"}, {Time: "09:30", Title: "Done", Detail: "Completed"}}},
 		myrtle.StatsRowBlock{Header: "KPIs", Stats: []myrtle.StatItem{{Label: "Delivery", Value: "99.8%", Delta: "+0.2%", DeltaSemantic: myrtle.StatDeltaSemanticPositive}, {Label: "Bounces", Value: "0.9%", Delta: "-0.1%", DeltaSemantic: myrtle.StatDeltaSemanticNegative}}},
-		myrtle.BadgeBlock{Tone: myrtle.BadgeToneInfo, Text: "Info"},
+		myrtle.BadgeBlock{Tone: myrtle.ToneInfo, Text: "Info"},
 		myrtle.SummaryCardBlock{Title: "Summary", Body: "All systems operational", Footer: "Updated now"},
 		myrtle.AttachmentBlock{Filename: "report.pdf", Meta: "PDF · 123 KB", URL: "https://example.com/report.pdf", CTA: "Download"},
 		myrtle.HeroBlock{Eyebrow: "New", Title: "Faster sends", Body: "Compose emails quickly", CTALabel: "Open docs", CTAURL: "https://example.com/docs", ImageURL: "https://example.com/hero.png", ImageAlt: "Hero"},
@@ -132,18 +133,18 @@ func sampleBlocks() []myrtle.Block {
 		myrtle.PriceSummaryBlock{Header: "Order summary", Items: []myrtle.PriceLine{{Label: "Subtotal", Value: "$89.00"}, {Label: "Tax", Value: "$7.12"}}, TotalLabel: "Total", TotalValue: "$96.12"},
 		myrtle.EmptyStateBlock{Title: "No activity", Body: "Everything is up to date.", ActionLabel: "Open dashboard", ActionURL: "https://example.com/dashboard"},
 		myrtle.QuoteBlock{Text: "Great product", Author: "User"},
-		myrtle.CalloutBlock{Type: myrtle.CalloutTypeWarning, Variant: myrtle.CalloutVariantSolid, Title: "Attention", Body: "Action required"},
+		myrtle.CalloutBlock{Tone: myrtle.ToneWarning, Variant: myrtle.CalloutVariantSolid, Title: "Attention", Body: "Action required"},
 		myrtle.MessageBlock{SenderName: "Alex Johnson", SenderHandle: "@alex", AvatarURL: "https://i.pravatar.cc/80?img=12", LogoAlt: "Alex Johnson avatar", LogoHref: "https://example.com/messages/42", Subject: "New private message", Preview: "Can you review the release notes before 3 PM?", SentAt: "2m ago", Platform: "Myrtle Chat", URL: "https://example.com/messages/42", ActionLabel: "Open thread", ActionURL: "https://example.com/messages/42"},
 		myrtle.MessageDigestBlock{Title: "Inbox", Subtitle: "Recent direct messages", Footer: "[Open inbox](https://example.com/messages)", Messages: []myrtle.MessageBlock{{SenderName: "Maya", SenderHandle: "@maya", AvatarURL: "https://i.pravatar.cc/80?img=5", LogoAlt: "Maya avatar", LogoHref: "https://example.com/messages/43", Subject: "**Launch update**", Preview: "Can you check [the draft](https://example.com/draft)?", SentAt: "5m ago", Platform: "Myrtle Chat", URL: "https://example.com/messages/43"}, {SenderName: "Nina", SenderHandle: "@nina", Preview: "Quick ping: can we move this to tomorrow morning?", SentAt: "11m ago", Platform: "Myrtle Chat", URL: "https://example.com/messages/46"}, {SenderName: "Ben", SenderHandle: "@ben", Subject: "Design feedback", Preview: "Looks good overall.", SentAt: "20m ago", Platform: "Myrtle Chat", URL: "https://example.com/messages/44"}}},
-		myrtle.LegalBlock{CompanyName: "Myrtle Inc.", Address: "123 Market St", ManageURL: "https://example.com/manage", UnsubscribeURL: "https://example.com/unsub"},
+		myrtle.LegalBlock{CompanyName: "Myrtle Inc.", Address: "Dam Square 1, 1012 JS Amsterdam, Netherlands", ManageURL: "https://example.com/manage", UnsubscribeURL: "https://example.com/unsub"},
 		myrtle.ColumnsBlock{
 			Left:       []myrtle.Block{myrtle.TextBlock{Text: "Left column"}},
 			Right:      []myrtle.Block{myrtle.TextBlock{Text: "Right column"}},
 			LeftWidth:  50,
 			RightWidth: 50,
 		},
-		myrtle.ButtonBlock{Label: "Open", URL: "https://example.com/open", Tone: myrtle.ButtonToneSecondary, Alignment: myrtle.ButtonAlignmentCenter, FullWidth: true},
-		myrtle.ButtonGroupBlock{Buttons: []myrtle.ButtonGroupButton{{Label: "Approve", URL: "https://example.com/approve", Tone: myrtle.ButtonTonePrimary}, {Label: "Review", URL: "https://example.com/review", Tone: myrtle.ButtonToneSecondary}, {Label: "Later", URL: "https://example.com/later", Style: myrtle.ButtonStyleGhost}}, Alignment: myrtle.ButtonAlignmentCenter},
+		myrtle.ButtonBlock{Label: "Open", URL: "https://example.com/open", Tone: myrtle.ToneSecondary, Alignment: myrtle.ButtonAlignmentCenter, FullWidth: true},
+		myrtle.ButtonGroupBlock{Buttons: []myrtle.ButtonGroupButton{{Label: "Approve", URL: "https://example.com/approve", Tone: myrtle.TonePrimary}, {Label: "Review", URL: "https://example.com/review", Tone: myrtle.ToneSecondary}, {Label: "Later", URL: "https://example.com/later", Style: myrtle.ButtonStyleGhost}}, Alignment: myrtle.ButtonAlignmentCenter},
 		myrtle.DividerBlock{},
 		myrtle.ImageBlock{Src: "https://example.com/image.png", Alt: "Preview"},
 		myrtle.TableBlock{Header: "Table", Columns: []string{"A", "B"}, Rows: [][]string{{"1", "2"}, {"3", "4"}}, ZebraRows: true, Compact: true, RightAlignNumericColumns: true},

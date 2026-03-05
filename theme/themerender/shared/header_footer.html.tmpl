@@ -1,0 +1,87 @@
+{{ define "myrtle.header.outside.cell" }}
+{{ if eq .Header.InsetMode "none" }}
+<td style="padding:0;mso-padding-alt:0 0 0 0;font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
+  <div style="padding:0;box-sizing:border-box;word-break:break-word;word-wrap:break-word;">
+    {{ safe .Header.HTML }}
+  </div>
+</td>
+{{ else if and (eq .Header.InsetMode "custom") .Header.CustomInset }}
+<td style="padding:0;mso-padding-alt:0 {{ .Header.CustomInset }} 0 {{ .Header.CustomInset }};font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
+  <div style="padding:0 {{ .Header.CustomInset }};box-sizing:border-box;word-break:break-word;word-wrap:break-word;">
+    {{ safe .Header.HTML }}
+  </div>
+</td>
+{{ else }}
+<td style="padding:0;mso-padding-alt:0 {{ .Values.Styles.OutsideContentInset }} 0 {{ .Values.Styles.OutsideContentInset }};font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
+  <div style="padding:0 {{ .Values.Styles.OutsideContentInset }};box-sizing:border-box;word-break:break-word;word-wrap:break-word;">
+    {{ safe .Header.HTML }}
+  </div>
+</td>
+{{ end }}
+{{ end }}
+
+{{ define "myrtle.header.inside.cell" }}
+{{ if eq .Header.InsetMode "none" }}
+<td style="padding:0;mso-padding-alt:{{ .Values.Styles.MainContentBodyTopSpacing }} 0 0 0;font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
+  <div style="padding:{{ .Values.Styles.MainContentBodyTopSpacing }} 0 0;box-sizing:border-box;word-break:break-word;word-wrap:break-word;">
+    {{ safe .Header.HTML }}
+  </div>
+</td>
+{{ else if and (eq .Header.InsetMode "custom") .Header.CustomInset }}
+<td style="padding:0;mso-padding-alt:{{ .Values.Styles.MainContentBodyTopSpacing }} {{ .Header.CustomInset }} 0 {{ .Header.CustomInset }};font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
+  <div style="padding:{{ .Values.Styles.MainContentBodyTopSpacing }} {{ .Header.CustomInset }} 0;box-sizing:border-box;word-break:break-word;word-wrap:break-word;">
+    {{ safe .Header.HTML }}
+  </div>
+</td>
+{{ else }}
+<td style="padding:0;mso-padding-alt:{{ .Values.Styles.MainContentBodyTopSpacing }} 24px 0 24px;font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
+  <div style="padding-top:{{ .Values.Styles.MainContentBodyTopSpacing }};padding-right:24px;padding-bottom:0;padding-left:24px;box-sizing:border-box;word-break:break-word;word-wrap:break-word;">
+    {{ safe .Header.HTML }}
+  </div>
+</td>
+{{ end }}
+{{ end }}
+
+{{ define "myrtle.footer.inside.cell" }}
+{{ if eq .Footer.InsetMode "none" }}
+<td style="padding:0;mso-padding-alt:24px 0 24px 0;font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
+  <div style="padding:24px 0;box-sizing:border-box;word-break:break-word;word-wrap:break-word;">
+    {{ safe .Footer.HTML }}
+  </div>
+</td>
+{{ else if and (eq .Footer.InsetMode "custom") .Footer.CustomInset }}
+<td style="padding:0;mso-padding-alt:24px {{ .Footer.CustomInset }} 24px {{ .Footer.CustomInset }};font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
+  <div style="padding:24px {{ .Footer.CustomInset }};box-sizing:border-box;word-break:break-word;word-wrap:break-word;">
+    {{ safe .Footer.HTML }}
+  </div>
+</td>
+{{ else }}
+<td style="padding:0;mso-padding-alt:24px 24px 24px 24px;font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
+  <div style="padding:24px;box-sizing:border-box;word-break:break-word;word-wrap:break-word;">
+    {{ safe .Footer.HTML }}
+  </div>
+</td>
+{{ end }}
+{{ end }}
+
+{{ define "myrtle.footer.outside.cell" }}
+{{ if eq .Footer.InsetMode "none" }}
+<td style="padding:0;mso-padding-alt:0 0 0 0;font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
+  <div style="padding:0;box-sizing:border-box;word-break:break-word;word-wrap:break-word;">
+    {{ safe .Footer.HTML }}
+  </div>
+</td>
+{{ else if and (eq .Footer.InsetMode "custom") .Footer.CustomInset }}
+<td style="padding:0;mso-padding-alt:0 {{ .Footer.CustomInset }} 0 {{ .Footer.CustomInset }};font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
+  <div style="padding:0 {{ .Footer.CustomInset }};box-sizing:border-box;word-break:break-word;word-wrap:break-word;">
+    {{ safe .Footer.HTML }}
+  </div>
+</td>
+{{ else }}
+<td style="padding:0;mso-padding-alt:0 {{ .Values.Styles.OutsideContentInset }} 0 {{ .Values.Styles.OutsideContentInset }};font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
+  <div style="padding:0 {{ .Values.Styles.OutsideContentInset }};box-sizing:border-box;word-break:break-word;word-wrap:break-word;">
+    {{ safe .Footer.HTML }}
+  </div>
+</td>
+{{ end }}
+{{ end }}

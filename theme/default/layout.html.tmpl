@@ -4,9 +4,11 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Email</title>
-</head>
 <!--[if !mso]><!-->
 <style type="text/css">
+  body, table, td, div, p, span, a {
+    font-family:{{ safeCSS .Values.Styles.FontFamilyBase }} !important;
+  }
   @media only screen and (max-width: 600px) {
     body {
       padding: 8px !important;
@@ -15,7 +17,7 @@
       max-width: 100% !important;
       border-radius: 0 !important;
     }
-    td {
+    table[data-myrtle-mobile-pad="1"] > tbody > tr > td {
       padding: 12px !important;
     }
     img {
@@ -25,42 +27,100 @@
 </style>
 <!--<![endif]-->
 </head>
-<body dir="{{ .Values.Direction }}" style="margin:0;background:{{ .Values.Styles.ColorPageBackground }};padding:{{ .Values.Styles.OuterPadding }};font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
+<body dir="{{ .Values.Direction }}" bgcolor="{{ .Values.Styles.ColorPageBackground }}" style="margin:0;background:{{ .Values.Styles.ColorPageBackground }};font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
   {{ if .Preheader }}
-  <div style="display:none;max-height:0;overflow:hidden;opacity:0;">{{ .Preheader }}</div>
+  <div style="display:none;max-height:0;max-width:0;overflow:hidden;opacity:0;mso-hide:all;font-size:1px;line-height:1px;color:transparent;width:0;">{{ .Preheader }}<span style="display:none!important;max-height:0;max-width:0;opacity:0;overflow:hidden;mso-hide:all;color:transparent;">{{ preheaderFiller .PreheaderPaddingRepeat }}</span></div>
   {{ end }}
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="{{ .Values.Styles.ColorPageBackground }}" style="width:100%;background:{{ .Values.Styles.ColorPageBackground }};mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;">
+    <tr>
+      <td align="center" style="padding:{{ .Values.Styles.OuterPadding }};">
   {{ if and .Header .Header.HTML (eq .Header.Placement "outside") }}
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="width:{{ .Values.Styles.WidthMain }};max-width:{{ .Values.Styles.MaxWidthMain }};margin:0 auto 12px;font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
+  <!--[if mso]><table role="presentation" align="center" cellpadding="0" cellspacing="0" border="0" style="width:{{ .Values.Styles.MaxWidthMain }};mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;"><tr><td><![endif]-->
+  <table role="presentation" align="center" data-myrtle-layout-table="1" data-myrtle-mobile-pad="1" width="{{ .Values.Styles.MaxWidthMain }}" cellpadding="0" cellspacing="0" style="width:{{ .Values.Styles.WidthMain }};max-width:{{ .Values.Styles.MaxWidthMain }};margin:0 auto;mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
     <tr>
-      <td style="padding:0 {{ .Values.Styles.OutsideContentInset }};box-sizing:border-box;overflow-wrap:anywhere;word-break:break-word;word-wrap:break-word;font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
-        {{ safe .Header.HTML }}
-      </td>
+      {{ template "myrtle.header.outside.cell" . }}
     </tr>
   </table>
+  <!--[if mso]></td></tr></table><![endif]-->
   {{ end }}
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="width:{{ .Values.Styles.WidthMain }};max-width:{{ .Values.Styles.MaxWidthMain }};margin:0 auto;background:{{ .Values.Styles.ColorMainBackground }};border-radius:{{ .Values.Styles.RadiusMain }};border:{{ .Values.Styles.BorderMain }};font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
+  <!--[if mso]><table role="presentation" align="center" cellpadding="0" cellspacing="0" border="0" style="width:{{ .Values.Styles.MaxWidthMain }};mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;"><tr><td><![endif]-->
+  {{ $hasInsideHeader := and .Header .Header.HTML (ne .Header.Placement "outside") }}
+  <table role="presentation" align="center" data-myrtle-layout-table="1" width="{{ .Values.Styles.MaxWidthMain }}" cellpadding="0" cellspacing="0" style="width:{{ .Values.Styles.WidthMain }};max-width:{{ .Values.Styles.MaxWidthMain }};margin:0 auto;mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:separate;border-spacing:0;font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
     <tr>
-      <td style="padding:24px;box-sizing:border-box;overflow-wrap:anywhere;word-break:break-word;word-wrap:break-word;font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
-        {{ if and .Header .Header.HTML (ne .Header.Placement "outside") }}
-          {{ safe .Header.HTML }}
+      <td valign="top">
+        <div style="background:{{ .Values.Styles.ColorMainBackground }};border:{{ .Values.Styles.BorderMain }};border-radius:{{ .Values.Styles.RadiusMain }};overflow:hidden;">
+        <table role="presentation" width="100%" bgcolor="{{ .Values.Styles.ColorMainBackground }}" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:separate;border-spacing:0;background:{{ .Values.Styles.ColorMainBackground }};font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
+    {{ if and .Header .Header.HTML (ne .Header.Placement "outside") }}
+    <tr>
+      {{ template "myrtle.header.inside.cell" . }}
+    </tr>
+    {{ end }}
+
+    {{ if .BlockViews }}
+      {{ range $index, $blockView := .BlockViews }}
+      <tr>
+        {{ if eq $blockView.InsetMode "none" }}
+        <td style="padding:0;mso-padding-alt:{{ if and (eq $index 0) (not $hasInsideHeader) }}{{ $.Values.Styles.MainContentBodyTopSpacing }}{{ else }}0{{ end }} 0 0 0;font-family:{{ safeCSS $.Values.Styles.FontFamilyBase }};font-size:{{ $.Values.Styles.FontSizeBase }};line-height:{{ $.Values.Styles.LineHeightBase }};color:{{ $.Values.Styles.ColorText }};">
+          <div style="padding:{{ if and (eq $index 0) (not $hasInsideHeader) }}{{ $.Values.Styles.MainContentBodyTopSpacing }}{{ else }}0{{ end }} 0 0;box-sizing:border-box;word-break:break-word;word-wrap:break-word;">
+            {{ safe $blockView.HTML }}
+          </div>
+        </td>
+        {{ else if and (eq $blockView.InsetMode "custom") $blockView.CustomInset }}
+        <td style="padding:0;mso-padding-alt:{{ if and (eq $index 0) (not $hasInsideHeader) }}{{ $.Values.Styles.MainContentBodyTopSpacing }}{{ else }}0{{ end }} {{ $blockView.CustomInset }} 0 {{ $blockView.CustomInset }};font-family:{{ safeCSS $.Values.Styles.FontFamilyBase }};font-size:{{ $.Values.Styles.FontSizeBase }};line-height:{{ $.Values.Styles.LineHeightBase }};color:{{ $.Values.Styles.ColorText }};">
+          <div style="padding:{{ if and (eq $index 0) (not $hasInsideHeader) }}{{ $.Values.Styles.MainContentBodyTopSpacing }}{{ else }}0{{ end }} {{ $blockView.CustomInset }} 0;box-sizing:border-box;word-break:break-word;word-wrap:break-word;">
+            {{ safe $blockView.HTML }}
+          </div>
+        </td>
+        {{ else }}
+        <td style="padding:0;mso-padding-alt:{{ if and (eq $index 0) (not $hasInsideHeader) }}{{ $.Values.Styles.MainContentBodyTopSpacing }}{{ else }}0{{ end }} 24px 0 24px;font-family:{{ safeCSS $.Values.Styles.FontFamilyBase }};font-size:{{ $.Values.Styles.FontSizeBase }};line-height:{{ $.Values.Styles.LineHeightBase }};color:{{ $.Values.Styles.ColorText }};">
+          <div style="padding-top:{{ if and (eq $index 0) (not $hasInsideHeader) }}{{ $.Values.Styles.MainContentBodyTopSpacing }}{{ else }}0{{ end }};padding-right:24px;padding-bottom:0;padding-left:24px;box-sizing:border-box;word-break:break-word;word-wrap:break-word;">
+            {{ safe $blockView.HTML }}
+          </div>
+        </td>
         {{ end }}
-        {{ range .Blocks }}
-          {{ safe . }}
-        {{ end }}
-        {{ if and .Footer .Footer.HTML (ne .Footer.Placement "outside") }}
-          {{ safe .Footer.HTML }}
-        {{ end }}
+      </tr>
+      {{ if ne $.Values.Styles.MSOCompatibility "off" }}
+      <tr aria-hidden="true">
+        <td style="padding:0;mso-padding-alt:16px 0 0 0;line-height:0;font-size:0;height:0;">
+          <div style="line-height:0;font-size:0;height:0;overflow:hidden;">&zwnj;</div>
+        </td>
+      </tr>
+      {{ end }}
+      {{ end }}
+    {{ else }}
+      <tr>
+        <td style="padding:0;font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
+          <div style="padding:24px;box-sizing:border-box;word-break:break-word;word-wrap:break-word;">
+            {{ range .Blocks }}
+              {{ safe . }}
+            {{ end }}
+          </div>
+        </td>
+      </tr>
+    {{ end }}
+
+    {{ if and .Footer .Footer.HTML (ne .Footer.Placement "outside") }}
+    <tr>
+      {{ template "myrtle.footer.inside.cell" . }}
+    </tr>
+    {{ end }}
+        </table>
+        </div>
       </td>
     </tr>
   </table>
+    <!--[if mso]></td></tr></table><![endif]-->
   {{ if and .Footer .Footer.HTML (eq .Footer.Placement "outside") }}
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="width:{{ .Values.Styles.WidthMain }};max-width:{{ .Values.Styles.MaxWidthMain }};margin:12px auto 0;font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
+    <!--[if mso]><table role="presentation" align="center" cellpadding="0" cellspacing="0" border="0" style="width:{{ .Values.Styles.MaxWidthMain }};mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;"><tr><td><![endif]-->
+    <table role="presentation" align="center" data-myrtle-layout-table="1" data-myrtle-mobile-pad="1" width="{{ .Values.Styles.MaxWidthMain }}" cellpadding="0" cellspacing="0" style="width:{{ .Values.Styles.WidthMain }};max-width:{{ .Values.Styles.MaxWidthMain }};margin:12px auto 0;mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
     <tr>
-      <td style="padding:0 {{ .Values.Styles.OutsideContentInset }};box-sizing:border-box;overflow-wrap:anywhere;word-break:break-word;word-wrap:break-word;font-family:{{ safeCSS .Values.Styles.FontFamilyBase }};font-size:{{ .Values.Styles.FontSizeBase }};line-height:{{ .Values.Styles.LineHeightBase }};color:{{ .Values.Styles.ColorText }};">
-        {{ safe .Footer.HTML }}
+      {{ template "myrtle.footer.outside.cell" . }}
+    </tr>
+  </table>
+    <!--[if mso]></td></tr></table><![endif]-->
+  {{ end }}
       </td>
     </tr>
   </table>
-  {{ end }}
 </body>
 </html>

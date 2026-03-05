@@ -1,18 +1,47 @@
-{{ if .Block.Header }}<p style="margin:0 0 10px;font-weight:700;color:{{ .Values.Styles.ColorText }};">{{ .Block.Header }}</p>{{ end }}
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;table-layout:fixed;margin:0 0 16px;">
+  {{ if .Block.HasLegendSwatches }}
+  <colgroup>
+    <col style="width:24px;" />
+    {{ range .Block.Columns }}
+    <col />
+    {{ end }}
+  </colgroup>
+  {{ end }}
+  {{ if .Block.Header }}
+  <tr>
+    <th colspan="{{ .ColumnCount }}" align="center" style="padding:6px 12px;background:transparent;color:{{ .Values.Styles.ColorText }};font-weight:700;font-size:14px;line-height:1.35;text-align:center;">{{ .Block.Header }}</th>
+  </tr>
+  {{ end }}
   {{ if .Block.Columns }}
   <tr>
+    {{ if .Block.HasLegendSwatches }}
+    <th align="center" style="width:24px;padding:{{ if eq $.Block.Density "compact" }}3px 6px{{ else if eq $.Block.Density "relaxed" }}7px 8px{{ else }}5px 7px{{ end }};{{ if eq $.Block.HeaderTone "muted" }}background:{{ $.Values.Styles.ColorSurfaceMuted }};color:{{ $.Values.Styles.ColorText }};{{ else if eq $.Block.HeaderTone "plain" }}background:transparent;color:{{ $.Values.Styles.ColorText }};border-bottom:2px {{ $.Block.BorderStyle }} {{ $.Values.Styles.ColorBorder }};{{ else }}background:{{ $.Values.Styles.ColorPrimary }};color:{{ $.Values.Styles.ColorTextOnSolid }};{{ end }}font-size:13px;line-height:1;text-align:center;">&nbsp;</th>
+    {{ end }}
     {{ range $columnIndex, $column := .Block.Columns }}
     {{ $alignment := index $.Block.ColumnAlignments $columnIndex }}
-    <th align="{{ physicalAlign $alignment $.Values }}" style="padding:{{ if eq $.Block.Density "compact" }}6px 8px{{ else if eq $.Block.Density "relaxed" }}12px 14px{{ else }}10px 12px{{ end }};{{ if eq $.Block.HeaderTone "muted" }}background:{{ $.Values.Styles.ColorSurfaceMuted }};color:{{ $.Values.Styles.ColorText }};{{ else if eq $.Block.HeaderTone "plain" }}background:transparent;color:{{ $.Values.Styles.ColorText }};border-bottom:2px {{ $.Block.BorderStyle }} {{ $.Values.Styles.ColorBorder }};{{ else }}background:{{ $.Values.Styles.ColorPrimary }};color:{{ $.Values.Styles.ColorTextOnSolid }};{{ end }}font-size:13px;overflow-wrap:anywhere;word-break:break-word;word-wrap:break-word;text-align:{{ physicalAlign $alignment $.Values }};">{{ $column }}</th>
+    {{ $headerAlign := "start" }}
+    {{ if or (eq $alignment "center") (eq $alignment "start") (eq $alignment "end") }}
+      {{ $headerAlign = $alignment }}
+    {{ else if and $.Block.RightAlignNumericColumns (tableColumnIsNumeric $.Block.Rows $columnIndex) }}
+      {{ $headerAlign = "end" }}
+    {{ end }}
+    <th align="{{ physicalAlign $headerAlign $.Values }}" style="padding:{{ if eq $.Block.Density "compact" }}3px 8px{{ else if eq $.Block.Density "relaxed" }}7px 14px{{ else }}5px 12px{{ end }};{{ if eq $.Block.HeaderTone "muted" }}background:{{ $.Values.Styles.ColorSurfaceMuted }};color:{{ $.Values.Styles.ColorText }};{{ else if eq $.Block.HeaderTone "plain" }}background:transparent;color:{{ $.Values.Styles.ColorText }};border-bottom:2px {{ $.Block.BorderStyle }} {{ $.Values.Styles.ColorBorder }};{{ else }}background:{{ $.Values.Styles.ColorPrimary }};color:{{ $.Values.Styles.ColorTextOnSolid }};{{ end }}font-size:13px;word-break:break-word;word-wrap:break-word;text-align:{{ physicalAlign $headerAlign $.Values }};">{{ $column }}</th>
     {{ end }}
   </tr>
   {{ end }}
   {{ range $rowIndex, $row := .Block.Rows }}
   <tr>
+    {{ if $.Block.HasLegendSwatches }}
+    <td style="width:24px;padding:{{ if eq $.Block.Density "compact" }}6px 6px{{ else if eq $.Block.Density "relaxed" }}12px 8px{{ else }}10px 7px{{ end }};border-bottom:1px {{ $.Block.BorderStyle }} {{ $.Values.Styles.ColorBorder }};font-size:14px;color:{{ $.Values.Styles.ColorText }};text-align:center;{{ if and $.Block.ZebraRows (isOdd $rowIndex) }}background:{{ $.Values.Styles.ColorSurfaceMuted }};{{ end }}{{ if and $.Block.EmphasizeTotalRow (isLastRow $rowIndex (len $.Block.Rows)) }}font-weight:700;background:{{ $.Values.Styles.ColorSurfaceMuted }};{{ end }}">
+      {{ if lt $rowIndex (len $.Block.LegendSwatches) }}
+        {{ $dotColor := index $.Block.LegendSwatches $rowIndex }}
+        {{ if $dotColor }}<span style="display:inline-block;width:{{ $.Values.Styles.TableLegendSwatchSize }};height:{{ $.Values.Styles.TableLegendSwatchSize }};border-radius:{{ $.Values.Styles.TableLegendSwatchRadius }};background:{{ $dotColor }};{{ if $.Values.Styles.TableLegendSwatchBorder }}border:{{ $.Values.Styles.TableLegendSwatchBorder }};{{ end }}"></span>{{ end }}
+      {{ end }}
+    </td>
+    {{ end }}
     {{ range $columnIndex, $cell := $row }}
     {{ $alignment := index $.Block.ColumnAlignments $columnIndex }}
-    <td style="padding:{{ if eq $.Block.Density "compact" }}6px 8px{{ else if eq $.Block.Density "relaxed" }}12px 14px{{ else }}10px 12px{{ end }};border-bottom:1px {{ $.Block.BorderStyle }} {{ $.Values.Styles.ColorBorder }};font-size:14px;color:{{ $.Values.Styles.ColorText }};overflow-wrap:anywhere;word-break:break-word;word-wrap:break-word;{{ if and $.Block.ZebraRows (isOdd $rowIndex) }}background:{{ $.Values.Styles.ColorSurfaceMuted }};{{ end }}{{ if and $.Block.EmphasizeTotalRow (isLastRow $rowIndex (len $.Block.Rows)) }}font-weight:700;background:{{ $.Values.Styles.ColorSurfaceMuted }};{{ end }}{{ if or (eq $alignment "center") (eq $alignment "start") (eq $alignment "end") }}text-align:{{ physicalAlign $alignment $.Values }};{{ else if and $.Block.RightAlignNumericColumns (isNumericLike $cell) }}text-align:{{ physicalAlign "end" $.Values }};{{ end }}">{{ $cell }}</td>
+    <td style="padding:{{ if eq $.Block.Density "compact" }}6px 8px{{ else if eq $.Block.Density "relaxed" }}12px 14px{{ else }}10px 12px{{ end }};border-bottom:1px {{ $.Block.BorderStyle }} {{ $.Values.Styles.ColorBorder }};font-size:14px;color:{{ $.Values.Styles.ColorText }};word-break:break-word;word-wrap:break-word;{{ if and $.Block.ZebraRows (isOdd $rowIndex) }}background:{{ $.Values.Styles.ColorSurfaceMuted }};{{ end }}{{ if and $.Block.EmphasizeTotalRow (isLastRow $rowIndex (len $.Block.Rows)) }}font-weight:700;background:{{ $.Values.Styles.ColorSurfaceMuted }};{{ end }}{{ if or (eq $alignment "center") (eq $alignment "start") (eq $alignment "end") }}text-align:{{ physicalAlign $alignment $.Values }};{{ else if and $.Block.RightAlignNumericColumns (isNumericLike $cell) }}text-align:{{ physicalAlign "end" $.Values }};{{ end }}">{{ $cell }}</td>
     {{ end }}
   </tr>
   {{ end }}

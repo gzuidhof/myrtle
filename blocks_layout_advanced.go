@@ -7,24 +7,30 @@ import (
 	"github.com/gzuidhof/myrtle/theme"
 )
 
-type SectionBlock struct {
-	Title    string
-	Subtitle string
-	Category string
-	Padding  int
-	Border   bool
-	Blocks   []Block
+// PanelBlock renders a bordered container around nested blocks.
+type PanelBlock struct {
+	Title      string
+	Subtitle   string
+	Category   string
+	Headerless bool
+	ShowHeader bool
+	Padding    int
+	Border     bool
+	Blocks     []Block
+	InsetMode  InsetMode
 }
 
 type GridItem struct {
-	Blocks []Block
+	Content Block
 }
 
+// GridBlock renders grid items in configurable columns.
 type GridBlock struct {
-	Columns int
-	Gap     int
-	Border  bool
-	Items   []GridItem
+	Columns   int
+	Gap       int
+	Border    bool
+	Items     []GridItem
+	InsetMode InsetMode
 }
 
 type CardItem struct {
@@ -35,22 +41,25 @@ type CardItem struct {
 	CTALabel string
 }
 
+// CardListBlock renders a multi-column list of simple cards.
 type CardListBlock struct {
-	Columns int
-	Gap     int
-	Border  bool
-	Cards   []CardItem
+	Columns   int
+	Gap       int
+	Border    bool
+	Cards     []CardItem
+	InsetMode InsetMode
 }
 
-func (block SectionBlock) Kind() theme.BlockKind {
-	return theme.BlockKindSection
+func (block PanelBlock) Kind() theme.BlockKind {
+	return theme.BlockKindPanel
 }
 
-func (block SectionBlock) TemplateData() any {
+func (block PanelBlock) TemplateData() any {
 	normalized := block
 	normalized.Title = strings.TrimSpace(normalized.Title)
 	normalized.Subtitle = strings.TrimSpace(normalized.Subtitle)
 	normalized.Category = strings.TrimSpace(normalized.Category)
+	normalized.ShowHeader = !normalized.Headerless && (normalized.Category != "" || normalized.Title != "" || normalized.Subtitle != "")
 	if normalized.Padding <= 0 {
 		normalized.Padding = 16
 	}
@@ -60,7 +69,7 @@ func (block SectionBlock) TemplateData() any {
 	return normalized
 }
 
-func (block SectionBlock) RenderText(context RenderContext) (string, error) {
+func (block PanelBlock) RenderText(context RenderContext) (string, error) {
 	parts := make([]string, 0, 3)
 	if category := strings.TrimSpace(block.Category); category != "" {
 		parts = append(parts, strings.ToUpper(category))
@@ -90,17 +99,18 @@ func (block GridBlock) Kind() theme.BlockKind {
 
 func (block GridBlock) TemplateData() any {
 	normalized := GridBlock{
-		Columns: normalizedGridColumns(block.Columns),
-		Gap:     normalizedGridGap(block.Gap),
-		Border:  block.Border,
-		Items:   make([]GridItem, 0, len(block.Items)),
+		Columns:   normalizedGridColumns(block.Columns),
+		Gap:       normalizedGridGap(block.Gap),
+		Border:    block.Border,
+		Items:     make([]GridItem, 0, len(block.Items)),
+		InsetMode: normalizedLayoutSpec(LayoutSpec{InsetMode: block.InsetMode}).InsetMode,
 	}
 
 	for _, item := range block.Items {
-		if len(item.Blocks) == 0 {
+		if item.Content == nil {
 			continue
 		}
-		normalized.Items = append(normalized.Items, GridItem{Blocks: append([]Block(nil), item.Blocks...)})
+		normalized.Items = append(normalized.Items, GridItem{Content: item.Content})
 	}
 
 	return normalized
@@ -111,7 +121,7 @@ func (block GridBlock) RenderText(context RenderContext) (string, error) {
 	parts := make([]string, 0, len(normalized.Items))
 
 	for index, item := range normalized.Items {
-		body, err := renderColumnText(item.Blocks, context)
+		body, err := item.Content.RenderText(context)
 		if err != nil {
 			return "", err
 		}
@@ -131,10 +141,11 @@ func (block CardListBlock) Kind() theme.BlockKind {
 
 func (block CardListBlock) TemplateData() any {
 	normalized := CardListBlock{
-		Columns: normalizedGridColumns(block.Columns),
-		Gap:     normalizedGridGap(block.Gap),
-		Border:  block.Border,
-		Cards:   make([]CardItem, 0, len(block.Cards)),
+		Columns:   normalizedGridColumns(block.Columns),
+		Gap:       normalizedGridGap(block.Gap),
+		Border:    block.Border,
+		Cards:     make([]CardItem, 0, len(block.Cards)),
+		InsetMode: normalizedLayoutSpec(LayoutSpec{InsetMode: block.InsetMode}).InsetMode,
 	}
 
 	for _, card := range block.Cards {
@@ -201,9 +212,21 @@ func normalizedGridColumns(value int) int {
 }
 
 func normalizedGridGap(value int) int {
-	if value <= 0 {
+	if value < 0 {
 		return 12
 	}
 
 	return value
+}
+
+func (block PanelBlock) LayoutSpec() LayoutSpec {
+	return normalizedLayoutSpec(LayoutSpec{InsetMode: block.InsetMode})
+}
+
+func (block GridBlock) LayoutSpec() LayoutSpec {
+	return normalizedLayoutSpec(LayoutSpec{InsetMode: block.InsetMode})
+}
+
+func (block CardListBlock) LayoutSpec() LayoutSpec {
+	return normalizedLayoutSpec(LayoutSpec{InsetMode: block.InsetMode})
 }

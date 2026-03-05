@@ -6,6 +6,7 @@ type FooterSection struct {
 	Placement    FooterPlacementValue
 }
 
+// FooterPlacementValue controls whether the footer renders inside or outside the main container.
 type FooterPlacementValue string
 
 const (
@@ -13,14 +14,17 @@ const (
 	FooterPlacementOutside FooterPlacementValue = "outside"
 )
 
+// FooterOption configures a FooterSection.
 type FooterOption func(*FooterSection)
 
+// FooterRenderInText controls whether the footer is included in text output.
 func FooterRenderInText(value bool) FooterOption {
 	return func(footer *FooterSection) {
 		footer.RenderInText = value
 	}
 }
 
+// FooterPlacement sets whether the footer renders inside or outside the main container.
 func FooterPlacement(value FooterPlacementValue) FooterOption {
 	return func(footer *FooterSection) {
 		footer.Placement = normalizedFooterPlacement(value)

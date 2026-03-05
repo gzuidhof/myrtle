@@ -7,6 +7,7 @@ import (
 	"github.com/gzuidhof/myrtle/theme"
 )
 
+// HeadingBlock renders a section heading.
 type HeadingBlock struct {
 	Text  string
 	Level int
@@ -37,6 +38,7 @@ func (block HeadingBlock) RenderText(_ RenderContext) (string, error) {
 	return text + "\n" + strings.Repeat("-", dividerLength), nil
 }
 
+// SpacerBlock inserts vertical spacing between blocks.
 type SpacerBlock struct {
 	Size int
 }
@@ -58,6 +60,7 @@ func (block SpacerBlock) RenderText(_ RenderContext) (string, error) {
 	return "", nil
 }
 
+// ListBlock renders an ordered or unordered list.
 type ListBlock struct {
 	Items   []string
 	Ordered bool
@@ -87,3 +90,9 @@ func (block ListBlock) RenderText(_ RenderContext) (string, error) {
 
 	return strings.Join(parts, "\n"), nil
 }
+
+func (block HeadingBlock) LayoutSpec() LayoutSpec { return defaultLayoutSpec() }
+
+func (block SpacerBlock) LayoutSpec() LayoutSpec { return defaultLayoutSpec() }
+
+func (block ListBlock) LayoutSpec() LayoutSpec { return defaultLayoutSpec() }

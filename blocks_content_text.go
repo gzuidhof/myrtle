@@ -6,9 +6,10 @@ import (
 	"github.com/gzuidhof/myrtle/theme"
 )
 
+// TextBlock renders styled paragraph text.
 type TextBlock struct {
 	Text      string
-	Tone      TextToneValue
+	Tone      Tone
 	Size      TextSizeValue
 	Align     TextAlignmentValue
 	Weight    TextWeightValue
@@ -17,19 +18,10 @@ type TextBlock struct {
 	Transform TextTransformValue
 }
 
+// TextOption configures a TextBlock.
 type TextOption func(*TextBlock)
 
-type TextToneValue string
-
-const (
-	TextToneDefault TextToneValue = "default"
-	TextToneMuted   TextToneValue = "muted"
-	TextToneInfo    TextToneValue = "info"
-	TextToneSuccess TextToneValue = "success"
-	TextToneWarning TextToneValue = "warning"
-	TextToneDanger  TextToneValue = "danger"
-)
-
+// TextAlignmentValue defines logical text alignment.
 type TextAlignmentValue string
 
 const (
@@ -38,6 +30,7 @@ const (
 	TextAlignEnd    TextAlignmentValue = "end"
 )
 
+// TextWeightValue defines text font-weight presets.
 type TextWeightValue string
 
 const (
@@ -47,6 +40,7 @@ const (
 	TextWeightBold     TextWeightValue = "bold"
 )
 
+// TextSpacingValue defines line-height spacing presets.
 type TextSpacingValue string
 
 const (
@@ -55,6 +49,7 @@ const (
 	TextSpacingRelaxed TextSpacingValue = "relaxed"
 )
 
+// TextTransformValue defines text transform behavior.
 type TextTransformValue string
 
 const (
@@ -64,6 +59,7 @@ const (
 	TextTransformCapitalize TextTransformValue = "capitalize"
 )
 
+// TextSizeValue defines text size presets.
 type TextSizeValue string
 
 const (
@@ -72,6 +68,7 @@ const (
 	TextSizeLarge TextSizeValue = "large"
 )
 
+// TextSize sets the size preset for a text block.
 func TextSize(value TextSizeValue) TextOption {
 	return func(block *TextBlock) {
 		switch value {
@@ -81,15 +78,17 @@ func TextSize(value TextSizeValue) TextOption {
 	}
 }
 
-func TextTone(value TextToneValue) TextOption {
+// TextTone sets the semantic tone for a text block.
+func TextTone(value Tone) TextOption {
 	return func(block *TextBlock) {
 		switch value {
-		case TextToneDefault, TextToneMuted, TextToneInfo, TextToneSuccess, TextToneWarning, TextToneDanger:
+		case ToneDefault, ToneMuted, ToneInfo, ToneSuccess, ToneWarning, ToneDanger, ToneDark:
 			block.Tone = value
 		}
 	}
 }
 
+// TextAlign sets logical alignment for a text block.
 func TextAlign(value TextAlignmentValue) TextOption {
 	return func(block *TextBlock) {
 		switch value {
@@ -99,6 +98,7 @@ func TextAlign(value TextAlignmentValue) TextOption {
 	}
 }
 
+// TextWeight sets the font weight preset for a text block.
 func TextWeight(value TextWeightValue) TextOption {
 	return func(block *TextBlock) {
 		switch value {
@@ -108,12 +108,14 @@ func TextWeight(value TextWeightValue) TextOption {
 	}
 }
 
+// TextNoMargin toggles paragraph bottom margin for a text block.
 func TextNoMargin(value bool) TextOption {
 	return func(block *TextBlock) {
 		block.NoMargin = value
 	}
 }
 
+// TextSpacing sets line-height spacing preset for a text block.
 func TextSpacing(value TextSpacingValue) TextOption {
 	return func(block *TextBlock) {
 		switch value {
@@ -123,6 +125,7 @@ func TextSpacing(value TextSpacingValue) TextOption {
 	}
 }
 
+// TextTransform sets text transform behavior for a text block.
 func TextTransform(value TextTransformValue) TextOption {
 	return func(block *TextBlock) {
 		switch value {
@@ -143,3 +146,5 @@ func (block TextBlock) TemplateData() any {
 func (block TextBlock) RenderText(_ RenderContext) (string, error) {
 	return strings.TrimSpace(block.Text), nil
 }
+
+func (block TextBlock) LayoutSpec() LayoutSpec { return defaultLayoutSpec() }

@@ -26,11 +26,11 @@ func WeeklyReportEmailWithTheme(selectedTheme theme.Theme) (*myrtle.Email, error
 	).
 		AddHeading("Weekly metrics report").
 		WithPreheader("Your key numbers for this week").
-		WithHeader(commonHeaderGroupWithAlt("Myrtle Analytics", "Analytics logo")).
+		WithHeader(commonHeaderGroupWithAlt("Myrtle Analytics", "Analytics logo", selectedTheme)).
 		AddHeading("Weekly highlights", myrtle.HeadingLevel(2)).
-		AddText("This example uses a wider container (max-width: 760px).", myrtle.TextTone(myrtle.TextToneMuted), myrtle.TextSize(myrtle.TextSizeSmall)).
+		AddText("This example uses a wider container (max-width: 760px).", myrtle.TextTone(myrtle.ToneMuted), myrtle.TextSize(myrtle.TextSizeSmall)).
 		AddText("Here are the two KPIs we track most closely this week.").
-		AddTable("Highlights", []string{"Metric", "Value", "Delta"}, rows).
+		AddTable([]string{"Metric", "Value", "Delta"}, rows).
 		AddQuote("Activation improved after simplifying first-run setup.", "Growth Team").
 		AddText("See the full dashboard for breakdowns and cohorts.").
 		AddButton("Open dashboard", "https://example.com/dashboard").

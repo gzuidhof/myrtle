@@ -1,3 +1,0 @@
-<p style="margin:0 0 12px;">
-  <span style="display:inline-block;padding:3px 8px;border:1px solid {{ if eq .Block.Tone "success" }}{{ .Values.Styles.ColorSuccessBorder }}{{ else if eq .Block.Tone "warning" }}{{ .Values.Styles.ColorWarningBorder }}{{ else if eq .Block.Tone "error" }}{{ .Values.Styles.ColorDangerBorder }}{{ else }}{{ .Values.Styles.ColorInfoBorder }}{{ end }};border-radius:{{ .Values.Styles.RadiusPill }};font-size:11px;font-weight:700;color:{{ .Values.Styles.ColorText }};">{{ .Block.Text }}</span>
-</p>

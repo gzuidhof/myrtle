@@ -17,3 +17,5 @@ func (group *Group) RenderText(context RenderContext) (string, error) {
 
 	return renderColumnText(group.Blocks(), context)
 }
+
+func (group *Group) LayoutSpec() LayoutSpec { return defaultLayoutSpec() }
