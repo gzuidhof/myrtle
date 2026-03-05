@@ -294,4 +294,9 @@ go run ./example/server/cmd
 ## Development
 The code for this repository is repetitive and verbose, I recommend you use AI-assisted code generation to speed up development. Writing inlined CSS manually is particularly painful.
 
+This library is not stable yet, your layouts will likely shift a bit with future releases.
+
+## License
+Myrtle is licensed under the MIT License. See [LICENSE](LICENSE) for more information.
+
 > Myrtle she wrote.
