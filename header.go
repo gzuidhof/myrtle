@@ -31,19 +31,6 @@ func HeaderPlacement(value HeaderPlacementValue) HeaderOption {
 	}
 }
 
-func BuildHeader(block Block, options ...HeaderOption) HeaderSection {
-	result := HeaderSection{Block: block, Placement: HeaderPlacementInside}
-	for _, option := range options {
-		if option == nil {
-			continue
-		}
-
-		option(&result)
-	}
-
-	return result
-}
-
 func normalizedHeaderPlacement(value HeaderPlacementValue) HeaderPlacementValue {
 	if value == HeaderPlacementOutside {
 		return HeaderPlacementOutside

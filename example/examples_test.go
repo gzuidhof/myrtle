@@ -6,10 +6,6 @@ import (
 	"github.com/gzuidhof/myrtle"
 )
 
-type sender interface {
-	Send(subject, htmlBody, textBody string) error
-}
-
 type mockSender struct {
 	count int
 }

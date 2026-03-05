@@ -1,14 +1,12 @@
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="logo-light.png">
-  <img alt="Myrtle logo" src="logo.png">
-</picture>
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="logo-light.png">
+    <img alt="Myrtle logo" src="logo.png">
+  </picture>
+</p>
 
 # 🌸 myrtle
 Myrtle is a composable, strongly typed email content builder for Go.
-
-## Quick preview
-
-Security example email side-by-side in two themes:
 
 | Default | Terminal |
 | --- | --- |
@@ -19,13 +17,12 @@ Security example email side-by-side in two themes:
 - Fluent builder pattern for email content.
 - Strongly typed library of blocks.
 - Modern built-in themes: `default`, `flat`, `terminal`, `editorial`.
-- Shared customizable styles.
 - Built-in advanced blocks such as tables, charts, grids.
 - High-impact blocks: timelines, standout stats rows, badges, attachments.
 - Dual rendering APIs:
   - `HTML()` for final HTML output.
   - `Text()` for plain-text fallback output.
-- Customizable: bring your own theme, styles or custom blocks.
+- Customizable and extensible: bring your own theme, styles or custom blocks.
 - Left-to-right and right-to-left direction support (e.g. for Arabic/Hebrew).
 - Renders OK in Outlook Classic and other notoriously difficult email clients.
 - Dependency-free aside from [`goldmark`](https://github.com/yuin/goldmark) for Markdown rendering.
@@ -91,30 +88,27 @@ Make use of auto-complete/Intellisense in your IDE to explore the rich library o
 
 #### Weekly operations brief
 
-| Theme | Preview |
+| Default | Flat |
 | --- | --- |
-| Default | ![Weekly operations brief (default)](screenshots/default--weekly-operations-brief.png) |
-| Flat | ![Weekly operations brief (flat)](screenshots/flat--weekly-operations-brief.png) |
-| Terminal | ![Weekly operations brief (terminal)](screenshots/terminal--weekly-operations-brief.png) |
-| Editorial | ![Weekly operations brief (editorial)](screenshots/editorial--weekly-operations-brief.png) |
+| ![Weekly operations brief (default)](screenshots/default--weekly-operations-brief.png) | ![Weekly operations brief (flat)](screenshots/flat--weekly-operations-brief.png) |
+| Terminal | Editorial |
+| ![Weekly operations brief (terminal)](screenshots/terminal--weekly-operations-brief.png) | ![Weekly operations brief (editorial)](screenshots/editorial--weekly-operations-brief.png) |
 
 #### Account deletion confirmation
 
-| Theme | Preview |
+| Default | Flat |
 | --- | --- |
-| Default | ![Account deletion confirmation (default)](screenshots/default--account-deletion-confirmation.png) |
-| Flat | ![Account deletion confirmation (flat)](screenshots/flat--account-deletion-confirmation.png) |
-| Terminal | ![Account deletion confirmation (terminal)](screenshots/terminal--account-deletion-confirmation.png) |
-| Editorial | ![Account deletion confirmation (editorial)](screenshots/editorial--account-deletion-confirmation.png) |
+| ![Account deletion confirmation (default)](screenshots/default--account-deletion-confirmation.png) | ![Account deletion confirmation (flat)](screenshots/flat--account-deletion-confirmation.png) |
+| Terminal | Editorial |
+| ![Account deletion confirmation (terminal)](screenshots/terminal--account-deletion-confirmation.png) | ![Account deletion confirmation (editorial)](screenshots/editorial--account-deletion-confirmation.png) |
 
 #### Security confirmation
 
-| Theme | Preview |
+| Default | Flat |
 | --- | --- |
-| Default | ![Security confirmation (default)](screenshots/default--security.png) |
-| Flat | ![Security confirmation (flat)](screenshots/flat--security.png) |
-| Terminal | ![Security confirmation (terminal)](screenshots/terminal--security.png) |
-| Editorial | ![Security confirmation (editorial)](screenshots/editorial--security.png) |
+| ![Security confirmation (default)](screenshots/default--security.png) | ![Security confirmation (flat)](screenshots/flat--security.png) |
+| Terminal | Editorial |
+| ![Security confirmation (terminal)](screenshots/terminal--security.png) | ![Security confirmation (editorial)](screenshots/editorial--security.png) |
 
 #### Monster
 

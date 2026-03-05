@@ -31,19 +31,6 @@ func FooterPlacement(value FooterPlacementValue) FooterOption {
 	}
 }
 
-func BuildFooter(block Block, options ...FooterOption) FooterSection {
-	result := FooterSection{Block: block, Placement: FooterPlacementInside}
-	for _, option := range options {
-		if option == nil {
-			continue
-		}
-
-		option(&result)
-	}
-
-	return result
-}
-
 func normalizedFooterPlacement(value FooterPlacementValue) FooterPlacementValue {
 	if value == FooterPlacementOutside {
 		return FooterPlacementOutside

@@ -1,11 +1,5 @@
 package myrtle
 
-// HeadingOption configures a HeadingBlock when building content.
-type HeadingOption func(*HeadingBlock)
-
-// ColumnsOption configures a ColumnsBlock when building content.
-type ColumnsOption func(*ColumnsBlock)
-
 // Group is a reusable collection of blocks that can be composed and rendered as one block.
 type Group struct {
 	blocks []Block

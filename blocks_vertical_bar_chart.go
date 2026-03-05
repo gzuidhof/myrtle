@@ -41,6 +41,9 @@ const (
 	VerticalBarChartNegativeFormatParentheses VerticalBarChartNegativeFormatValue = "parentheses"
 )
 
+// VerticalBarChartValueFormatter controls numeric formatting for axis labels and value labels.
+// Prefix and Suffix are applied around formatted values, MagnitudeSuffix enables compact scaling
+// (for example 1200 -> 1.2K), and NegativeFormat controls how negative numbers are rendered.
 type VerticalBarChartValueFormatter struct {
 	Prefix          string
 	Suffix          string
@@ -48,6 +51,9 @@ type VerticalBarChartValueFormatter struct {
 	NegativeFormat  VerticalBarChartNegativeFormatValue
 }
 
+// VerticalBarChartSeries defines one stacked series across all chart columns.
+// Values are aligned by index with AxisLabels, and optional Color/ValueLabelColor override
+// theme-derived defaults for segment fills and in-segment value labels.
 type VerticalBarChartSeries struct {
 	Key             string
 	Label           string
@@ -56,11 +62,15 @@ type VerticalBarChartSeries struct {
 	Values          []float64
 }
 
+// VerticalBarChartLegendItem represents a single legend entry for a series color/label pair.
 type VerticalBarChartLegendItem struct {
 	Label string
 	Color string
 }
 
+// VerticalBarChartAxis configures baseline, tick visibility, label formatting, and range hints.
+// Min can force the lower bound, while HasMax/Max can raise the upper bound when needed.
+// Category labels and Y-axis line rendering can be independently toggled.
 type VerticalBarChartAxis struct {
 	ShowBaseline          bool
 	ShowYTicks            bool
@@ -80,12 +90,14 @@ type VerticalBarChartAxis struct {
 	Max float64
 }
 
+// VerticalBarChartValueLabels controls in-bar value labels for each segment.
 type VerticalBarChartValueLabels struct {
 	Show             bool
 	MinSegmentHeight int
 	Color            string
 }
 
+// VerticalBarChartLegendConfig controls legend placement and explicit legend items.
 type VerticalBarChartLegendConfig struct {
 	Placement VerticalBarChartLegendPlacementValue
 	Items     []VerticalBarChartLegendItem
@@ -113,6 +125,7 @@ type VerticalBarChartBlock struct {
 	ValueFormatter        VerticalBarChartValueFormatter
 }
 
+// VerticalBarChartSegmentView is the normalized render-time representation of one segment.
 type VerticalBarChartSegmentView struct {
 	Series          string
 	Label           string
@@ -124,6 +137,9 @@ type VerticalBarChartSegmentView struct {
 	Height          int
 }
 
+// VerticalBarChartColumnView is the normalized render-time representation of one chart column.
+// Positive and negative segments are split to support charts that cross a zero baseline,
+// with separate padding/above-label metadata for positive stacks.
 type VerticalBarChartColumnView struct {
 	Label                   string
 	PositiveSegments        []VerticalBarChartSegmentView
@@ -133,10 +149,14 @@ type VerticalBarChartColumnView struct {
 	PositiveAboveLabelColor string
 }
 
+// VerticalBarChartTickView is a normalized Y-axis tick label used during template rendering.
 type VerticalBarChartTickView struct {
 	Label string
 }
 
+// VerticalBarChartTemplateData is the fully normalized rendering payload passed to templates.
+// It includes computed geometry (heights, gaps, axis widths), preformatted labels, and
+// pre-split positive/negative column segment data so templates remain mostly presentational.
 type VerticalBarChartTemplateData struct {
 	Title                 string
 	Subtitle              string
