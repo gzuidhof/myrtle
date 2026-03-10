@@ -1031,7 +1031,6 @@ func TestFlatAndTerminalSupportOutsideHeaderAndFooter(t *testing.T) {
 	}
 
 	for _, testCase := range tests {
-		testCase := testCase
 		t.Run(testCase.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -2469,7 +2468,6 @@ func TestBuilderCloneConcurrentUsage(t *testing.T) {
 	waitGroup.Add(workerCount)
 
 	for index := 0; index < workerCount; index++ {
-		index := index
 		go func() {
 			defer waitGroup.Done()
 
