@@ -30,12 +30,25 @@ func WelcomeEmailWithTheme(selectedTheme theme.Theme) (*myrtle.Email, error) {
 		).
 		AddHeading("Welcome aboard", myrtle.HeadingLevel(1)).
 		AddText("Hi there,").
-		AddText("Thanks for joining us. You can now build composable email content in Go.").
+		AddText(
+			"Thanks for joining us. You can now build **composable** email content in Go — "+
+				"compose reusable `Block` values once and render them to both HTML and plaintext.",
+			myrtle.TextMarkdown(),
+		).
 		AddList([]string{"Choose a theme", "Compose with blocks", "Render HTML and Markdown"}, false).
 		AddCallout(myrtle.ToneInfo, "Tip", "You can preview all built-in blocks in the example server.").
-		AddText("Start with the quick-start docs:").
+		AddText(
+			"Start with the [quick-start guide](https://github.com/gzuidhof/myrtle#quick-start), "+
+				"or browse the [block gallery](https://github.com/gzuidhof/myrtle) to see every built-in block.",
+			myrtle.TextMarkdown(),
+		).
 		AddButton("Open docs", "https://github.com/gzuidhof/myrtle").
 		AddDivider().
+		AddText(
+			"*Tip:* mix inline markdown — links, **bold**, and `code` — right inside ordinary text blocks.",
+			myrtle.TextMarkdown(),
+			myrtle.TextTone(myrtle.ToneMuted),
+		).
 		AddFreeMarkdown("Need help? Reach out in **GitHub Discussions**.").
 		WithFooter(commonFooterGroup(), myrtle.FooterPlacement(myrtle.FooterPlacementOutside)).
 		Build(), nil
