@@ -278,6 +278,78 @@ type PriceSummaryOption func(*PriceSummaryBlock)
 // HeroOption configures a HeroBlock.
 type HeroOption func(*HeroBlock)
 
+// TimelineOption is declared alongside the timeline builder helpers below.
+
+// ListOption configures a ListBlock.
+type ListOption func(*ListBlock)
+
+// QuoteOption configures a QuoteBlock.
+type QuoteOption func(*QuoteBlock)
+
+// KeyValueOption configures a KeyValueBlock.
+type KeyValueOption func(*KeyValueBlock)
+
+// CalloutMarkdown renders the callout Body as inline markdown
+// (see CalloutBlock.Markdown).
+func CalloutMarkdown() CalloutOption {
+	return func(block *CalloutBlock) {
+		block.Markdown = true
+	}
+}
+
+// SummaryCardMarkdown renders the summary card Body and Footer as inline
+// markdown (see SummaryCardBlock.Markdown).
+func SummaryCardMarkdown() SummaryCardOption {
+	return func(block *SummaryCardBlock) {
+		block.Markdown = true
+	}
+}
+
+// EmptyStateMarkdown renders the empty-state Body as inline markdown
+// (see EmptyStateBlock.Markdown).
+func EmptyStateMarkdown() EmptyStateOption {
+	return func(block *EmptyStateBlock) {
+		block.Markdown = true
+	}
+}
+
+// HeroMarkdown renders the hero Body as inline markdown (see HeroBlock.Markdown).
+func HeroMarkdown() HeroOption {
+	return func(block *HeroBlock) {
+		block.Markdown = true
+	}
+}
+
+// TimelineMarkdown renders each timeline item's Detail as inline markdown
+// (see TimelineBlock.Markdown).
+func TimelineMarkdown() TimelineOption {
+	return func(block *TimelineBlock) {
+		block.Markdown = true
+	}
+}
+
+// ListMarkdown renders each list item as inline markdown (see ListBlock.Markdown).
+func ListMarkdown() ListOption {
+	return func(block *ListBlock) {
+		block.Markdown = true
+	}
+}
+
+// QuoteMarkdown renders the quote Text as inline markdown (see QuoteBlock.Markdown).
+func QuoteMarkdown() QuoteOption {
+	return func(block *QuoteBlock) {
+		block.Markdown = true
+	}
+}
+
+// KeyValueMarkdown renders each pair's Value as inline markdown
+// (see KeyValueBlock.Markdown).
+func KeyValueMarkdown() KeyValueOption {
+	return func(block *KeyValueBlock) {
+		block.Markdown = true
+	}
+}
+
 // CalloutStyle sets the callout variant.
 func CalloutStyle(variant CalloutVariant) CalloutOption {
 	return func(block *CalloutBlock) {
@@ -939,14 +1011,24 @@ func (builder *Builder) AddSpacer(options ...SpacerOption) *Builder {
 
 // AddList appends a list block to the builder.
 // List blocks render ordered or unordered bullet content.
-func (builder *Builder) AddList(items []string, ordered bool) *Builder {
-	return builder.Add(ListBlock{Items: items, Ordered: ordered})
+func (builder *Builder) AddList(items []string, ordered bool, options ...ListOption) *Builder {
+	block := ListBlock{Items: items, Ordered: ordered}
+	for _, option := range options {
+		option(&block)
+	}
+
+	return builder.Add(block)
 }
 
 // AddKeyValue appends a key-value block to the builder.
 // Key-value blocks present compact labeled facts and values.
-func (builder *Builder) AddKeyValue(header string, pairs []KeyValuePair) *Builder {
-	return builder.Add(KeyValueBlock{Header: header, Pairs: pairs})
+func (builder *Builder) AddKeyValue(header string, pairs []KeyValuePair, options ...KeyValueOption) *Builder {
+	block := KeyValueBlock{Header: header, Pairs: pairs}
+	for _, option := range options {
+		option(&block)
+	}
+
+	return builder.Add(block)
 }
 
 // AddHorizontalBarChart appends a horizontal bar chart block to the builder.
@@ -1065,8 +1147,13 @@ func (builder *Builder) AddAttachment(filename, meta, url, cta string, options .
 
 // AddQuote appends a quote block to the builder.
 // Quote blocks emphasize testimonial or attribution-style text.
-func (builder *Builder) AddQuote(text, author string) *Builder {
-	return builder.Add(QuoteBlock{Text: text, Author: author})
+func (builder *Builder) AddQuote(text, author string, options ...QuoteOption) *Builder {
+	block := QuoteBlock{Text: text, Author: author}
+	for _, option := range options {
+		option(&block)
+	}
+
+	return builder.Add(block)
 }
 
 // AddCallout appends a callout block to the builder.

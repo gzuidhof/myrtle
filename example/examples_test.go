@@ -34,6 +34,7 @@ func TestRenderAndSendExamples(t *testing.T) {
 		build func() (*myrtle.Email, error)
 	}{
 		{name: "welcome", build: func() (*myrtle.Email, error) { return WelcomeEmail() }},
+		{name: "markdown-showcase", build: func() (*myrtle.Email, error) { return MarkdownShowcaseEmail() }},
 		{name: "security", build: func() (*myrtle.Email, error) { return SecurityCodeEmail() }},
 		{name: "password-reset", build: func() (*myrtle.Email, error) { return PasswordResetEmail() }},
 		{name: "account-deletion-confirmation", build: func() (*myrtle.Email, error) { return AccountDeletionConfirmationEmail() }},

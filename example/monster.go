@@ -70,15 +70,14 @@ func monsterEmailWithThemeAndStyles(selectedTheme theme.Theme, styles theme.Styl
 		WithoutHeader().
 		WithPreheader("Weekly operations snapshot covering delivery, incidents, billing, and team activity").
 		WithHeader(myrtle.HeadingBlock{Text: "Myrtle Weekly Operations Snapshot", Level: 1}, myrtle.HeaderPlacement(myrtle.HeaderPlacementOutside)).
-		Add(myrtle.HeroBlock{
-			Eyebrow:  "Ops Digest",
-			Title:    "Delivery healthy, onboarding conversion up, and no active incidents",
-			Body:     "Use this synthetic but realistic snapshot to validate layouts while previewing day-to-day operational content.",
-			CTALabel: "Open dashboard",
-			CTAURL:   "https://app.example.com/dashboard",
-			ImageURL: "/assets/hero.png",
-			ImageAlt: "Operations dashboard summary",
-		}).
+		AddHero(
+			"Delivery healthy, onboarding conversion up, and no active incidents",
+			"Use this synthetic but realistic snapshot to validate layouts while previewing day-to-day operational content.",
+			"Open dashboard",
+			"https://app.example.com/dashboard",
+			myrtle.HeroEyebrow("Ops Digest"),
+			myrtle.HeroImage("/assets/hero.png", "Operations dashboard summary"),
+		).
 		AddBadge(myrtle.ToneInfo, "Info badge variant").
 		AddBadge(myrtle.ToneSuccess, "Success badge variant").
 		AddBadge(myrtle.ToneWarning, "Warning badge variant").
@@ -198,15 +197,16 @@ func monsterEmailWithThemeAndStyles(selectedTheme theme.Theme, styles theme.Styl
 		AddDistribution("Latency buckets (ms)", []myrtle.DistributionBucket{{Label: "0-50", Count: 62, Color: "#16a34a"}, {Label: "51-100", Count: 44, Color: "#0ea5e9"}, {Label: "101-200", Count: 21, Color: "#f59e0b"}, {Label: "200+", Count: 8, Color: "#dc2626"}}).
 		AddPriceSummary("Commercial summary", []myrtle.PriceLine{{Label: "Email volume (1.2M)", Value: "$480.00"}, {Label: "Pro support", Value: "$149.00"}, {Label: "Credit", Value: "-$75.00"}}, "Estimated total", "$554.00").
 		AddKeyValue("Account summary", []myrtle.KeyValuePair{
-			{Key: "Plan", Value: "Scale Annual"},
+			{Key: "Plan", Value: "**Scale** Annual"},
 			{Key: "Workspace", Value: "acme-production"},
-			{Key: "Renewal", Value: "2026-04-15"},
-		}).
-		AddQuote("Migrating to composable blocks reduced template maintenance time by 60%.", "Email Engineering Team").
-		AddSummaryCard("Summary card variant", "A concise summary card with optional footer text.", "Last updated just now").
+			{Key: "Invoice", Value: "[#8241](https://example.com/billing/8241)"},
+		}, myrtle.KeyValueMarkdown()).
+		AddQuote("Migrating to [composable blocks](https://github.com/gzuidhof/myrtle) reduced template maintenance time by *60%*.", "Email Engineering Team", myrtle.QuoteMarkdown()).
+		AddSummaryCard("Summary card variant", "A concise summary card supporting **inline** markdown and [links](https://example.com/summary).", "Last updated just now · [view history](https://example.com/history)", myrtle.SummaryCardMarkdown()).
 		AddTimeline(
 			"Recent events",
-			[]myrtle.TimelineItem{{Time: "09:07", Title: "Detected", Detail: "Queue latency increased."}, {Time: "09:18", Title: "Mitigated", Detail: "Workers scaled."}, {Time: "09:42", Title: "Resolved", Detail: "Latency restored."}},
+			[]myrtle.TimelineItem{{Time: "09:07", Title: "Detected", Detail: "Queue latency increased — see the [alert](https://example.com/alerts/1)."}, {Time: "09:18", Title: "Mitigated", Detail: "Workers **scaled** automatically."}, {Time: "09:42", Title: "Resolved", Detail: "Latency restored to baseline."}},
+			myrtle.TimelineMarkdown(),
 			myrtle.TimelineAggregateHeader("3 events · 1 currently active"),
 			myrtle.TimelineCurrentIndex(1),
 		).
@@ -215,11 +215,11 @@ func monsterEmailWithThemeAndStyles(selectedTheme theme.Theme, styles theme.Styl
 				AddCallout(myrtle.ToneSuccess, "All systems nominal", "No active incidents and queue lag is within normal range.").
 				AddCallout(myrtle.ToneWarning, "Action recommended", "Rotate API keys older than 90 days."),
 			myrtle.NewGroup().
-				AddCallout(myrtle.ToneDanger, "Failed webhooks", "2 endpoints failed retries in the last 24h."),
+				AddCallout(myrtle.ToneDanger, "Failed webhooks", "2 endpoints failed retries in the last 24h. Inspect the [delivery log](https://example.com/webhooks/log).", myrtle.CalloutMarkdown()),
 			myrtle.ColumnsWidths(50, 50),
 		).
 		AddAttachment("weekly-report.pdf", "PDF · 312 KB", "https://example.com/reports/weekly", "Download").
-		AddEmptyState("No pending approvals", "Everything is up to date for now.", "Create approval rule", "https://example.com/rules/new").
+		AddEmptyState("No pending approvals", "Everything is up to date. [Create an approval rule](https://example.com/rules/new) to automate the next one.", "Create approval rule", "https://example.com/rules/new", myrtle.EmptyStateMarkdown()).
 		AddHeading("InsetMode none examples", myrtle.HeadingLevel(2)).
 		AddText("Representative components rendered with InsetModeNone for visual parity checks.").
 		AddCallout(myrtle.ToneInfo, "Callout (none)", "Callout rendered edge-to-edge in the main container.", myrtle.CalloutInsetMode(myrtle.InsetModeNone)).

@@ -6,7 +6,7 @@
     <td style="padding:8px 0;{{ if eq $.Block.InsetMode "none" }}padding-{{ physicalSide "start" $.Values }}:12px;{{ end }}vertical-align:top;color:{{ $.Values.Styles.ColorTextMuted }};font-size:13px;white-space:nowrap;{{ if eq $index $.Block.CurrentIndex }}font-weight:700;color:{{ $.Values.Styles.ColorText }};{{ end }}">{{ $item.Time }}</td>
     <td style="padding:8px 0;padding-{{ physicalSide "start" $.Values }}:12px;vertical-align:top;border-{{ physicalSide "start" $.Values }}:2px solid {{ if eq $index $.Block.CurrentIndex }}{{ $.Values.Styles.ColorPrimary }}{{ else }}{{ $.Values.Styles.ColorBorder }}{{ end }};{{ if eq $index $.Block.CurrentIndex }}background:{{ $.Values.Styles.ColorSurfaceMuted }};{{ end }}">
       <p style="margin:0 0 4px;color:{{ $.Values.Styles.ColorText }};font-weight:{{ if eq $index $.Block.CurrentIndex }}700{{ else }}600{{ end }};">{{ $item.Title }}</p>
-      {{ if $item.Detail }}<p style="margin:0;color:{{ $.Values.Styles.ColorTextMuted }};font-size:14px;line-height:1.5;">{{ $item.Detail }}</p>{{ end }}
+      {{ if $item.Detail }}<p style="margin:0;color:{{ $.Values.Styles.ColorTextMuted }};font-size:14px;line-height:1.5;">{{ if $.DetailsHTML }}{{ index $.DetailsHTML $index }}{{ else }}{{ $item.Detail }}{{ end }}</p>{{ end }}
     </td>
   </tr>
   {{ end }}

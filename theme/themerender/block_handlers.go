@@ -65,15 +65,53 @@ func renderTextBlock(templates *template.Template, view theme.BlockView) (string
 		return "", false, nil
 	}
 
+	var textHTML template.HTML
+	if textBlock.Markdown {
+		rendered, err := renderMarkdownInline(textBlock.Text)
+		if err != nil {
+			return "", false, err
+		}
+		// Anchors default to the client link color; pin them to the block's
+		// tone so an inline link inherits the paragraph's look (e.g. muted).
+		textHTML = styleInlineMarkdownAnchors(rendered, toneColor(textBlock.Tone, view.Values, "text"))
+	}
+
 	result, err := ExecuteTemplate(templates, "block.text.html.tmpl", struct {
-		Block  myrtle.TextBlock
-		Values theme.Values
-	}{Block: textBlock, Values: view.Values})
+		Block    myrtle.TextBlock
+		Values   theme.Values
+		TextHTML template.HTML
+	}{Block: textBlock, Values: view.Values, TextHTML: textHTML})
 	if err != nil {
 		return "", false, err
 	}
 
 	return result, true, nil
+}
+
+// styleInlineMarkdownAnchors pins goldmark-rendered <a> tags to the given color
+// so inline markdown links match the surrounding text tone.
+func styleInlineMarkdownAnchors(value template.HTML, color string) template.HTML {
+	if color == "" {
+		return value
+	}
+	styled := strings.ReplaceAll(string(value), "<a ", fmt.Sprintf(`<a style="color:%s;text-decoration:underline;" `, color))
+	return template.HTML(styled)
+}
+
+// inlineMarkdownField renders a single field as inline markdown and pins any
+// anchors to anchorColor so links inherit the surrounding text's tone. Empty
+// input yields empty output.
+func inlineMarkdownField(value, anchorColor string) (template.HTML, error) {
+	if strings.TrimSpace(value) == "" {
+		return "", nil
+	}
+
+	rendered, err := renderMarkdownInline(value)
+	if err != nil {
+		return "", err
+	}
+
+	return styleInlineMarkdownAnchors(rendered, anchorColor), nil
 }
 
 func renderHeadingBlock(templates *template.Template, view theme.BlockView) (string, bool, error) {
@@ -117,10 +155,23 @@ func renderListBlock(templates *template.Template, view theme.BlockView) (string
 		return "", false, nil
 	}
 
+	var itemsHTML []template.HTML
+	if listBlock.Markdown {
+		itemsHTML = make([]template.HTML, len(listBlock.Items))
+		for i, item := range listBlock.Items {
+			rendered, err := inlineMarkdownField(item, view.Values.Styles.ColorText)
+			if err != nil {
+				return "", false, err
+			}
+			itemsHTML[i] = rendered
+		}
+	}
+
 	result, err := ExecuteTemplate(templates, "block.list.html.tmpl", struct {
-		Block  myrtle.ListBlock
-		Values theme.Values
-	}{Block: listBlock, Values: view.Values})
+		Block     myrtle.ListBlock
+		Values    theme.Values
+		ItemsHTML []template.HTML
+	}{Block: listBlock, Values: view.Values, ItemsHTML: itemsHTML})
 	if err != nil {
 		return "", false, err
 	}
@@ -134,10 +185,23 @@ func renderKeyValueBlock(templates *template.Template, view theme.BlockView) (st
 		return "", false, nil
 	}
 
+	var valuesHTML []template.HTML
+	if keyValueBlock.Markdown {
+		valuesHTML = make([]template.HTML, len(keyValueBlock.Pairs))
+		for i, pair := range keyValueBlock.Pairs {
+			rendered, err := inlineMarkdownField(pair.Value, view.Values.Styles.ColorText)
+			if err != nil {
+				return "", false, err
+			}
+			valuesHTML[i] = rendered
+		}
+	}
+
 	result, err := ExecuteTemplate(templates, "block.key_value.html.tmpl", struct {
-		Block  myrtle.KeyValueBlock
-		Values theme.Values
-	}{Block: keyValueBlock, Values: view.Values})
+		Block      myrtle.KeyValueBlock
+		Values     theme.Values
+		ValuesHTML []template.HTML
+	}{Block: keyValueBlock, Values: view.Values, ValuesHTML: valuesHTML})
 	if err != nil {
 		return "", false, err
 	}
@@ -258,10 +322,23 @@ func renderTimelineBlock(templates *template.Template, view theme.BlockView) (st
 		return "", false, nil
 	}
 
+	var detailsHTML []template.HTML
+	if block.Markdown {
+		detailsHTML = make([]template.HTML, len(block.Items))
+		for i, item := range block.Items {
+			rendered, err := inlineMarkdownField(item.Detail, view.Values.Styles.ColorTextMuted)
+			if err != nil {
+				return "", false, err
+			}
+			detailsHTML[i] = rendered
+		}
+	}
+
 	result, err := ExecuteTemplate(templates, "block.timeline.html.tmpl", struct {
-		Block  myrtle.TimelineBlock
-		Values theme.Values
-	}{Block: block, Values: view.Values})
+		Block       myrtle.TimelineBlock
+		Values      theme.Values
+		DetailsHTML []template.HTML
+	}{Block: block, Values: view.Values, DetailsHTML: detailsHTML})
 	if err != nil {
 		return "", false, err
 	}
@@ -309,10 +386,23 @@ func renderSummaryCardBlock(templates *template.Template, view theme.BlockView) 
 		return "", false, nil
 	}
 
+	var bodyHTML, footerHTML template.HTML
+	if block.Markdown {
+		var err error
+		if bodyHTML, err = inlineMarkdownField(block.Body, toneColor(block.Tone, view.Values, "text")); err != nil {
+			return "", false, err
+		}
+		if footerHTML, err = inlineMarkdownField(block.Footer, toneColor(block.Tone, view.Values, "muted-text")); err != nil {
+			return "", false, err
+		}
+	}
+
 	result, err := ExecuteTemplate(templates, "block.summary_card.html.tmpl", struct {
-		Block  myrtle.SummaryCardBlock
-		Values theme.Values
-	}{Block: block, Values: view.Values})
+		Block      myrtle.SummaryCardBlock
+		Values     theme.Values
+		BodyHTML   template.HTML
+		FooterHTML template.HTML
+	}{Block: block, Values: view.Values, BodyHTML: bodyHTML, FooterHTML: footerHTML})
 	if err != nil {
 		return "", false, err
 	}
@@ -343,10 +433,19 @@ func renderHeroBlock(templates *template.Template, view theme.BlockView) (string
 		return "", false, nil
 	}
 
+	var bodyHTML template.HTML
+	if block.Markdown {
+		var err error
+		if bodyHTML, err = inlineMarkdownField(block.Body, toneColor(block.Tone, view.Values, "text")); err != nil {
+			return "", false, err
+		}
+	}
+
 	result, err := ExecuteTemplate(templates, "block.hero.html.tmpl", struct {
-		Block  myrtle.HeroBlock
-		Values theme.Values
-	}{Block: block, Values: view.Values})
+		Block    myrtle.HeroBlock
+		Values   theme.Values
+		BodyHTML template.HTML
+	}{Block: block, Values: view.Values, BodyHTML: bodyHTML})
 	if err != nil {
 		return "", false, err
 	}
@@ -394,10 +493,19 @@ func renderEmptyStateBlock(templates *template.Template, view theme.BlockView) (
 		return "", false, nil
 	}
 
+	var bodyHTML template.HTML
+	if block.Markdown {
+		var err error
+		if bodyHTML, err = inlineMarkdownField(block.Body, toneColor(block.Tone, view.Values, "muted-text")); err != nil {
+			return "", false, err
+		}
+	}
+
 	result, err := ExecuteTemplate(templates, "block.empty_state.html.tmpl", struct {
-		Block  myrtle.EmptyStateBlock
-		Values theme.Values
-	}{Block: block, Values: view.Values})
+		Block    myrtle.EmptyStateBlock
+		Values   theme.Values
+		BodyHTML template.HTML
+	}{Block: block, Values: view.Values, BodyHTML: bodyHTML})
 	if err != nil {
 		return "", false, err
 	}
@@ -411,10 +519,19 @@ func renderQuoteBlock(templates *template.Template, view theme.BlockView) (strin
 		return "", false, nil
 	}
 
+	var textHTML template.HTML
+	if quoteBlock.Markdown {
+		var err error
+		if textHTML, err = inlineMarkdownField(quoteBlock.Text, view.Values.Styles.ColorText); err != nil {
+			return "", false, err
+		}
+	}
+
 	result, err := ExecuteTemplate(templates, "block.quote.html.tmpl", struct {
-		Block  myrtle.QuoteBlock
-		Values theme.Values
-	}{Block: quoteBlock, Values: view.Values})
+		Block    myrtle.QuoteBlock
+		Values   theme.Values
+		TextHTML template.HTML
+	}{Block: quoteBlock, Values: view.Values, TextHTML: textHTML})
 	if err != nil {
 		return "", false, err
 	}
@@ -428,10 +545,27 @@ func renderCalloutBlock(templates *template.Template, view theme.BlockView) (str
 		return "", false, nil
 	}
 
+	var bodyHTML template.HTML
+	if calloutBlock.Markdown {
+		// Body text is on-solid when the variant is solid, otherwise the block's
+		// tone text color; match inline links to whichever applies.
+		anchorColor := toneColor(calloutBlock.Tone, view.Values, "text")
+		if calloutBlock.Variant == myrtle.CalloutVariantSolid {
+			anchorColor = view.Values.Styles.ColorTextOnSolid
+		}
+
+		var err error
+		bodyHTML, err = inlineMarkdownField(calloutBlock.Body, anchorColor)
+		if err != nil {
+			return "", false, err
+		}
+	}
+
 	result, err := ExecuteTemplate(templates, "block.callout.html.tmpl", struct {
-		Block  myrtle.CalloutBlock
-		Values theme.Values
-	}{Block: calloutBlock, Values: view.Values})
+		Block    myrtle.CalloutBlock
+		Values   theme.Values
+		BodyHTML template.HTML
+	}{Block: calloutBlock, Values: view.Values, BodyHTML: bodyHTML})
 	if err != nil {
 		return "", false, err
 	}

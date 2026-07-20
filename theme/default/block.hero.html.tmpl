@@ -3,7 +3,7 @@
     <td bgcolor="{{ toneColor .Block.Tone .Values "background" }}" style="padding:16px;mso-padding-alt:16px;border:1px solid {{ toneColor .Block.Tone .Values "border" }};border-radius:{{ if eq .Block.InsetMode "none" }}0{{ else }}{{ .Values.Styles.RadiusElement }}{{ end }};{{ if eq .Block.InsetMode "none" }}border-left:0;border-right:0;{{ end }}background:{{ toneColor .Block.Tone .Values "background" }};">
       {{ if .Block.Eyebrow }}<p style="margin:0 0 8px;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:{{ toneColor .Block.Tone .Values "muted-text" }};">{{ .Block.Eyebrow }}</p>{{ end }}
       {{ if .Block.Title }}<h2 style="margin:0 0 8px;font-size:24px;line-height:1.25;color:{{ toneColor .Block.Tone .Values "text" }};">{{ .Block.Title }}</h2>{{ end }}
-      {{ if .Block.Body }}<p style="margin:0 0 12px;line-height:1.6;color:{{ toneColor .Block.Tone .Values "text" }};">{{ .Block.Body }}</p>{{ end }}
+      {{ if .Block.Body }}<p style="margin:0 0 12px;line-height:1.6;color:{{ toneColor .Block.Tone .Values "text" }};">{{ if $.BodyHTML }}{{ $.BodyHTML }}{{ else }}{{ .Block.Body }}{{ end }}</p>{{ end }}
       {{ if and .Block.CTALabel .Block.CTAURL }}
       <p style="margin:0 0 12px;">
         <!--[if mso]>
