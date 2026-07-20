@@ -65,15 +65,37 @@ func renderTextBlock(templates *template.Template, view theme.BlockView) (string
 		return "", false, nil
 	}
 
+	var textHTML template.HTML
+	if textBlock.Markdown {
+		rendered, err := renderMarkdownInline(textBlock.Text)
+		if err != nil {
+			return "", false, err
+		}
+		// Anchors default to the client link color; pin them to the block's
+		// tone so an inline link inherits the paragraph's look (e.g. muted).
+		textHTML = styleInlineMarkdownAnchors(rendered, toneColor(textBlock.Tone, view.Values, "text"))
+	}
+
 	result, err := ExecuteTemplate(templates, "block.text.html.tmpl", struct {
-		Block  myrtle.TextBlock
-		Values theme.Values
-	}{Block: textBlock, Values: view.Values})
+		Block    myrtle.TextBlock
+		Values   theme.Values
+		TextHTML template.HTML
+	}{Block: textBlock, Values: view.Values, TextHTML: textHTML})
 	if err != nil {
 		return "", false, err
 	}
 
 	return result, true, nil
+}
+
+// styleInlineMarkdownAnchors pins goldmark-rendered <a> tags to the given color
+// so inline markdown links match the surrounding text tone.
+func styleInlineMarkdownAnchors(value template.HTML, color string) template.HTML {
+	if color == "" {
+		return value
+	}
+	styled := strings.ReplaceAll(string(value), "<a ", fmt.Sprintf(`<a style="color:%s;text-decoration:underline;" `, color))
+	return template.HTML(styled)
 }
 
 func renderHeadingBlock(templates *template.Template, view theme.BlockView) (string, bool, error) {

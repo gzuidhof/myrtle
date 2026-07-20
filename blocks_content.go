@@ -2,6 +2,7 @@ package myrtle
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 
 	"github.com/gzuidhof/myrtle/theme"
@@ -17,6 +18,11 @@ type TextBlock struct {
 	NoMargin  bool
 	Spacing   TextSpacingValue
 	Transform TextTransformValue
+	// Markdown renders Text as inline markdown: [label](url) becomes a link
+	// in HTML and "label (url)" in plaintext. Emphasis markers are stripped.
+	// Enable only for authored strings; user-supplied text is not sanitized
+	// for markdown link targets (e.g. javascript: URLs).
+	Markdown bool
 }
 
 // TextOption configures a TextBlock.
@@ -136,6 +142,31 @@ func TextTransform(value TextTransformValue) TextOption {
 	}
 }
 
+// TextMarkdown renders the text as inline markdown (see TextBlock.Markdown).
+func TextMarkdown() TextOption {
+	return func(block *TextBlock) {
+		block.Markdown = true
+	}
+}
+
+var (
+	markdownBoldPattern   = regexp.MustCompile(`\*\*([^*]+)\*\*`)
+	markdownItalicPattern = regexp.MustCompile(`\*([^*]+)\*`)
+	markdownCodePattern   = regexp.MustCompile("`([^`]+)`")
+)
+
+// inlineMarkdownToText degrades inline markdown to plaintext: links become
+// "label (url)" and emphasis wrappers are unwrapped. Only paired markers are
+// stripped, so underscores inside URLs and identifiers (e.g. utm_source) are
+// left intact. It reuses the same link pattern as message-preview text.
+func inlineMarkdownToText(value string) string {
+	value = previewMarkdownLinkPattern.ReplaceAllString(value, "$1 ($2)")
+	value = markdownBoldPattern.ReplaceAllString(value, "$1")
+	value = markdownItalicPattern.ReplaceAllString(value, "$1")
+	value = markdownCodePattern.ReplaceAllString(value, "$1")
+	return value
+}
+
 func (block TextBlock) Kind() theme.BlockKind {
 	return theme.BlockKindText
 }
@@ -145,7 +176,11 @@ func (block TextBlock) TemplateData() any {
 }
 
 func (block TextBlock) RenderText(_ RenderContext) (string, error) {
-	return strings.TrimSpace(block.Text), nil
+	text := strings.TrimSpace(block.Text)
+	if block.Markdown {
+		text = inlineMarkdownToText(text)
+	}
+	return text, nil
 }
 
 func (block TextBlock) LayoutSpec() LayoutSpec { return defaultLayoutSpec() }

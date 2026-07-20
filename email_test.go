@@ -2617,3 +2617,58 @@ func (themeImpl *minimalTheme) RenderBlockHTML(view theme.BlockView) (string, bo
 
 	return themeImpl.fallback.RenderBlockHTML(view)
 }
+
+func TestTextMarkdownRendersInlineLink(t *testing.T) {
+	t.Parallel()
+	email := myrtle.NewBuilder(defaulttheme.New()).
+		AddText(
+			"Powered by [Skyline](https://skyline.example.com?utm_source=email_badge)",
+			myrtle.TextMarkdown(),
+			myrtle.TextSize(myrtle.TextSizeSmall),
+			myrtle.TextTone(myrtle.ToneMuted),
+		).
+		Build()
+
+	html, err := email.HTML()
+	if err != nil {
+		t.Fatalf("HTML returned error: %v", err)
+	}
+	if !strings.Contains(html, `<a style=`) || !strings.Contains(html, `href="https://skyline.example.com?utm_source=email_badge"`) {
+		t.Fatalf("expected html to contain a styled anchor with the badge url, got: %s", html)
+	}
+	if !strings.Contains(html, ">Skyline</a>") {
+		t.Fatalf("expected anchor label Skyline, got: %s", html)
+	}
+	if strings.Contains(html, "[Skyline]") {
+		t.Fatalf("raw markdown leaked into html: %s", html)
+	}
+
+	text, err := email.Text()
+	if err != nil {
+		t.Fatalf("Text returned error: %v", err)
+	}
+	if !strings.Contains(text, "Powered by Skyline (https://skyline.example.com?utm_source=email_badge)") {
+		t.Fatalf("expected plaintext to degrade to 'label (url)', got: %q", text)
+	}
+	if strings.Contains(text, "[Skyline]") {
+		t.Fatalf("raw markdown leaked into text: %q", text)
+	}
+}
+
+func TestTextWithoutMarkdownLeavesBracketsLiteral(t *testing.T) {
+	t.Parallel()
+	email := myrtle.NewBuilder(defaulttheme.New()).
+		AddText("See [docs](https://example.com)").
+		Build()
+
+	html, err := email.HTML()
+	if err != nil {
+		t.Fatalf("HTML returned error: %v", err)
+	}
+	if strings.Contains(html, "<a ") {
+		t.Fatalf("plain text block must not produce an anchor, got: %s", html)
+	}
+	if !strings.Contains(html, "[docs]") {
+		t.Fatalf("plain text block must keep literal brackets, got: %s", html)
+	}
+}
