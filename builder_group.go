@@ -70,14 +70,24 @@ func (group *Group) AddSpacer(options ...SpacerOption) *Group {
 
 // AddList appends a list block to the group.
 // List blocks render ordered or unordered bullet content.
-func (group *Group) AddList(items []string, ordered bool) *Group {
-	return group.Add(ListBlock{Items: items, Ordered: ordered})
+func (group *Group) AddList(items []string, ordered bool, options ...ListOption) *Group {
+	block := ListBlock{Items: items, Ordered: ordered}
+	for _, option := range options {
+		option(&block)
+	}
+
+	return group.Add(block)
 }
 
 // AddKeyValue appends a key-value block to the group.
 // Key-value blocks present compact labeled facts and values.
-func (group *Group) AddKeyValue(header string, pairs []KeyValuePair) *Group {
-	return group.Add(KeyValueBlock{Header: header, Pairs: pairs})
+func (group *Group) AddKeyValue(header string, pairs []KeyValuePair, options ...KeyValueOption) *Group {
+	block := KeyValueBlock{Header: header, Pairs: pairs}
+	for _, option := range options {
+		option(&block)
+	}
+
+	return group.Add(block)
 }
 
 // AddHorizontalBarChart appends a horizontal bar chart block to the group.
@@ -152,8 +162,13 @@ func (group *Group) AddAttachment(filename, meta, url, cta string, options ...At
 
 // AddQuote appends a quote block to the group.
 // Quote blocks emphasize testimonial or attribution-style text.
-func (group *Group) AddQuote(text, author string) *Group {
-	return group.Add(QuoteBlock{Text: text, Author: author})
+func (group *Group) AddQuote(text, author string, options ...QuoteOption) *Group {
+	block := QuoteBlock{Text: text, Author: author}
+	for _, option := range options {
+		option(&block)
+	}
+
+	return group.Add(block)
 }
 
 // AddCallout appends a callout block to the group.

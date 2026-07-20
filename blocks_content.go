@@ -254,6 +254,10 @@ func (block SpacerBlock) RenderText(_ RenderContext) (string, error) {
 type ListBlock struct {
 	Items   []string
 	Ordered bool
+	// Markdown renders each item as inline markdown: [label](url) becomes a link
+	// in HTML and "label (url)" in plaintext; emphasis markers are stripped.
+	// Enable only for authored strings; link targets are not sanitized.
+	Markdown bool
 }
 
 func (block ListBlock) Kind() theme.BlockKind {
@@ -270,6 +274,9 @@ func (block ListBlock) RenderText(_ RenderContext) (string, error) {
 		value := strings.TrimSpace(item)
 		if value == "" {
 			continue
+		}
+		if block.Markdown {
+			value = inlineMarkdownToText(value)
 		}
 		if block.Ordered {
 			parts = append(parts, fmt.Sprintf("%d. %s", len(parts)+1, value))

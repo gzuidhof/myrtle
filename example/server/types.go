@@ -66,6 +66,7 @@ type previewViewData struct {
 
 var exampleEmails = []namedEmailBuilder{
 	{Name: "welcome", Build: example.WelcomeEmailWithTheme},
+	{Name: "markdown-showcase", Build: example.MarkdownShowcaseEmailWithTheme},
 	{Name: "monster", Build: example.MonsterEmailWithTheme},
 	{Name: "monster-dark-mode", Build: example.MonsterDarkModeEmailWithTheme},
 	{Name: "monster-rtl", Build: example.MonsterRTLEmailWithTheme},
@@ -134,6 +135,7 @@ var exampleEmailGroups = []emailGroupDefinition{
 	{
 		Name: "Showcase & Styling",
 		Items: []string{
+			"markdown-showcase",
 			"columns-complex",
 			"dark-mode-styles",
 			"monster",

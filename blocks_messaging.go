@@ -11,6 +11,10 @@ import (
 type QuoteBlock struct {
 	Text   string
 	Author string
+	// Markdown renders Text as inline markdown: [label](url) becomes a link in
+	// HTML and "label (url)" in plaintext; emphasis markers are stripped. Enable
+	// only for authored strings; link targets are not sanitized.
+	Markdown bool
 }
 
 func (block QuoteBlock) Kind() theme.BlockKind {
@@ -25,6 +29,9 @@ func (block QuoteBlock) RenderText(_ RenderContext) (string, error) {
 	text := strings.TrimSpace(block.Text)
 	if text == "" {
 		return "", nil
+	}
+	if block.Markdown {
+		text = inlineMarkdownToText(text)
 	}
 	author := strings.TrimSpace(block.Author)
 
@@ -57,6 +64,10 @@ type CalloutBlock struct {
 	LinkLabel string
 	LinkURL   string
 	InsetMode InsetMode
+	// Markdown renders Body as inline markdown: [label](url) becomes a link in
+	// HTML and "label (url)" in plaintext; emphasis markers are stripped. Enable
+	// only for authored strings; link targets are not sanitized.
+	Markdown bool
 }
 
 // MessageBlock renders one message item in a conversational digest format.
@@ -159,6 +170,9 @@ func normalizeMessageBlock(block MessageBlock) MessageBlock {
 func (block CalloutBlock) RenderText(_ RenderContext) (string, error) {
 	title := strings.TrimSpace(block.Title)
 	body := strings.TrimSpace(block.Body)
+	if block.Markdown {
+		body = inlineMarkdownToText(body)
+	}
 	linkLabel := strings.TrimSpace(block.LinkLabel)
 	linkURL := strings.TrimSpace(block.LinkURL)
 

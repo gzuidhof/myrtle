@@ -417,6 +417,10 @@ type KeyValuePair struct {
 type KeyValueBlock struct {
 	Header string
 	Pairs  []KeyValuePair
+	// Markdown renders each pair's Value as inline markdown: [label](url) becomes
+	// a link in HTML and "label (url)" in plaintext; emphasis markers are
+	// stripped. Enable only for authored strings; link targets are not sanitized.
+	Markdown bool
 }
 
 func (block KeyValueBlock) Kind() theme.BlockKind {
@@ -439,6 +443,9 @@ func (block KeyValueBlock) RenderText(_ RenderContext) (string, error) {
 		value := strings.TrimSpace(pair.Value)
 		if key == "" && value == "" {
 			continue
+		}
+		if block.Markdown {
+			value = inlineMarkdownToText(value)
 		}
 		if key == "" {
 			parts = append(parts, value)
@@ -569,6 +576,10 @@ type TimelineBlock struct {
 	CurrentIndex    int
 	Items           []TimelineItem
 	InsetMode       InsetMode
+	// Markdown renders each item's Detail as inline markdown: [label](url)
+	// becomes a link in HTML and "label (url)" in plaintext; emphasis markers
+	// are stripped. Enable only for authored strings; targets are not sanitized.
+	Markdown bool
 }
 
 func (block TimelineBlock) Kind() theme.BlockKind {
@@ -614,7 +625,11 @@ func (block TimelineBlock) RenderText(_ RenderContext) (string, error) {
 		}
 		line += title
 		if strings.TrimSpace(item.Detail) != "" {
-			line += ": " + strings.TrimSpace(item.Detail)
+			detail := strings.TrimSpace(item.Detail)
+			if block.Markdown {
+				detail = inlineMarkdownToText(detail)
+			}
+			line += ": " + detail
 		}
 		parts = append(parts, line)
 	}
@@ -724,6 +739,10 @@ type SummaryCardBlock struct {
 	Footer    string
 	Tone      Tone
 	InsetMode InsetMode
+	// Markdown renders Body and Footer as inline markdown: [label](url) becomes
+	// a link in HTML and "label (url)" in plaintext; emphasis markers are
+	// stripped. Enable only for authored strings; link targets are not sanitized.
+	Markdown bool
 }
 
 func (block SummaryCardBlock) Kind() theme.BlockKind {
@@ -744,10 +763,18 @@ func (block SummaryCardBlock) RenderText(_ RenderContext) (string, error) {
 		parts = append(parts, "[ "+title+" ]", strings.Repeat("-", min(48, max(8, len(title)+4))))
 	}
 	if strings.TrimSpace(block.Body) != "" {
-		parts = append(parts, strings.TrimSpace(block.Body))
+		body := strings.TrimSpace(block.Body)
+		if block.Markdown {
+			body = inlineMarkdownToText(body)
+		}
+		parts = append(parts, body)
 	}
 	if strings.TrimSpace(block.Footer) != "" {
-		parts = append(parts, strings.TrimSpace(block.Footer))
+		footer := strings.TrimSpace(block.Footer)
+		if block.Markdown {
+			footer = inlineMarkdownToText(footer)
+		}
+		parts = append(parts, footer)
 	}
 	return strings.Join(parts, "\n\n"), nil
 }

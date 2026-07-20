@@ -17,6 +17,10 @@ type HeroBlock struct {
 	ImageAlt  string
 	Tone      Tone
 	InsetMode InsetMode
+	// Markdown renders Body as inline markdown: [label](url) becomes a link in
+	// HTML and "label (url)" in plaintext; emphasis markers are stripped. Enable
+	// only for authored strings; link targets are not sanitized.
+	Markdown bool
 }
 
 func (block HeroBlock) Kind() theme.BlockKind {
@@ -34,6 +38,9 @@ func (block HeroBlock) RenderText(_ RenderContext) (string, error) {
 	eyebrow := strings.TrimSpace(block.Eyebrow)
 	title := strings.TrimSpace(block.Title)
 	body := strings.TrimSpace(block.Body)
+	if block.Markdown {
+		body = inlineMarkdownToText(body)
+	}
 	ctaLabel := strings.TrimSpace(block.CTALabel)
 	ctaURL := strings.TrimSpace(block.CTAURL)
 
@@ -159,6 +166,10 @@ type EmptyStateBlock struct {
 	ActionURL   string
 	Tone        Tone
 	InsetMode   InsetMode
+	// Markdown renders Body as inline markdown: [label](url) becomes a link in
+	// HTML and "label (url)" in plaintext; emphasis markers are stripped. Enable
+	// only for authored strings; link targets are not sanitized.
+	Markdown bool
 }
 
 func (block EmptyStateBlock) Kind() theme.BlockKind {
@@ -179,7 +190,11 @@ func (block EmptyStateBlock) RenderText(_ RenderContext) (string, error) {
 		parts = append(parts, "[ "+title+" ]", strings.Repeat("-", min(48, max(8, len(title)+4))))
 	}
 	if strings.TrimSpace(block.Body) != "" {
-		parts = append(parts, strings.TrimSpace(block.Body))
+		body := strings.TrimSpace(block.Body)
+		if block.Markdown {
+			body = inlineMarkdownToText(body)
+		}
+		parts = append(parts, body)
 	}
 	if strings.TrimSpace(block.ActionLabel) != "" && strings.TrimSpace(block.ActionURL) != "" {
 		parts = append(parts, strings.TrimSpace(block.ActionLabel)+" ("+strings.TrimSpace(block.ActionURL)+")")
