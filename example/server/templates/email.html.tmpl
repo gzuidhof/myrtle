@@ -2,7 +2,7 @@
 <p><a href="/?theme={{ .Theme }}">← Back to directory</a></p>
 <h1>{{ .Name }}</h1>
 <p><strong>{{ .Subject }}</strong></p>
-<iframe src="{{ .Preview }}" title="{{ .Name }} preview" height="700"></iframe>
+<div class="frame"><iframe src="{{ .Preview }}" title="{{ .Name }} preview" height="700"></iframe></div>
 <h2>Text fallback</h2>
 <pre>{{ .Text }}</pre>
 {{ end }}

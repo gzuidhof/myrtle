@@ -9,15 +9,45 @@
   <link rel="shortcut icon" href="/assets/logo.png" />
   <style>
     :root {
+      --bg: #f9fafb;
+      --surface: #ffffff;
+      --surface-raised: #ffffffee;
+      --border: #e5e7eb;
+      --border-strong: #d1d5db;
+      --text: #111827;
+      --muted: #6b7280;
+      --nav: #374151;
+      --accent: #6d28d9;
+      --code-bg: #f3f4f6;
+      --frame-bg: #eef1f5;
+      --ok: #166534;
+      --error: #991b1b;
       color-scheme: light;
+    }
+    html.chrome-dark {
+      --bg: #0b1220;
+      --surface: #0f172a;
+      --surface-raised: #0f172aee;
+      --border: #1e293b;
+      --border-strong: #334155;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --nav: #cbd5e1;
+      --accent: #a78bfa;
+      --code-bg: #111a2e;
+      --frame-bg: #020617;
+      --ok: #4ade80;
+      --error: #f87171;
+      color-scheme: dark;
     }
     * { box-sizing: border-box; }
     body {
       margin: 0;
       font-family: -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;
-      color: #111827;
-      background: #f9fafb;
+      color: var(--text);
+      background: var(--bg);
       line-height: 1.5;
+      transition: background .2s ease, color .2s ease;
     }
     .container {
       max-width: 1280px;
@@ -33,8 +63,8 @@
     .sidebar {
       position: sticky;
       top: 1rem;
-      background: #fff;
-      border: 1px solid #e5e7eb;
+      background: var(--surface);
+      border: 1px solid var(--border);
       border-radius: .65rem;
       padding: .9rem;
       max-height: calc(100vh - 2rem);
@@ -55,12 +85,12 @@
     .nav-list a {
       display: block;
       padding: .2rem 0;
-      color: #374151;
+      color: var(--nav);
       text-decoration: none;
       word-break: break-word;
     }
     .nav-list a:hover {
-      color: #2563eb;
+      color: var(--accent);
       text-decoration: underline;
     }
     .brand {
@@ -74,63 +104,141 @@
       display: block;
       margin: 0 auto;
     }
+    html.chrome-dark .brand img {
+      /* the wordmark logo is dark ink on transparent; invert for dark chrome */
+      filter: invert(1) hue-rotate(180deg) brightness(1.1);
+    }
     .section-anchor {
       scroll-margin-top: 1rem;
     }
-    .topbar {
-      position: sticky;
-      top: 0;
-      z-index: 20;
-      background: #ffffffee;
-      backdrop-filter: blur(4px);
-      border-bottom: 1px solid #e5e7eb;
-      margin: -1.5rem -1rem 1rem;
-      padding: 1rem;
-    }
-    h1, h2, h3 {
+    h1, h2, h3, h4 {
       margin: 0 0 .5rem;
       line-height: 1.25;
+      color: var(--text);
     }
     h1 { font-size: 1.6rem; }
     h2 { font-size: 1.25rem; margin-top: 1.5rem; }
     h3 { font-size: 1rem; }
     p { margin: .25rem 0 .75rem; }
-    a { color: #2563eb; text-decoration: none; }
+    a { color: var(--accent); text-decoration: none; }
     a:hover { text-decoration: underline; }
     select {
       font: inherit;
       padding: .35rem .5rem;
       border-radius: .4rem;
-      border: 1px solid #d1d5db;
-      background: white;
+      border: 1px solid var(--border-strong);
+      background: var(--surface);
+      color: var(--text);
     }
     .list {
       display: grid;
       gap: 1rem;
     }
     .item {
-      background: #fff;
-      border: 1px solid #e5e7eb;
+      background: var(--surface);
+      border: 1px solid var(--border);
       border-radius: .65rem;
       padding: .9rem;
     }
-    iframe {
-      width: 100%;
-      border: 1px solid #d1d5db;
-      border-radius: .5rem;
-      background: #fff;
+
+    /* Preview frame: a tinted "stage" whose backdrop is set from the
+       previewed email's own background color by the script below. */
+    .frame {
+      position: relative;
+      background: var(--frame-bg);
+      border: 1px solid var(--border);
+      border-radius: .6rem;
+      padding: .75rem;
       margin: .5rem 0;
+      display: flex;
+      justify-content: center;
+      min-height: 120px;
+      transition: background .2s ease;
     }
+    .frame iframe {
+      width: 100%;
+      min-height: 160px;
+      border: 0;
+      border-radius: .4rem;
+      background: transparent;
+      display: block;
+      margin: 0;
+      opacity: 0;
+      transition: opacity .25s ease;
+    }
+    .frame.is-loaded iframe { opacity: 1; }
+    html.preview-mobile .frame iframe {
+      width: 390px;
+      max-width: 100%;
+    }
+    /* Loading placeholder, removed once the iframe reports its height. */
+    .frame::after {
+      content: "Loading preview\2026";
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      font-size: .85rem;
+      pointer-events: none;
+    }
+    .frame.is-loaded::after { content: none; }
+
+    /* Count chips on section headers. */
+    .group-heading {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+    .count {
+      font-size: .72rem;
+      font-weight: 600;
+      line-height: 1;
+      color: var(--muted);
+      background: color-mix(in srgb, var(--accent) 12%, transparent);
+      border: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
+      border-radius: 999px;
+      padding: .15rem .45rem;
+    }
+
+    /* "Open HTML" action as a compact outline pill. */
+    .card-actions { margin: 0 0 .25rem; }
+    .open-link {
+      display: inline-flex;
+      align-items: center;
+      font-size: .82rem;
+      padding: .25rem .6rem;
+      border: 1px solid var(--border-strong);
+      border-radius: 999px;
+      color: var(--nav);
+      text-decoration: none;
+      transition: border-color .15s ease, color .15s ease, background .15s ease;
+    }
+    .open-link:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+      background: color-mix(in srgb, var(--accent) 8%, transparent);
+      text-decoration: none;
+    }
+
+    /* Scroll-spy: current section in the sidebar. */
+    .nav-list a.active {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
     pre {
       white-space: pre-wrap;
-      background: #f3f4f6;
-      border: 1px solid #e5e7eb;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
       border-radius: .5rem;
       padding: .85rem;
       margin: .5rem 0 0;
       overflow-x: auto;
+      color: var(--text);
     }
-    .muted { color: #6b7280; }
+    .muted { color: var(--muted); }
     .send-form {
       display: flex;
       gap: .5rem;
@@ -142,24 +250,90 @@
       font: inherit;
       padding: .35rem .5rem;
       border-radius: .4rem;
-      border: 1px solid #d1d5db;
+      border: 1px solid var(--border-strong);
       min-width: 240px;
-      background: #fff;
+      background: var(--surface);
+      color: var(--text);
     }
     .send-form button {
       font: inherit;
       padding: .35rem .65rem;
       border-radius: .4rem;
-      border: 1px solid #d1d5db;
-      background: #fff;
+      border: 1px solid var(--border-strong);
+      background: var(--surface);
+      color: var(--text);
       cursor: pointer;
     }
     .send-status {
       margin: 0 0 .65rem;
       font-size: .9rem;
     }
-    .send-status.ok { color: #166534; }
-    .send-status.error { color: #991b1b; }
+    .send-status.ok { color: var(--ok); }
+    .send-status.error { color: var(--error); }
+
+    /* Floating preview controls (appearance + width), shared across pages. */
+    .controls {
+      position: fixed;
+      top: .75rem;
+      right: .75rem;
+      z-index: 50;
+      display: flex;
+      gap: .6rem;
+      align-items: center;
+      flex-wrap: wrap;
+      background: var(--surface-raised);
+      backdrop-filter: blur(6px);
+      border: 1px solid var(--border);
+      border-radius: .5rem;
+      padding: .4rem .6rem;
+      box-shadow: 0 1px 2px rgba(0,0,0,.06);
+    }
+    .controls-label {
+      font-size: .82rem;
+      color: var(--muted);
+    }
+    .segmented {
+      display: inline-flex;
+      border: 1px solid var(--border-strong);
+      border-radius: .45rem;
+      overflow: hidden;
+      background: var(--surface);
+    }
+    .segmented button,
+    .segmented a {
+      font: inherit;
+      font-size: .82rem;
+      padding: .28rem .6rem;
+      border: 0;
+      background: transparent;
+      color: var(--nav);
+      cursor: pointer;
+      text-decoration: none;
+      line-height: 1.4;
+    }
+    .segmented button + button,
+    .segmented a + a { border-left: 1px solid var(--border-strong); }
+    .segmented button:hover,
+    .segmented a:hover { background: color-mix(in srgb, var(--accent) 12%, transparent); text-decoration: none; }
+    .segmented [aria-pressed="true"],
+    .segmented a.active {
+      background: var(--accent);
+      color: #fff;
+    }
+    .theme-control {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      margin: .35rem 0 .25rem;
+      flex-wrap: wrap;
+    }
+    .theme-segmented { max-width: 100%; }
+    .theme-segmented a {
+      text-transform: capitalize;
+      padding: .28rem .42rem;
+      font-size: .78rem;
+    }
+
     @media (max-width: 900px) {
       .page {
         grid-template-columns: 1fr;
@@ -168,13 +342,140 @@
         position: static;
         max-height: none;
       }
+      .controls { position: static; margin: 0 0 1rem; box-shadow: none; }
     }
   </style>
 </head>
 <body>
+  <div class="controls" role="group" aria-label="Preview controls">
+    <span class="controls-label">Appearance</span>
+    <div class="segmented" id="appearance-toggle">
+      <button type="button" data-appearance="light" aria-pressed="true">Light</button>
+      <button type="button" data-appearance="dark" aria-pressed="false">Dark</button>
+    </div>
+    <span class="controls-label">Width</span>
+    <div class="segmented" id="width-toggle">
+      <button type="button" data-width="desktop" aria-pressed="true">Desktop</button>
+      <button type="button" data-width="mobile" aria-pressed="false">Mobile</button>
+    </div>
+  </div>
   <div class="container">
     {{ template "content" . }}
   </div>
+
+  <script>
+    (function () {
+      var root = document.documentElement;
+
+      function readPref(key, fallback) {
+        try { return localStorage.getItem(key) || fallback; } catch (e) { return fallback; }
+      }
+      function writePref(key, value) {
+        try { localStorage.setItem(key, value); } catch (e) {}
+      }
+      function syncSegmented(id, attr, value) {
+        var group = document.getElementById(id);
+        if (!group) return;
+        group.querySelectorAll('[' + attr + ']').forEach(function (btn) {
+          btn.setAttribute('aria-pressed', btn.getAttribute(attr) === value ? 'true' : 'false');
+        });
+      }
+
+      // Restore saved preferences.
+      var appearance = readPref('myrtle-appearance', 'light');
+      var width = readPref('myrtle-width', 'desktop');
+      root.classList.toggle('chrome-dark', appearance === 'dark');
+      root.classList.toggle('preview-mobile', width === 'mobile');
+      syncSegmented('appearance-toggle', 'data-appearance', appearance);
+      syncSegmented('width-toggle', 'data-width', width);
+
+      // Fit each same-origin preview iframe to its content and tint the
+      // surrounding stage with the email's own background color.
+      function fit(frame) {
+        var wrap = frame.closest('.frame');
+        try {
+          var doc = frame.contentDocument || (frame.contentWindow && frame.contentWindow.document);
+          if (!doc || !doc.body) return;
+          var height = Math.max(doc.documentElement.scrollHeight, doc.body.scrollHeight);
+          frame.style.height = (height + 4) + 'px';
+          var bg = getComputedStyle(doc.body).backgroundColor;
+          if (wrap && bg && bg !== 'rgba(0, 0, 0, 0)' && bg !== 'transparent') {
+            wrap.style.background = bg;
+          }
+        } catch (e) { /* cross-origin or not ready; ignore */ }
+        if (wrap) wrap.classList.add('is-loaded'); // reveal the iframe, drop the loading label
+      }
+      function fitAll() {
+        document.querySelectorAll('.frame iframe').forEach(fit);
+      }
+
+      document.querySelectorAll('.frame iframe').forEach(function (frame) {
+        frame.addEventListener('load', function () { fit(frame); });
+        // Already-loaded (cached) frames may never fire 'load'.
+        try {
+          if (frame.contentDocument && frame.contentDocument.readyState === 'complete') fit(frame);
+        } catch (e) {}
+      });
+
+      var appGroup = document.getElementById('appearance-toggle');
+      if (appGroup) {
+        appGroup.addEventListener('click', function (e) {
+          var btn = e.target.closest('[data-appearance]');
+          if (!btn) return;
+          var value = btn.getAttribute('data-appearance');
+          root.classList.toggle('chrome-dark', value === 'dark');
+          writePref('myrtle-appearance', value);
+          syncSegmented('appearance-toggle', 'data-appearance', value);
+        });
+      }
+
+      var widthGroup = document.getElementById('width-toggle');
+      if (widthGroup) {
+        widthGroup.addEventListener('click', function (e) {
+          var btn = e.target.closest('[data-width]');
+          if (!btn) return;
+          var value = btn.getAttribute('data-width');
+          root.classList.toggle('preview-mobile', value === 'mobile');
+          writePref('myrtle-width', value);
+          syncSegmented('width-toggle', 'data-width', value);
+          setTimeout(fitAll, 60); // re-fit after the width change reflows each email
+        });
+      }
+
+      var fitTimer;
+      window.addEventListener('resize', function () {
+        clearTimeout(fitTimer);
+        fitTimer = setTimeout(fitAll, 120);
+      });
+
+      // Scroll-spy: mark the sidebar entry for the section nearest the top.
+      var navLinks = {};
+      document.querySelectorAll('.nav-list a[href^="#"]').forEach(function (a) {
+        navLinks[a.getAttribute('href').slice(1)] = a;
+      });
+      var spySections = document.querySelectorAll('article.section-anchor[id]');
+      if (spySections.length && 'IntersectionObserver' in window) {
+        var visible = {};
+        var observer = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) { visible[entry.target.id] = true; }
+            else { delete visible[entry.target.id]; }
+          });
+          var current = null, top = Infinity;
+          Object.keys(visible).forEach(function (id) {
+            var el = document.getElementById(id);
+            if (!el) return;
+            var offset = el.getBoundingClientRect().top;
+            if (offset < top) { top = offset; current = id; }
+          });
+          Object.keys(navLinks).forEach(function (id) {
+            navLinks[id].classList.toggle('active', id === current);
+          });
+        }, { rootMargin: '-8% 0px -70% 0px', threshold: 0 });
+        spySections.forEach(function (section) { observer.observe(section); });
+      }
+    })();
+  </script>
 </body>
 </html>
 {{ end }}

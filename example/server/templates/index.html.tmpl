@@ -6,12 +6,14 @@
     </div>
     <p class="muted">Directory and live previews.</p>
 
-    <label for="theme-select">Theme:</label>
-    <select id="theme-select" onchange="window.location.search='?theme='+this.value">
-      {{ range .ThemeOptions }}
-      <option value="{{ .Name }}" {{ if .Selected }}selected{{ end }}>{{ .Name }}</option>
-      {{ end }}
-    </select>
+    <div class="theme-control">
+      <span class="controls-label">Theme</span>
+      <div class="segmented theme-segmented" role="group" aria-label="Email theme">
+        {{ range .ThemeOptions }}
+        <a href="?theme={{ .Name }}" class="{{ if .Selected }}active{{ end }}" {{ if .Selected }}aria-current="true"{{ end }}>{{ .Name }}</a>
+        {{ end }}
+      </div>
+    </div>
 
     <h3 style="margin-top:1rem;">Example Emails</h3>
     {{ range .EmailGroups }}
@@ -38,7 +40,7 @@
     <section id="emails" class="section-anchor">
       <h2>Example Emails</h2>
       {{ range .EmailGroups }}
-      <h3>{{ .Name }}</h3>
+      <h3 class="group-heading">{{ .Name }} <span class="count">{{ len .Items }}</span></h3>
       <div class="list">
         {{ range .Items }}
         <article id="email-{{ .Key }}" class="item section-anchor">
@@ -54,8 +56,8 @@
             <button type="submit">Send email</button>
           </form>
           {{ end }}
-          <p><a href="{{ .HTMLURL }}" target="_blank" rel="noopener noreferrer">Open HTML in new tab</a></p>
-          <iframe src="{{ .HTMLURL }}" title="Email {{ .Name }}" height="520" loading="lazy"></iframe>
+          <p class="card-actions"><a class="open-link" href="{{ .HTMLURL }}" target="_blank" rel="noopener noreferrer">Open HTML&nbsp;↗</a></p>
+          <div class="frame"><iframe src="{{ .HTMLURL }}" title="Email {{ .Name }}" height="520" loading="lazy"></iframe></div>
           <details>
             <summary>Text fallback</summary>
             <pre>{{ .Text }}</pre>
@@ -69,13 +71,13 @@
     <section id="blocks" class="section-anchor">
       <h2>Blocks</h2>
       {{ range .BlockGroups }}
-      <h3>{{ .Name }}</h3>
+      <h3 class="group-heading">{{ .Name }} <span class="count">{{ len .Items }}</span></h3>
       <div class="list">
         {{ range .Items }}
         <article id="block-{{ .Key }}" class="item section-anchor">
           <h3>{{ .Name }}</h3>
-          <p><a href="{{ .HTMLURL }}" target="_blank" rel="noopener noreferrer">Open HTML in new tab</a></p>
-          <iframe src="{{ .HTMLURL }}" title="Block {{ .Name }}" height="320" loading="lazy"></iframe>
+          <p class="card-actions"><a class="open-link" href="{{ .HTMLURL }}" target="_blank" rel="noopener noreferrer">Open HTML&nbsp;↗</a></p>
+          <div class="frame"><iframe src="{{ .HTMLURL }}" title="Block {{ .Name }}" height="320" loading="lazy"></iframe></div>
           <details>
             <summary>Text fallback</summary>
             <pre>{{ .Text }}</pre>

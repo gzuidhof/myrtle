@@ -106,7 +106,7 @@ func monsterEmailWithThemeAndStyles(selectedTheme theme.Theme, styles theme.Styl
 				AddButton("Open dashboard", "https://example.com/dashboard"),
 			myrtle.NewGroup().
 				AddHeading("Verification", myrtle.HeadingLevel(3)).
-				Add(myrtle.VerificationCodeBlock{Label: "One-time code", Value: "483920"}).
+				AddVerificationCode("One-time code", "483920").
 				AddText("Use this code to authorize billing changes.").
 				AddButton("Open security", "https://example.com/security"),
 			myrtle.ColumnsWidths(55, 45),
