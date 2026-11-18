@@ -216,9 +216,9 @@ func (server *Server) handlePreview(
 
 	setHTMLHeader(writer)
 	if err := pageTemplate.ExecuteTemplate(writer, templateName, previewViewData{
-		Title:   titlePrefix + name,
+		Title:   titlePrefix + toSpacedTitle(name),
 		Theme:   themeName,
-		Name:    name,
+		Name:    toSpacedTitle(name),
 		Preview: previewPrefix + name + "/html?theme=" + themeName,
 		Text:    textOutput,
 	}); err != nil {

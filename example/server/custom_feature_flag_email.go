@@ -22,8 +22,8 @@ func CustomFeatureFlagRolloutEmailWithTheme(selectedTheme theme.Theme) (*myrtle.
 		WithPreheader("Custom block demo: feature flag rollout guardrail snapshot").
 		WithHeader(
 			myrtle.NewGroup().
-				Add(myrtle.ImageBlock{Src: logoSrc, Alt: "Myrtle", Width: 140, Align: myrtle.ImageAlignmentCenter}).
-				Add(myrtle.TextBlock{Text: "Myrtle Control Plane", Align: myrtle.TextAlignCenter, Weight: myrtle.TextWeightSemibold}),
+				AddImage(logoSrc, "Myrtle", myrtle.ImageWidth(140), myrtle.ImageAlign(myrtle.ImageAlignmentCenter)).
+				AddText("Myrtle Control Plane", myrtle.TextAlign(myrtle.TextAlignCenter), myrtle.TextWeight(myrtle.TextWeightSemibold)),
 		).
 		AddHeading("Feature rollout guardrail", myrtle.HeadingLevel(1)).
 		AddText("This email demonstrates custom block rendered without modifying any built-in themes.").

@@ -1,7 +1,7 @@
 {{ define "content" }}
 <p><a href="/?theme={{ .Theme }}">← Back to directory</a></p>
 <h1>{{ .Name }}</h1>
-<iframe src="{{ .Preview }}" title="{{ .Name }} preview" height="560"></iframe>
+<div class="frame"><iframe src="{{ .Preview }}" title="{{ .Name }} preview" height="560"></iframe></div>
 <h2>Text fallback</h2>
 <pre>{{ .Text }}</pre>
 {{ end }}
